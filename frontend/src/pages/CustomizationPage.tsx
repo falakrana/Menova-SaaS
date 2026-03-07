@@ -166,21 +166,20 @@ export default function CustomizationPage() {
 
   return (
     <DashboardLayout headerActions={headerActions}>
-      <div className="space-y-8 animate-fade-in p-2">
-        <div className="px-1">
-          <h1 className="font-display text-2xl font-bold">Customization</h1>
-          <p className="text-muted-foreground text-sm mt-1">Design your menu's visual identity</p>
+      <div className="space-y-10 animate-fade-in">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Customization</h1>
+          <p className="text-muted-foreground text-base mt-2">Design your menu's visual identity</p>
         </div>
 
-        <div className="max-w-[1400px]">
+        <div>
           {/* TABS */}
           <CustomizationTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* MAIN GRID */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 xl:gap-12 mt-6">
-
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] xl:grid-cols-[1fr_480px] gap-12 mt-8">
             {/* LEFT PANEL - Settings Form */}
-            <div className="space-y-6">
+            <div className="space-y-8">
 
               {activeTab === 'Visuals' && (
                 <div className="space-y-6 animate-in fade-in duration-300">

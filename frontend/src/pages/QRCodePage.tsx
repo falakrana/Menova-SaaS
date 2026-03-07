@@ -52,10 +52,10 @@ export default function QRCodePage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div>
-          <h1 className="font-display text-2xl font-bold">QR Code</h1>
-          <p className="text-muted-foreground text-sm mt-1">Share your digital menu with customers</p>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">QR Code</h1>
+          <p className="text-muted-foreground text-base mt-2">Share your digital menu with customers</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">

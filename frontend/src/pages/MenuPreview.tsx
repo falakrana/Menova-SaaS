@@ -4,10 +4,10 @@ import PublicMenu from './PublicMenu';
 export default function MenuPreview() {
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div>
-          <h1 className="font-display text-2xl font-bold">Menu Preview</h1>
-          <p className="text-muted-foreground text-sm mt-1">See how customers view your menu</p>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Menu Preview</h1>
+          <p className="text-muted-foreground text-base mt-2">See how customers view your menu</p>
         </div>
 
         <div className="max-w-md mx-auto border border-border rounded-2xl overflow-hidden shadow-xl">

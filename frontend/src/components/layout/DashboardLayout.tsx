@@ -40,7 +40,7 @@ export default function DashboardLayout({
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
-        <Link to="/" className="flex items-center gap-2.5">
+        <Link to="/dashboard" className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center shadow-sm">
             <UtensilsCrossed className="w-5 h-5 text-primary-foreground" />
           </div>
@@ -122,8 +122,8 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-slate-50/50">
-          <div className="min-h-full">
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 p-6 lg:p-10">
+          <div className="max-w-[1600px] mx-auto">
             {children}
           </div>
         </main>

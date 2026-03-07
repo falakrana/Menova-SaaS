@@ -55,13 +55,13 @@ export default function OrdersPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-2xl font-bold">Orders</h1>
-            <p className="text-muted-foreground text-sm mt-1">Manage incoming orders from your tables</p>
+            <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Orders</h1>
+            <p className="text-muted-foreground text-base mt-2">Manage incoming orders from your tables</p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => fetchOrders()}>
+          <Button variant="outline" size="lg" onClick={() => fetchOrders()}>
             Refresh
           </Button>
         </div>

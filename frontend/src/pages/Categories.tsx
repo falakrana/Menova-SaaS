@@ -59,13 +59,13 @@ export default function Categories() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-display text-2xl font-bold">Categories</h1>
-            <p className="text-muted-foreground text-sm mt-1">Manage your menu categories</p>
+            <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Categories</h1>
+            <p className="text-muted-foreground text-base mt-2">Manage your menu categories</p>
           </div>
-          <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Category</Button>
+          <Button onClick={openAdd} size="lg"><Plus className="w-5 h-5 mr-2" /> Add Category</Button>
         </div>
 
         {categories.length === 0 ? (

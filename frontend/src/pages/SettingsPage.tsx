@@ -45,10 +45,10 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in max-w-2xl">
+      <div className="space-y-10 animate-fade-in max-w-2xl">
         <div>
-          <h1 className="font-display text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage your restaurant details</p>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Settings</h1>
+          <p className="text-muted-foreground text-base mt-2">Manage your restaurant details</p>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6 space-y-5">

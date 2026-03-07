@@ -89,13 +89,13 @@ export default function MenuItems() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-bold">Menu Items</h1>
-            <p className="text-muted-foreground text-sm mt-1">Manage your menu items</p>
+            <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Menu Items</h1>
+            <p className="text-muted-foreground text-base mt-2">Manage your menu items</p>
           </div>
-          <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Item</Button>
+          <Button onClick={openAdd} size="lg"><Plus className="w-5 h-5 mr-2" /> Add Item</Button>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">

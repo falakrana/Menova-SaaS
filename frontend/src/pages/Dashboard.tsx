@@ -19,10 +19,10 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+      <div className="space-y-10 animate-fade-in">
         <div>
-          <h1 className="font-display text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">Overview of your restaurant's digital menu</p>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-base mt-2">Overview of your restaurant's digital menu</p>
         </div>
 
         {/* Stats */}

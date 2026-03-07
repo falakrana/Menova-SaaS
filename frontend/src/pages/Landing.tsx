@@ -1,11 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   UtensilsCrossed, QrCode, Smartphone, Palette, ArrowRight, Check,
-  Menu, X, Zap, BarChart3, ShoppingCart, ChevronDown, Star, Globe
+  Menu, X, Zap, BarChart3, ShoppingCart, ChevronDown, Star, Globe,
+  LogOut, LayoutDashboard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import { useStore } from '@/store/useStore';
 
 const features = [
   { icon: UtensilsCrossed, title: 'Digital Menu Builder', desc: 'Create beautiful menus with categories, images, and pricing in minutes.' },
@@ -45,13 +47,16 @@ const faqs = [
 export default function Landing() {
   const [mobileNav, setMobileNav] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const isLoggedIn = !!localStorage.getItem('menova_token');
+  const logout = useStore((s) => s.logout);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <UtensilsCrossed className="w-4 h-4 text-primary-foreground" />
             </div>
@@ -64,8 +69,25 @@ export default function Landing() {
             <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild><Link to="/login">Log In</Link></Button>
-            <Button asChild><Link to="/register">Start Free Trial</Link></Button>
+            {isLoggedIn ? (
+              <>
+                <Button variant="ghost" className="text-muted-foreground hover:text-red-500 hover:bg-red-50" onClick={() => logout()}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Log Out
+                </Button>
+                <Button asChild className="shadow-md">
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Go to Dashboard
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild><Link to="/login">Log In</Link></Button>
+                <Button asChild><Link to="/register">Start Free Trial</Link></Button>
+              </>
+            )}
           </div>
           <button className="md:hidden p-2" onClick={() => setMobileNav(!mobileNav)}>
             {mobileNav ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -82,8 +104,17 @@ export default function Landing() {
             <a href="#pricing" className="block text-sm py-2" onClick={() => setMobileNav(false)}>Pricing</a>
             <a href="#faq" className="block text-sm py-2" onClick={() => setMobileNav(false)}>FAQ</a>
             <div className="pt-2 space-y-2">
-              <Button variant="outline" className="w-full" asChild><Link to="/login">Log In</Link></Button>
-              <Button className="w-full" asChild><Link to="/register">Start Free Trial</Link></Button>
+              {isLoggedIn ? (
+                <>
+                  <Button className="w-full shadow-md" asChild><Link to="/dashboard">Go to Dashboard</Link></Button>
+                  <Button variant="outline" className="w-full text-red-500 border-red-100 bg-red-50/30" onClick={() => logout()}>Log Out</Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild><Link to="/login">Log In</Link></Button>
+                  <Button className="w-full" asChild><Link to="/register">Start Free Trial</Link></Button>
+                </>
+              )}
             </div>
           </motion.div>
         )}
@@ -105,12 +136,20 @@ export default function Landing() {
               Create stunning digital menus, enable table ordering, and let customers browse & order from their phones. No app download needed.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
-              <Button size="lg" className="text-base px-8 h-12 shadow-glow" asChild>
-                <Link to="/register">Start Free Trial <ArrowRight className="ml-2 w-4 h-4" /></Link>
-              </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 h-12" asChild>
-                <Link to="/menu/demo">View Demo Menu</Link>
-              </Button>
+              {!isLoggedIn ? (
+                <>
+                  <Button size="lg" className="text-base px-8 h-12 shadow-glow" asChild>
+                    <Link to="/register">Start Free Trial <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                  </Button>
+                  <Button size="lg" variant="outline" className="text-base px-8 h-12" asChild>
+                    <Link to="/menu/demo">View Demo Menu</Link>
+                  </Button>
+                </>
+              ) : (
+                <Button size="lg" className="text-base px-8 h-12 shadow-glow" asChild>
+                  <Link to="/dashboard">Welcome back! Go to Dashboard <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                </Button>
+              )}
             </div>
           </motion.div>
 
@@ -291,7 +330,9 @@ export default function Landing() {
                   ))}
                 </ul>
                 <Button variant={plan.popular ? 'default' : 'outline'} className="w-full" asChild>
-                  <Link to="/register">{plan.cta}</Link>
+                  <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                    {isLoggedIn ? "Upgrade Plan" : plan.cta}
+                  </Link>
                 </Button>
               </motion.div>
             ))}
@@ -341,10 +382,14 @@ export default function Landing() {
       {/* CTA */}
       <section className="py-24 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Ready to go digital?</h2>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">
+            {isLoggedIn ? "Ready to manage your menu?" : "Ready to go digital?"}
+          </h2>
           <p className="text-muted-foreground text-lg mb-8">Join hundreds of restaurants using Menova to delight their customers.</p>
           <Button size="lg" className="text-base px-8 h-12 shadow-glow" asChild>
-            <Link to="/register">Start Free Trial <ArrowRight className="ml-2 w-4 h-4" /></Link>
+            <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+              {isLoggedIn ? "Go to Dashboard" : "Start Free Trial"} <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
           </Button>
         </div>
       </section>
@@ -362,7 +407,11 @@ export default function Landing() {
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
             <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
-            <Link to="/login" className="hover:text-foreground transition-colors">Log In</Link>
+            {isLoggedIn ? (
+              <button onClick={() => logout()} className="hover:text-red-500 transition-colors">Log Out</button>
+            ) : (
+              <Link to="/login" className="hover:text-foreground transition-colors">Log In</Link>
+            )}
           </div>
           <p className="text-xs text-muted-foreground">© 2024 Menova. All rights reserved.</p>
         </div>
