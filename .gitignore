@@ -4,6 +4,8 @@ dist/
 dist-ssr/
 *.local
 
+.venv
+
 # IDE
 .vscode/
 .idea/
