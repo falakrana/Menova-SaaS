@@ -1,0 +1,46 @@
+[project]
+name = "menova-backend"
+version = "0.1.0"
+description = "Menova Restaurant SaaS Backend"
+authors = [
+    {name = "Menova"}
+]
+requires-python = "^3.10"
+dependencies = [
+    "fastapi (>=0.135.1,<0.136.0)",
+    "uvicorn (>=0.41.0,<0.42.0)",
+    "motor (>=3.7.1,<4.0.0)",
+    "pydantic[email] (>=2.12.5,<3.0.0)",
+    "python-jose[cryptography] (>=3.5.0,<4.0.0)",
+    "passlib[bcrypt] (>=1.7.4,<2.0.0)",
+    "python-multipart (>=0.0.22,<0.0.23)",
+    "python-dotenv (>=1.2.2,<2.0.0)",
+    "qrcode (>=8.2,<9.0)",
+    "pillow (>=12.1.1,<13.0.0)",
+    "pydantic-settings (>=2.13.1,<3.0.0)",
+    "dnspython (>=2.8.0,<3.0.0)",
+    "bcrypt (==4.0.1)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2,<10.0.0)",
+    "black (>=26.1.0,<27.0.0)",
+    "isort (>=8.0.1,<9.0.0)",
+    "httpx (>=0.28.1,<0.29.0)"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py313']
+
+[tool.isort]
+profile = "black"
+
+[tool.poetry]
+package-mode = false
