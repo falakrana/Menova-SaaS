@@ -19,7 +19,7 @@ export default function CartPage() {
       await placeOrder();
       toast({
         title: 'Order placed! 🎉',
-        description: `Your order for Table ${tableNumber} has been sent to the kitchen.`,
+        description: `Your order ${tableNumber ? `for Table ${tableNumber}` : ''} has been sent to the kitchen.`,
       });
       // Redirect back to menu or success page
       const restaurantId = restaurant?.id || 'demo';
@@ -57,7 +57,7 @@ export default function CartPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-display font-bold text-lg flex-1">Your Order</h1>
-          <span className="text-sm text-muted-foreground">Table {tableNumber}</span>
+          {tableNumber && <span className="text-sm text-muted-foreground">Table {tableNumber}</span>}
         </div>
       </div>
 

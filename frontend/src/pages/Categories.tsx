@@ -80,11 +80,11 @@ export default function Categories() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border bg-secondary/50">
-                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Name</th>
-                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Items</th>
-                    <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Created</th>
-                    <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-6 py-3">Actions</th>
+                  <tr className="border-b border-border bg-slate-100">
+                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Name</th>
+                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Items</th>
+                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Created</th>
+                    <th className="text-right text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>

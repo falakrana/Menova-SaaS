@@ -19,18 +19,19 @@ export default function CustomizationPage() {
 
   // States initialized from store
   const [selectedColor, setSelectedColor] = useState(restaurant?.themeColor || '#0f172a');
-  const [accentColor, setAccentColor] = useState((restaurant as any)?.accentColor || '#f97316');
+  const [accentColor, setAccentColor] = useState(restaurant?.accentColor || '#f97316');
   const [headingFont, setHeadingFont] = useState(restaurant?.fontStyle?.split(',')[0] || 'Inter');
-  const [bodyFont, setBodyFont] = useState('Roboto');
+  const [bodyFont, setBodyFont] = useState(restaurant?.bodyFont || 'Roboto');
+  
   // New typography states
-  const [tagline, setTagline] = useState('');
-  const [menuTextSize, setMenuTextSize] = useState('md');
-  const [currency, setCurrency] = useState('INR');
-  const [priceFormat, setPriceFormat] = useState('PREFIX_SPACE');
-  const [menuAlignment, setMenuAlignment] = useState('left');
-  const [showDescriptions, setShowDescriptions] = useState(true);
+  const [tagline, setTagline] = useState(restaurant?.tagline || '');
+  const [menuTextSize, setMenuTextSize] = useState(restaurant?.menuTextSize || 'md');
+  const [currency, setCurrency] = useState(restaurant?.currency || 'INR');
+  const [priceFormat, setPriceFormat] = useState(restaurant?.priceFormat || 'PREFIX_SPACE');
+  const [menuAlignment, setMenuAlignment] = useState(restaurant?.menuAlignment || 'left');
+  const [showDescriptions, setShowDescriptions] = useState(restaurant?.showDescriptions ?? true);
 
-  const [selectedLayout, setSelectedLayout] = useState('classic');
+  const [selectedLayout, setSelectedLayout] = useState(restaurant?.layout || 'classic');
   const [activeTab, setActiveTab] = useState('Visuals');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -78,7 +79,7 @@ export default function CustomizationPage() {
         ...restaurant,
         themeColor: selectedColor,
         fontStyle: `${headingFont}, sans-serif`,
-        // @ts-ignore
+        bodyFont,
         accentColor,
         logoUrl: finalLogoUrl,
         tagline,
@@ -86,7 +87,8 @@ export default function CustomizationPage() {
         currency,
         priceFormat,
         menuAlignment,
-        showDescriptions
+        showDescriptions,
+        layout: selectedLayout
       });
 
       toast({

@@ -15,6 +15,7 @@ reusable_oauth2 = OAuth2PasswordBearer(
 
 def fix_id(doc):
     if doc and "_id" in doc:
+        doc["id"] = str(doc["_id"])
         doc["_id"] = str(doc["_id"])
     return doc
 

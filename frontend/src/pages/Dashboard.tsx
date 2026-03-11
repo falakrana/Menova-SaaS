@@ -10,7 +10,7 @@ export default function Dashboard() {
 
   const widgets = [
     { label: 'Menu Views', value: stats.menuViews.toLocaleString(), icon: Eye, link: '/dashboard/preview' },
-    { label: 'QR Scans', value: stats.qrScans.toLocaleString(), icon: QrCode, link: '/dashboard/qr-code' },
+    { label: 'Menu Items', value: stats.totalItems.toLocaleString(), icon: UtensilsCrossed, link: '/dashboard/items' },
     { label: 'Popular Item', value: stats.popularItem, icon: Star, link: '/dashboard/items' },
     { label: 'Total Orders', value: stats.totalOrders.toLocaleString(), icon: ShoppingCart, link: '/dashboard/orders' },
   ];

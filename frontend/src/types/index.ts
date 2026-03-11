@@ -14,11 +14,21 @@ export interface Restaurant {
   location: string;
   /** Optional URL to a logo image. */
   logo?: string;
+  logoUrl?: string;
   /** Primary hex/HSL color used across the public menu (header, buttons). */
   themeColor: string;
+  accentColor?: string;
   backgroundColor: string;
   /** Font family name applied to the public menu body text. */
   fontStyle: string;
+  bodyFont?: string;
+  tagline?: string;
+  menuTextSize?: string;
+  currency?: string;
+  priceFormat?: string;
+  menuAlignment?: string;
+  showDescriptions?: boolean;
+  layout?: string;
 }
 
 /** A menu category (e.g. "Starters", "Main Course"). */

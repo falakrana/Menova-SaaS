@@ -43,6 +43,7 @@ interface AppState {
   updateMenuItem: (id: string, data: Partial<MenuItem>) => Promise<void>;
   deleteMenuItem: (id: string) => Promise<void>;
   toggleItemAvailability: (id: string) => Promise<void>;
+  uploadImage: (file: File) => Promise<{ url: string }>;
 
   // Orders
   fetchOrders: () => Promise<void>;
@@ -204,6 +205,10 @@ export const useStore = create<AppState>((set, get) => ({
     const item = get().menuItems.find((i) => i.id === id);
     if (!item) return;
     await get().updateMenuItem(id, { available: !item.available });
+  },
+  
+  uploadImage: async (file: File) => {
+    return await api.uploadImage(file);
   },
 
   fetchOrders: async () => {

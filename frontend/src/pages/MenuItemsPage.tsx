@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +23,8 @@ export default function MenuItems() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', available: true });
+  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true });
+  const [uploading, setUploading] = useState(false);
   const updateForm = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
 
   useEffect(() => {
@@ -32,14 +33,30 @@ export default function MenuItems() {
 
   const openAdd = () => {
     setEditingItem(null);
-    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', available: true });
+    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true });
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
-    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, available: item.available });
+    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available });
     setDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { url } = await useStore.getState().uploadImage(file);
+      updateForm('image', url);
+      toast({ title: 'Image uploaded successfully' });
+    } catch (err) {
+      toast({ title: 'Failed to upload image', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -192,6 +209,38 @@ export default function MenuItems() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label>Item Image</Label>
+                <div className="mt-1.5 flex flex-col gap-4">
+                  {form.image ? (
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border group">
+                      <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => updateForm('image', '')}
+                        className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        type="button"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        {uploading ? (
+                          <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                            <p className="text-sm text-muted-foreground">Click to upload photo</p>
+                          </>
+                        )}
+                      </div>
+                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                    </label>
+                  )}
                 </div>
               </div>
             </div>
