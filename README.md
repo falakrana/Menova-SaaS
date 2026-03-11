@@ -6,8 +6,8 @@ This repository contains both the customer- and admin-facing frontend and a Fast
 
 ## Project Overview
 
-- **`/frontend`** – React 18 + Vite + TypeScript single-page app for restaurant owners and customers. Includes admin dashboard, digital menu, QR flow, and table ordering. See the frontend-specific documentation in `frontend/README.md`.
-- **`/backend`** – FastAPI service that provides authentication, restaurant, menu, order, and QR code APIs backed by MongoDB. See the backend-specific documentation in `backend/README.md`.
+- **`/frontend`** – React 18 + Vite + TypeScript single-page app for restaurant owners and customers. Includes admin dashboard, digital menu, QR flow, and branding customization. See the frontend-specific documentation in `frontend/README.md`.
+- **`/backend`** – FastAPI service that provides authentication, restaurant, menu, and QR code APIs backed by MongoDB. See the backend-specific documentation in `backend/README.md`.
 
 ## Architecture
 

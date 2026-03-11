@@ -12,11 +12,10 @@
 **Menova** is a restaurant digital menu management platform that allows restaurant owners to:
 - Build and manage their digital menu online
 - Generate a unique QR code customers can scan at the table
-- Allow customers to browse the menu and place table orders from their phone — no app download required
 - Customize branding (colors, fonts, logo)
-- Track orders live from a clean dashboard
+- Let customers browse the menu from their phone — no app download required
 
-The application is a **frontend-only** SaaS demo with complete in-memory state (Zustand). All data is pre-seeded with a realistic Indian restaurant for demonstration. It is fully ready to be wired up to a real REST/GraphQL backend.
+This repository includes a FastAPI backend. The frontend talks to the backend via the API client in `src/lib/api.ts`.
 
 ---
 
@@ -26,11 +25,9 @@ The application is a **frontend-only** SaaS demo with complete in-memory state (
 |---|---|
 | 🍽️ Digital Menu Builder | Create categories, add items with name, description, price, and availability |
 | 📱 QR Code Generator | Auto-generate a scannable QR code linking to your public menu |
-| 🛒 Table Ordering | Customers enter their table number, browse the menu, and place orders |
 | 🎨 Brand Customization | Choose theme colors, font styles, and restaurant name |
-| 📊 Dashboard Analytics | View menu views, QR scans, order count, and popular items |
-| 📋 Live Orders Page | Restaurant staff can update order status (Pending → Preparing → Ready → Completed) |
-| 🔒 Auth Flow | Login and Register pages with validation (mock, ready for real backend) |
+| 📊 Dashboard Analytics | View menu views, QR scans, menu items, and popular items |
+| 🔒 Auth Flow | Login and Register pages with validation |
 | 📁 Settings | Update restaurant name, email, phone, and location |
 | 📱 Mobile-First | Fully responsive — optimized for phone, tablet, and desktop |
 | 🌗 Dark Mode | CSS custom-property-based theming with dark mode styles pre-configured |
@@ -61,8 +58,8 @@ The application is a **frontend-only** SaaS demo with complete in-memory state (
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/menova.git
-cd menova/menu-magic-main/frontend
+git clone https://github.com/urvashivankar/Menova-Saas.git
+cd Menova-Saas/frontend
 
 # 2. Install dependencies
 npm install
@@ -160,13 +157,12 @@ menu-magic-main/
 5. `/dashboard/items` → Add/edit/delete menu items
 6. `/dashboard/qr-code` → Download and print QR code
 7. `/dashboard/customization` → Live preview of brand theme
-8. `/dashboard/orders` → See and update live orders
 
 ### Customer (via QR scan)
 1. Scan QR → opens `/menu/:id`
 2. Enter table number → view full menu
 3. Browse by category, add items to cart
-4. Navigate to `/cart` → review and place order
+4. Navigate to `/cart` → review cart
 
 ---
 
@@ -175,7 +171,6 @@ menu-magic-main/
 - **Backend integration** — Replace mock API stubs in `src/lib/api.ts` with real REST or GraphQL endpoints
 - **Authentication** — Implement real JWT auth with protected routes
 - **Image uploads** — Allow restaurant owners to upload food item images
-- **Real-time orders** — Use WebSockets or SSE for live order push notifications
 - **Multi-location support** — Allow one account to manage multiple restaurant branches
 - **Analytics dashboard** — Integrate real data from an analytics backend (charts via Recharts are already wired)
 - **Progressive Web App (PWA)** — Add service worker for offline support

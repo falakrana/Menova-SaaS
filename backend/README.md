@@ -8,7 +8,7 @@ FastAPI backend for Menova Restaurant SaaS platform.
 - JWT Authentication
 - QR Code Generation
 - Category and Menu Item Management
-- Order Processing
+- (Optional) Order Processing
 
 ## Setup
 
@@ -35,7 +35,7 @@ FastAPI backend for Menova Restaurant SaaS platform.
 ```
 backend/
 ├── app/
-│   ├── api/v1/ (auth.py, restaurant.py, menu.py, orders.py, public.py, qr_code.py)
+│   ├── api/v1/ (auth.py, restaurant.py, menu.py, public.py, qr_code.py, uploads.py)
 │   ├── core/ (config.py, security.py, database.py)
 │   ├── models/ (user.py, restaurant.py, category.py, menu_item.py, order.py)
 │   ├── schemas/ (matching Pydantic schemas)
