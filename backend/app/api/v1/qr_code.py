@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from app.api.v1 import deps
+from app.core.database import get_database
+from app.services.storage import storage_service
 from bson import ObjectId
 import qrcode
 import io
-import base64
 
 router = APIRouter()
 
@@ -12,9 +13,6 @@ async def generate_qr_code(
     restaurant_id: str,
     current_user: dict = Depends(deps.get_current_user),
 ) -> dict:
-    from fastapi import HTTPException
-    from app.core.database import get_database
-    
     db = get_database()
     restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id), "userId": str(current_user["_id"])})
     if not restaurant:
@@ -35,13 +33,31 @@ async def generate_qr_code(
 
     img = qr.make_image(fill_color="black", back_color="white")
     
-    # Convert image to base64
+    # Save image to buffer
     buffered = io.BytesIO()
     img.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
+    img_content = buffered.getvalue()
     
-    return {
-        "restaurant_id": restaurant_id,
-        "menu_url": menu_url,
-        "qr_code_base64": f"data:image/png;base64,{img_str}"
-    }
+    # Upload to R2
+    try:
+        qr_url = await storage_service.upload_file(
+            file_content=img_content,
+            filename=f"qr_{restaurant_id}.png",
+            content_type="image/png",
+            folder="qr-codes"
+        )
+        
+        # Update restaurant document with the QR URL
+        await db.restaurants.update_one(
+            {"_id": ObjectId(restaurant_id)},
+            {"$set": {"qrCodeUrl": qr_url}}
+        )
+        
+        return {
+            "restaurant_id": restaurant_id,
+            "menu_url": menu_url,
+            "qr_code_url": qr_url
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to store QR code: {str(e)}")
+
