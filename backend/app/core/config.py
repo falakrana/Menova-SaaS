@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     MONGODB_URL: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
     DATABASE_NAME: str = os.getenv("DATABASE_NAME", "menova_db")
     
+    # Cloudflare R2
+    CF_R2_ACCOUNT_ID: str = os.getenv("CF_R2_ACCOUNT_ID", "")
+    CF_R2_ACCESS_KEY_ID: str = os.getenv("CF_R2_ACCESS_KEY_ID", "")
+    CF_R2_SECRET_ACCESS_KEY: str = os.getenv("CF_R2_SECRET_ACCESS_KEY", "")
+    CF_R2_BUCKET_NAME: str = os.getenv("CF_R2_BUCKET_NAME", "menova-images")
+    CF_R2_PUBLIC_URL: str = os.getenv("CF_R2_PUBLIC_URL", "")  # e.g., https://pub-xxx.r2.dev or custom domain
+    
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5173",  # Vite default
