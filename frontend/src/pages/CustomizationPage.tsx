@@ -71,7 +71,7 @@ export default function CustomizationPage() {
       let finalLogoUrl = logoUrl;
 
       if (logoFile) {
-        const res = await api.uploadImage(logoFile);
+        const res = await api.uploadImage(logoFile, 'customization');
         finalLogoUrl = res.url || finalLogoUrl;
       }
 

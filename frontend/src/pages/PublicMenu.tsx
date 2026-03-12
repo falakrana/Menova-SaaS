@@ -245,7 +245,7 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
       </div>
 
       {/* Menu items */}
-      <div className={`max-w-lg mx-auto px-4 py-6 space-y-4 ${restaurant.menuAlignment === 'center' ? 'text-center' : ''}`}>
+      <div className={`max-w-lg lg:max-w-5xl mx-auto px-4 py-6 lg:py-8 space-y-4 ${restaurant.menuAlignment === 'center' ? 'text-center' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeCat}
@@ -253,7 +253,7 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className={restaurant.layout === 'grid' ? "grid grid-cols-2 gap-4" : "space-y-4"}
+            className={restaurant.layout === 'grid' ? "grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6" : "space-y-4"}
           >
             {filteredItems.length === 0 ? (
               <div className="text-center py-20 px-4">
@@ -274,7 +274,7 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
                   <motion.div
                     key={item.id}
                     layout
-                    className={`flex ${isCenter || isGrid || isPremium ? 'flex-col' : 'gap-4'} ${isMinimal ? 'p-3' : 'p-4'} rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden`}
+                    className={`flex h-full ${isCenter || isGrid || isPremium ? 'flex-col' : 'gap-4'} ${isMinimal ? 'p-3' : 'p-4'} rounded-2xl border border-border bg-card shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden`}
                   >
                     {!isMinimal && (
                       <div className={`${isCenter || isGrid || isPremium ? 'w-full h-44 mb-3' : 'w-24 h-24'} rounded-xl bg-muted flex items-center justify-center flex-shrink-0 overflow-hidden border border-border/50`}>

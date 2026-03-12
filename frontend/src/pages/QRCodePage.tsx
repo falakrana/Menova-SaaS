@@ -1,48 +1,76 @@
-import { useRef } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
-import { Download, Printer, Copy } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Download, Printer, Copy, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useStore } from '@/store/useStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import { api } from '@/lib/api';
 
 export default function QRCodePage() {
   const restaurant = useStore((s) => s.restaurant);
   const { toast } = useToast();
-  const qrRef = useRef<HTMLDivElement>(null);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  if (!restaurant) return <div>Loading QR...</div>;
+  const fetchQRCode = async () => {
+    if (!restaurant?.id) return;
+    setLoading(true);
+    try {
+      const data = await api.getQRCode(restaurant.id);
+      setQrUrl(data.qr_code_url);
+    } catch (err) {
+      toast({ title: 'Failed to fetch QR code', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (restaurant?.id) {
+      fetchQRCode();
+    }
+  }, [restaurant?.id]);
+
+  if (!restaurant) return <DashboardLayout><div className="p-8">Loading...</div></DashboardLayout>;
 
   const menuUrl = `${window.location.origin}/menu/${restaurant.id}`;
 
-  const handleDownload = () => {
-    const svg = qrRef.current?.querySelector('svg');
-    if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-      ctx?.drawImage(img, 0, 0, 512, 512);
+  const handleDownload = async () => {
+    if (!qrUrl) return;
+    try {
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.href = url;
       a.download = `${restaurant.name}-qr-code.png`;
-      a.href = canvas.toDataURL('image/png');
       a.click();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'QR code downloaded!' });
-    };
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    } catch (err) {
+      toast({ title: 'Download failed', variant: 'destructive' });
+    }
   };
 
   const handlePrint = () => {
-    const svg = qrRef.current?.querySelector('svg');
-    if (!svg) return;
+    if (!qrUrl) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
-    printWindow.document.write(`<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h2>${restaurant.name}</h2><p>Scan to view our menu</p>${svg.outerHTML}</div></body></html>`);
+    printWindow.document.write(`
+      <html>
+        <body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
+          <div style="text-align:center">
+            <h2>${restaurant.name}</h2>
+            <p>Scan to view our menu</p>
+            <img src="${qrUrl}" style="width: 300px; height: 300px;" />
+          </div>
+        </body>
+      </html>
+    `);
     printWindow.document.close();
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
   };
 
   const handleCopy = () => {
@@ -53,22 +81,39 @@ export default function QRCodePage() {
   return (
     <DashboardLayout>
       <div className="space-y-10 animate-fade-in">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">QR Code</h1>
-          <p className="text-muted-foreground text-base mt-2">Share your digital menu with customers</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">QR Code</h1>
+            <p className="text-muted-foreground text-base mt-2">Share your digital menu with customers</p>
+          </div>
+          <Button variant="outline" onClick={fetchQRCode} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Regenerate
+          </Button>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          <div className="rounded-xl border border-border bg-card p-8 flex flex-col items-center">
-            <div ref={qrRef} className="p-6 bg-background rounded-xl border border-border mb-6">
-              <QRCodeSVG value={menuUrl} size={220} level="H" fgColor="hsl(222, 47%, 11%)" bgColor="transparent" />
-            </div>
-            <h3 className="font-display font-semibold mb-1">{restaurant.name}</h3>
-            <p className="text-sm text-muted-foreground mb-6">Scan to view menu</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Button onClick={handleDownload}><Download className="w-4 h-4 mr-2" /> Download</Button>
-              <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" /> Print</Button>
-            </div>
+          <div className="rounded-xl border border-border bg-card p-8 flex flex-col items-center justify-center min-h-[400px]">
+            {loading ? (
+              <Loader2 className="w-12 h-12 text-primary animate-spin" />
+            ) : qrUrl ? (
+              <>
+                <div className="p-6 bg-background rounded-xl border border-border mb-6">
+                  <img src={qrUrl} alt="QR Code" className="w-[220px] h-[220px]" />
+                </div>
+                <h3 className="font-display font-semibold mb-1">{restaurant.name}</h3>
+                <p className="text-sm text-muted-foreground mb-6">Scan to view menu</p>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  <Button onClick={handleDownload}><Download className="w-4 h-4 mr-2" /> Download</Button>
+                  <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" /> Print</Button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground mb-4">No QR code generated yet.</p>
+                <Button onClick={fetchQRCode}>Generate QR Code</Button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
@@ -82,10 +127,10 @@ export default function QRCodePage() {
             <div className="rounded-xl border border-border bg-card p-6">
               <h3 className="font-display font-semibold mb-2">Tips</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex gap-2"><span className="text-primary">•</span> Your QR code is stored securely on Cloudflare for fast loading.</li>
                 <li className="flex gap-2"><span className="text-primary">•</span> Print and place QR codes on each table</li>
                 <li className="flex gap-2"><span className="text-primary">•</span> Add to takeaway bags and receipts</li>
                 <li className="flex gap-2"><span className="text-primary">•</span> Share the link on social media</li>
-                <li className="flex gap-2"><span className="text-primary">•</span> Include in your Google Business listing</li>
               </ul>
             </div>
           </div>
@@ -94,3 +139,4 @@ export default function QRCodePage() {
     </DashboardLayout>
   );
 }
+
