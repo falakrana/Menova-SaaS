@@ -118,10 +118,10 @@ export const api = {
   },
 
   // Uploads
-  uploadImage: async (file: File) => {
+  uploadImage: async (file: File, folder: string = 'others') => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post('/uploads/image', formData, {
+    const response = await apiClient.post(`/uploads/image?folder=${folder}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return response.data;

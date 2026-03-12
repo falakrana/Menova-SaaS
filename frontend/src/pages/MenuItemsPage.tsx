@@ -49,7 +49,7 @@ export default function MenuItems() {
 
     setUploading(true);
     try {
-      const { url } = await useStore.getState().uploadImage(file);
+      const { url } = await useStore.getState().uploadImage(file, 'menu-items');
       updateForm('image', url);
       toast({ title: 'Image uploaded successfully' });
     } catch (err) {
