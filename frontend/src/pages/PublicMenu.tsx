@@ -128,11 +128,11 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
           className="w-full max-w-sm text-center"
         >
           <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors shadow-lg"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors shadow-lg overflow-hidden"
             style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}
           >
             {restaurant.logoUrl ? (
-              <img src={restaurant.logoUrl} alt={restaurant.name} className="w-10 h-10 object-contain" />
+              <img src={restaurant.logoUrl} alt={restaurant.name} className="w-full h-full object-cover" />
             ) : (
               <UtensilsCrossed className="w-8 h-8" />
             )}
@@ -178,9 +178,9 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
         className="px-4 py-8 text-center transition-colors shadow-sm"
         style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}
       >
-        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-3 border border-white/20">
+        <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mx-auto mb-3 border border-white/20 overflow-hidden">
           {restaurant.logoUrl ? (
-            <img src={restaurant.logoUrl} alt={restaurant.name} className="w-10 h-10 object-contain" />
+            <img src={restaurant.logoUrl} alt={restaurant.name} className="w-full h-full object-cover" />
           ) : (
             <UtensilsCrossed className="w-8 h-8 text-white" />
           )}
