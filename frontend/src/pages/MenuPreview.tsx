@@ -10,9 +10,9 @@ export default function MenuPreview() {
   const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
 
   const deviceConfig = {
-    mobile: { width: 'max-w-[400px]', icon: <Smartphone className="w-4 h-4" />, label: 'Mobile' },
-    tablet: { width: 'max-w-[700px]', icon: <Tablet className="w-4 h-4" />, label: 'Tablet' },
-    desktop: { width: 'max-w-full', icon: <Monitor className="w-4 h-4" />, label: 'Desktop' }
+    mobile: { width: 'max-w-[400px]', icon: <Smartphone className="w-4 h-4" />, label: 'Mobile', menuDevice: 'mobile' as const },
+    tablet: { width: 'max-w-[700px]', icon: <Tablet className="w-4 h-4" />, label: 'Tablet', menuDevice: 'tablet' as const },
+    desktop: { width: 'max-w-full', icon: <Monitor className="w-4 h-4" />, label: 'Desktop', menuDevice: 'desktop' as const }
   };
 
   return (
@@ -59,7 +59,12 @@ export default function MenuPreview() {
           </div>
           <div className="h-[750px] overflow-y-auto no-scrollbar relative">
             {restaurant && (
-              <PublicMenu previewData={{ restaurant, categories, menuItems }} />
+              <PublicMenu
+                embedded
+                hideCart
+                embeddedDevice={deviceConfig[device].menuDevice}
+                previewData={{ restaurant, categories, menuItems }}
+              />
             )}
             {!restaurant && (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-4">

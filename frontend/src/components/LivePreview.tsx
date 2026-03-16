@@ -70,7 +70,7 @@ export default function LivePreview({
   }[device];
 
   return (
-    <div className="flex flex-col items-center w-full mx-auto sticky top-8 h-fit">
+    <div className="flex flex-col items-center w-full mx-auto h-fit">
       
       {/* Device Toggles */}
       <div className="flex bg-slate-200/50 p-1 mb-6 rounded-lg gap-1 border border-slate-200 shadow-sm">

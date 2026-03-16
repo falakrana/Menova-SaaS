@@ -154,7 +154,11 @@ export default function MenuCustomization() {
             </div>
             <div className="flex-1 overflow-y-auto relative bg-background">
               <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-black/5 to-transparent pointer-events-none z-10" />
-              <PublicMenu previewData={{ restaurant: draft, categories, menuItems }} />
+              <PublicMenu
+                embedded
+                hideCart
+                previewData={{ restaurant: draft, categories, menuItems }}
+              />
             </div>
           </div>
         </div>

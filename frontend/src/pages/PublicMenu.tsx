@@ -12,10 +12,22 @@ export interface PublicMenuProps {
     restaurant: any;
     categories: any[];
     menuItems: any[];
-  }
+  };
+  /**
+   * When rendering inside an admin preview panel, avoid full-screen layout,
+   * extra bottom padding, and optional cart UI.
+   */
+  embedded?: boolean;
+  hideCart?: boolean;
+  /**
+   * Force a fixed device type layout when embedded in a preview frame.
+   * This is useful because Tailwind breakpoints are based on browser viewport,
+   * not the preview container width.
+   */
+  embeddedDevice?: 'mobile' | 'tablet' | 'desktop';
 }
 
-export default function PublicMenu({ previewData }: PublicMenuProps) {
+export default function PublicMenu({ previewData, embedded = false, hideCart = false, embeddedDevice }: PublicMenuProps) {
   const { id } = useParams();
   const { cart, addToCart, updateCartQuantity, tableNumber, setTableNumber } = useStore();
   const [restaurant, setRestaurant] = useState<any>(null);
@@ -166,7 +178,7 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
 
   return (
     <div 
-      className="min-h-screen bg-background pb-24 transition-all" 
+      className={`${embedded ? 'h-full min-h-0' : 'min-h-screen'} bg-background ${embedded ? 'pb-0' : 'pb-24'} transition-all`} 
       style={{ 
         fontFamily: restaurant.bodyFont || 'Inter, sans-serif',
         ['--primary-color' as any]: restaurant.themeColor || '#0f172a',
@@ -253,7 +265,17 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className={restaurant.layout === 'grid' ? "grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6" : "space-y-4"}
+            className={
+              restaurant.layout === 'grid'
+                ? embedded
+                  ? embeddedDevice === 'desktop'
+                    ? "grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6"
+                    : embeddedDevice === 'tablet'
+                      ? "grid grid-cols-2 gap-4"
+                      : "grid grid-cols-1 gap-4"
+                  : "grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6"
+                : "space-y-4"
+            }
           >
             {filteredItems.length === 0 ? (
               <div className="text-center py-20 px-4">
@@ -345,7 +367,7 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
       </div>
 
       {/* Cart FAB */}
-      {cartCount > 0 && (
+      {!hideCart && cartCount > 0 && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
@@ -370,9 +392,11 @@ export default function PublicMenu({ previewData }: PublicMenuProps) {
       )}
 
       {/* Footer */}
-      <div className="text-center py-10 text-[10px] text-muted-foreground tracking-widest uppercase">
+      {!embedded && (
+        <div className="text-center py-10 text-[10px] text-muted-foreground tracking-widest uppercase">
         Digital Menu by <span className="font-bold text-primary">MENOVA</span>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

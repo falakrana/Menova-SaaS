@@ -11,7 +11,7 @@ const navItems = [
   { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { title: 'Categories', path: '/dashboard/categories', icon: FolderOpen },
   { title: 'Menu Items', path: '/dashboard/items', icon: UtensilsCrossed },
-  { title: 'Orders', path: '/dashboard/orders', icon: ClipboardList },
+  { title: 'Orders', path: '/dashboard/orders', icon: ClipboardList, disabled: true },
   { title: 'QR Code', path: '/dashboard/qr-code', icon: QrCode },
   { title: 'Menu Preview', path: '/dashboard/preview', icon: Eye },
   { title: 'Customization', path: '/dashboard/customization', icon: ChefHat },
@@ -50,20 +50,42 @@ export default function DashboardLayout({
 
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            onClick={() => setMobileOpen(false)}
-            className={cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-              isActive(item.path)
-                ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow'
-                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-            )}
-          >
-            <item.icon className="w-[18px] h-[18px]" />
-            <span>{item.title}</span>
-          </Link>
+          item.disabled ? (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => {
+                setMobileOpen(false);
+              }}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full text-left',
+                'text-sidebar-foreground/40 cursor-not-allowed',
+              )}
+              title="Coming soon"
+              aria-disabled="true"
+            >
+              <item.icon className="w-[18px] h-[18px]" />
+              <span>{item.title}</span>
+              <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/35">
+                Soon
+              </span>
+            </button>
+          ) : (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                isActive(item.path)
+                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+              )}
+            >
+              <item.icon className="w-[18px] h-[18px]" />
+              <span>{item.title}</span>
+            </Link>
+          )
         ))}
       </nav>
 
