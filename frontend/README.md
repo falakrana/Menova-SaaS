@@ -168,15 +168,11 @@ menu-magic-main/
 
 ## 🔮 Future Improvements
 
-- **Backend integration** — Replace mock API stubs in `src/lib/api.ts` with real REST or GraphQL endpoints
-- **Authentication** — Implement real JWT auth with protected routes
-- **Image uploads** — Allow restaurant owners to upload food item images
 - **Multi-location support** — Allow one account to manage multiple restaurant branches
 - **Analytics dashboard** — Integrate real data from an analytics backend (charts via Recharts are already wired)
 - **Progressive Web App (PWA)** — Add service worker for offline support
 - **Payment integration** — Integrate Razorpay or Stripe for online pre-payment at ordering
 - **Dark mode toggle** — Surface the pre-configured `.dark` class via a UI toggle
-- **Menu item images** — Cloudinary or S3-backed image upload per item
 
 ---
 
