@@ -131,8 +131,15 @@ export const useStore = create<AppState>((set, get) => ({
 
   logout: () => {
     localStorage.removeItem('menova_token');
-    set({ restaurant: null, categories: [], menuItems: [], orders: [] });
-    window.location.href = '/login';
+    set({
+      restaurant: null,
+      categories: [],
+      menuItems: [],
+      orders: [],
+      cart: [],
+      tableNumber: null,
+      error: null,
+    });
   },
 
   fetchRestaurant: async () => {

@@ -29,6 +29,7 @@ export default function DashboardLayout({
   const location = useLocation();
   const navigate = useNavigate();
   const restaurant = useStore((s) => s.restaurant);
+  const logout = useStore((s) => s.logout);
 
   if (!restaurant) return null;
 
@@ -95,7 +96,10 @@ export default function DashboardLayout({
           <p className="text-[10px] text-sidebar-foreground/60 truncate">{restaurant.email}</p>
         </div>
         <button
-          onClick={() => useStore.getState().logout()}
+          onClick={() => {
+            logout();
+            navigate('/login', { replace: true });
+          }}
           className="flex items-center gap-3 px-3 py-2 text-[13px] font-medium w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors rounded-lg"
         >
           <LogOut className="w-[17px] h-[17px]" />

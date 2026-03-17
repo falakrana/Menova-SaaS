@@ -71,7 +71,14 @@ export default function Landing() {
           <div className="hidden md:flex items-center gap-3">
             {isLoggedIn ? (
               <>
-                <Button variant="ghost" className="text-muted-foreground hover:text-red-500 hover:bg-red-50" onClick={() => logout()}>
+                <Button
+                  variant="ghost"
+                  className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                  onClick={() => {
+                    logout();
+                    navigate('/login', { replace: true });
+                  }}
+                >
                   <LogOut className="w-4 h-4 mr-2" />
                   Log Out
                 </Button>
@@ -107,7 +114,16 @@ export default function Landing() {
               {isLoggedIn ? (
                 <>
                   <Button className="w-full shadow-md" asChild><Link to="/dashboard">Go to Dashboard</Link></Button>
-                  <Button variant="outline" className="w-full text-red-500 border-red-100 bg-red-50/30" onClick={() => logout()}>Log Out</Button>
+                  <Button
+                    variant="outline"
+                    className="w-full text-red-500 border-red-100 bg-red-50/30"
+                    onClick={() => {
+                      logout();
+                      navigate('/login', { replace: true });
+                    }}
+                  >
+                    Log Out
+                  </Button>
                 </>
               ) : (
                 <>
@@ -408,7 +424,15 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
             <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
             {isLoggedIn ? (
-              <button onClick={() => logout()} className="hover:text-red-500 transition-colors">Log Out</button>
+              <button
+                onClick={() => {
+                  logout();
+                  navigate('/login', { replace: true });
+                }}
+                className="hover:text-red-500 transition-colors"
+              >
+                Log Out
+              </button>
             ) : (
               <Link to="/login" className="hover:text-foreground transition-colors">Log In</Link>
             )}
