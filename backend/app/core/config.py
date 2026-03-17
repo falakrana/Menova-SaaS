@@ -1,4 +1,5 @@
 import os
+import json
 from pydantic_settings import BaseSettings
 from typing import List
 from dotenv import load_dotenv
@@ -27,12 +28,28 @@ class Settings(BaseSettings):
     CF_R2_PUBLIC_URL: str = os.getenv("CF_R2_PUBLIC_URL", "")  # e.g., https://pub-xxx.r2.dev or custom domain
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",  # Vite default
-        "http://localhost:8080",  # Custom Vite port in this project
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:8080",
-    ]
+    BACKEND_CORS_ORIGINS: List[str] = []
+
+    def __init__(self, **values):
+        super().__init__(**values)
+        raw = os.getenv("BACKEND_CORS_ORIGINS")
+        if raw:
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    self.BACKEND_CORS_ORIGINS = [str(o) for o in parsed]
+            except Exception:
+                # If parsing fails, keep defaults below
+                pass
+
+        if not self.BACKEND_CORS_ORIGINS:
+            self.BACKEND_CORS_ORIGINS = [
+                "https://menova.vercel.app",
+                "http://localhost:5173",  # Vite default
+                "http://localhost:8080",  # Custom Vite port in this project
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:8080",
+            ]
     
     class Config:
         case_sensitive = True
