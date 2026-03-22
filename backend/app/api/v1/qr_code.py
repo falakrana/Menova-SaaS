@@ -235,3 +235,4 @@ async def regenerate_qr_code(
     except Exception as e:
 
         raise HTTPException(status_code=500, detail=f"Failed to store QR code: {str(e)}")
+
