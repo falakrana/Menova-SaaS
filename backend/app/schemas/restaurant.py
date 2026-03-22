@@ -20,6 +20,7 @@ class RestaurantBase(BaseModel):
     menuAlignment: Optional[str] = "left"
     showDescriptions: Optional[bool] = True
     layout: Optional[str] = "classic"
+    menuViews: Optional[int] = 0
 
 class RestaurantCreate(RestaurantBase):
     pass

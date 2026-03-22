@@ -1,12 +1,26 @@
 import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ShoppingCart, Star, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { useStore } from '@/store/useStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
 export default function Dashboard() {
   const stats = useStore((s) => s.stats);
   const orders = useStore((s) => s.orders);
+  const fetchStats = useStore((s) => s.fetchStats);
+
+  useEffect(() => {
+    // Initial fetch
+    fetchStats();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchStats();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchStats]);
 
   const widgets = [
     { label: 'Menu Views', value: stats.menuViews.toLocaleString(), icon: Eye, link: '/dashboard/preview' },

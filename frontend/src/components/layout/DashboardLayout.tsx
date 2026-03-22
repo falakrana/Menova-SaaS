@@ -98,7 +98,7 @@ export default function DashboardLayout({
         <button
           onClick={() => {
             logout();
-            navigate('/login', { replace: true });
+            navigate('/', { replace: true });
           }}
           className="flex items-center gap-3 px-3 py-2 text-[13px] font-medium w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors rounded-lg"
         >

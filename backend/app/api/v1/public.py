@@ -13,7 +13,11 @@ router = APIRouter()
 @router.get("/menu/{restaurant_id}")
 async def get_public_menu(restaurant_id: str) -> Any:
     db = get_database()
-    restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id)})
+    restaurant = await db.restaurants.find_one_and_update(
+        {"_id": ObjectId(restaurant_id)},
+        {"$inc": {"menuViews": 1}},
+        return_document=True
+    )
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     

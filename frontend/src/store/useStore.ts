@@ -29,6 +29,7 @@ interface AppState {
   // Restaurant
   fetchRestaurant: () => Promise<void>;
   updateRestaurant: (data: Partial<Restaurant>) => Promise<void>;
+  fetchStats: () => Promise<void>;
   setSidebarOpen: (open: boolean) => void;
 
   // Categories
@@ -91,7 +92,8 @@ export const useStore = create<AppState>((set, get) => ({
       await Promise.all([
         get().fetchCategories(),
         get().fetchMenuItems(),
-        get().fetchOrders()
+        get().fetchOrders(),
+        get().fetchStats()
       ]);
     } catch (err: any) {
       set({ error: err.message });
@@ -150,6 +152,15 @@ export const useStore = create<AppState>((set, get) => ({
   updateRestaurant: async (data) => {
     const updated = await api.updateRestaurant(data);
     set({ restaurant: updated });
+  },
+
+  fetchStats: async () => {
+    try {
+      const data = await api.getStats();
+      set({ stats: data });
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
   },
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
