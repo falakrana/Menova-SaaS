@@ -57,6 +57,7 @@ export interface MenuItem {
   categoryName: string;
   /** When false, the item is hidden from the customer-facing public menu. */
   available: boolean;
+  likesCount: number;
   /** ISO date string (YYYY-MM-DD). */
   createdAt: string;
 }

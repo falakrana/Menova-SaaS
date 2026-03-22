@@ -10,6 +10,7 @@ class MenuItemBase(BaseModel):
     categoryId: str
     categoryName: str
     available: bool = True
+    likesCount: int = 0
 
 class MenuItemCreate(MenuItemBase):
     pass

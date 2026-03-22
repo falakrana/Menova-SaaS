@@ -14,7 +14,6 @@ const features = [
   { icon: QrCode, title: 'QR Code Generator', desc: 'Auto-generate QR codes. Customers scan and instantly view your menu.' },
   { icon: Smartphone, title: 'Mobile Optimized', desc: 'Menus look stunning on every device — phone, tablet, or desktop.' },
   { icon: Palette, title: 'Brand Customization', desc: 'Match your restaurant brand with custom colors, logos, and fonts.' },
-  { icon: ShoppingCart, title: 'Table Ordering', desc: 'Customers order directly from their phone. No waiter needed.' },
   { icon: BarChart3, title: 'Analytics Dashboard', desc: 'Track menu views, popular items, and order trends in real-time.' },
 ];
 
@@ -22,6 +21,7 @@ const steps = [
   { num: '01', title: 'Create your restaurant', desc: 'Sign up and add your restaurant details in seconds.' },
   { num: '02', title: 'Build your menu', desc: 'Add categories, items, images and prices with our intuitive editor.' },
   { num: '03', title: 'Share with QR', desc: 'Generate a QR code, print it, and place it on your tables.' },
+  { num: '04', title: 'Get your insights', desc: 'Track menu views, popular items, and order trends in real-time.' },
 ];
 
 const plans = [
@@ -141,7 +141,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-accent-foreground text-sm font-medium mb-6">
-              <Zap className="w-3.5 h-3.5" /> Trusted by 500+ restaurants across India
+              <Zap className="w-3.5 h-3.5" /> Modernize your restaurant today
             </div>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
               Your restaurant menu,
@@ -149,7 +149,7 @@ export default function Landing() {
               <span className="text-gradient">gone digital.</span>
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Create stunning digital menus, enable table ordering, and let customers browse & order from their phones. No app download needed.
+              Create stunning digital menus, and let customers like their food and let you get the insights of your buisness
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
               {!isLoggedIn ? (
@@ -254,10 +254,10 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <p className="text-primary font-semibold text-sm mb-2 uppercase tracking-wide">How it works</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Three simple steps</h2>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Four simple steps</h2>
             <p className="text-muted-foreground text-lg">Get your digital menu live in under 10 minutes.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {steps.map((s, i) => (
               <motion.div
                 key={s.num}
@@ -276,39 +276,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-4 sm:px-6 bg-card">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-primary font-semibold text-sm mb-2 uppercase tracking-wide">Testimonials</p>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Loved by restaurant owners</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="p-6 rounded-xl border border-border bg-background"
-              >
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-primary text-primary" />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">"{t.text}"</p>
-                <div>
-                  <p className="font-display font-semibold text-sm">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+      
       {/* Pricing */}
       <section id="pricing" className="py-24 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">

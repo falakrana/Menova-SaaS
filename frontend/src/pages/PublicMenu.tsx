@@ -1,4 +1,4 @@
-import { UtensilsCrossed, Plus, Minus, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { UtensilsCrossed, Heart, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -41,6 +41,28 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [likedItems, setLikedItems] = useState<string[]>(() => {
+    const saved = localStorage.getItem('menova_liked_items');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleLike = async (itemId: string) => {
+    const isLiked = likedItems.includes(itemId);
+    const newLiked = isLiked 
+      ? likedItems.filter(id => id !== itemId)
+      : [...likedItems, itemId];
+    
+    setLikedItems(newLiked);
+    localStorage.setItem('menova_liked_items', JSON.stringify(newLiked));
+    
+    try {
+      await api.likeMenuItem(itemId, !isLiked);
+    } catch (err) {
+      console.error('Failed to toggle like:', err);
+      setLikedItems(likedItems);
+      localStorage.setItem('menova_liked_items', JSON.stringify(likedItems));
+    }
+  };
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -328,34 +350,22 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
                       )}
                       
                       <div className={`mt-auto pt-4 flex items-center ${isCenter || isGrid || isPremium ? 'justify-start' : 'justify-end'}`}>
-                        {qty === 0 ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-4 text-xs font-bold rounded-full hover:shadow-sm transition-all"
-                            style={{ borderColor: 'var(--accent-color)', color: 'var(--accent-color)', fontFamily: restaurant.fontStyle }}
-                            onClick={() => addToCart(item)}
-                          >
-                            <Plus className="w-3.5 h-3.5 mr-1.5" /> ADD
-                          </Button>
-                        ) : (
-                          <div className="flex items-center gap-3 bg-secondary/50 p-1 rounded-full border border-border">
-                            <button
-                              onClick={() => updateCartQuantity(item.id, qty - 1)}
-                              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-background transition-colors text-muted-foreground"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="font-display font-bold text-sm w-4 text-center">{qty}</span>
-                            <button
-                              onClick={() => addToCart(item)}
-                              className="w-8 h-8 rounded-full flex items-center justify-center text-white transition-all shadow-sm active:scale-95"
-                              style={{ backgroundColor: 'var(--accent-color)' }}
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        )}
+                      <div className={`mt-auto pt-4 flex items-center ${isCenter || isGrid || isPremium ? 'justify-start' : 'justify-end'}`}>
+                        <button
+                          onClick={() => toggleLike(item.id)}
+                          className={`flex items-center gap-1.5 transition-all duration-300 ${
+                            likedItems.includes(item.id) 
+                              ? 'text-red-500 scale-110' 
+                              : 'text-muted-foreground hover:text-red-400'
+                          }`}
+                        >
+                          <Heart 
+                            className={`w-6 h-6 transition-all ${
+                              likedItems.includes(item.id) ? 'fill-current' : ''
+                            }`} 
+                          />
+                        </button>
+                      </div>
                       </div>
                     </div>
                   </motion.div>

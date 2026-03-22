@@ -112,6 +112,14 @@ export const api = {
 
   },
 
+  getViewsAnalytics: async (startDate: string, endDate: string) => {
+
+    const response = await apiClient.get(`/restaurant/analytics/views?start_date=${startDate}&end_date=${endDate}`);
+
+    return response.data;
+
+  },
+
   updateRestaurant: async (data: any) => {
 
     const response = await apiClient.put('/restaurant', data);
@@ -231,6 +239,14 @@ export const api = {
   placeOrder: async (data: any) => {
 
     const response = await apiClient.post('/public/orders', data);
+
+    return response.data;
+
+  },
+
+  likeMenuItem: async (itemId: string, like: boolean) => {
+
+    const response = await apiClient.post(`/public/items/${itemId}/like?like=${like}`);
 
     return response.data;
 

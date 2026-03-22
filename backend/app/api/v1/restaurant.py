@@ -1,4 +1,5 @@
 from typing import Any
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from app.api.v1 import deps
 from app.core import security
@@ -71,14 +72,9 @@ async def get_restaurant_stats(
     total_items = await db.menu_items.count_documents({"restaurantId": restaurant_id})
     total_orders = await db.orders.count_documents({"restaurantId": restaurant_id})
     
-    # Simple logic for popular item - one with most occurrences in orders or just 'None' for now
-    # For now, let's just return 'None' as per current FE mock if no orders exist
-    popular_item = "None"
-    if total_orders > 0:
-        # This is a bit complex for a simple stats call, let's just use a placeholder or 
-        # do a quick aggregation if we want to be fancy.
-        # For this task, let's keep it simple.
-        popular_item = "Featured" 
+    # Calculate popular item based on highest likesCount
+    popular_item_doc = await db.menu_items.find({"restaurantId": restaurant_id}).sort("likesCount", -1).limit(1).to_list(length=1)
+    popular_item = popular_item_doc[0]["name"] if popular_item_doc and popular_item_doc[0].get("likesCount", 0) > 0 else "None"
 
     return {
         "menuViews": restaurant.get("menuViews", 0),
@@ -89,3 +85,41 @@ async def get_restaurant_stats(
         "qrCodeActive": True, # Assuming active if restaurant exists
         "qrScans": restaurant.get("qrScans", 0)
     }
+
+@router.get("/analytics/views")
+async def get_views_analytics(
+    start_date: datetime,
+    end_date: datetime,
+    current_user: dict = Depends(deps.get_current_user),
+) -> Any:
+    db = get_database()
+    restaurant = await db.restaurants.find_one({"userId": str(current_user["_id"])})
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+        
+    restaurant_id = str(restaurant["_id"])
+    
+    pipeline = [
+        {
+            "$match": {
+                "restaurantId": restaurant_id,
+                "timestamp": {"$gte": start_date, "$lte": end_date}
+            }
+        },
+        {
+            "$project": {
+                "day": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}}
+            }
+        },
+        {
+            "$group": {
+                "_id": "$day",
+                "views": {"$sum": 1}
+            }
+        },
+        {"$sort": {"_id": 1}}
+    ]
+    
+    results = await db.menu_views.aggregate(pipeline).to_list(length=1000)
+    # Format for frontend
+    return [{"date": r["_id"], "views": r["views"]} for r in results]
