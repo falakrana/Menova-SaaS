@@ -1,5 +1,4 @@
-from typing import Any, List
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Response
 from app.core.database import get_database
 from app.schemas.menu_item import MenuItem
 from app.schemas.category import Category
@@ -7,17 +6,36 @@ from app.schemas.order import Order, OrderCreate
 from app.api.v1 import deps
 from bson import ObjectId
 from datetime import datetime
+from typing import Any, List, Optional
 
 router = APIRouter()
 
 @router.get("/menu/{restaurant_id}")
-async def get_public_menu(restaurant_id: str) -> Any:
+async def get_public_menu(restaurant_id: str, request: Request, response: Response) -> Any:
     db = get_database()
-    restaurant = await db.restaurants.find_one_and_update(
-        {"_id": ObjectId(restaurant_id)},
-        {"$inc": {"menuViews": 1}},
-        return_document=True
-    )
+    
+    # Check for view cookie to prevent redundant increments (2-hour cooldown)
+    cookie_name = f"menova_viewed_{restaurant_id}"
+    has_viewed = request.cookies.get(cookie_name)
+    
+    if not has_viewed:
+        # Increment and fetch
+        restaurant = await db.restaurants.find_one_and_update(
+            {"_id": ObjectId(restaurant_id)},
+            {"$inc": {"menuViews": 1}},
+            return_document=True
+        )
+        # Set cookie for 4 hours (14400 seconds)
+        response.set_cookie(
+            key=cookie_name, 
+            value="true", 
+            max_age=14400, 
+            httponly=True, 
+            samesite="lax"
+        )
+    else:
+        # Just fetch
+        restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id)})
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
