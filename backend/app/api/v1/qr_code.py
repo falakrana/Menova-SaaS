@@ -6,6 +6,8 @@ from app.core.database import get_database
 
 from app.services.storage import storage_service
 
+from app.core.config import settings
+
 from bson import ObjectId
 
 import qrcode
@@ -16,6 +18,36 @@ import io
 
 router = APIRouter()
 
+
+async def _create_and_store_qr(db, restaurant_id: str, menu_url: str) -> str:
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(menu_url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    img_content = buffered.getvalue()
+
+    qr_url = await storage_service.upload_file(
+        file_content=img_content,
+        filename=f"qr_{restaurant_id}.png",
+        content_type="image/png",
+        folder="qr-codes",
+    )
+
+    await db.restaurants.update_one(
+        {"_id": ObjectId(restaurant_id)},
+        {"$set": {"qrCodeUrl": qr_url, "qrMenuUrl": menu_url}},
+    )
+
+    return qr_url
 
 
 @router.get("/{restaurant_id}")
@@ -38,15 +70,15 @@ async def generate_qr_code(
 
 
 
-    # Check if QR code already exists
+    menu_url = f"{settings.PUBLIC_APP_URL.rstrip('/')}/menu/{restaurant_id}"
 
-    if restaurant.get("qrCodeUrl"):
+    if restaurant.get("qrCodeUrl") and restaurant.get("qrMenuUrl") == menu_url:
 
         return {
 
             "restaurant_id": restaurant_id,
 
-            "menu_url": f"http://localhost:8080/menu/{restaurant_id}",
+            "menu_url": menu_url,
 
             "qr_code_url": restaurant["qrCodeUrl"]
 
@@ -54,75 +86,9 @@ async def generate_qr_code(
 
 
 
-    # Generate new QR code only if it doesn't exist
-
-    menu_url = f"http://localhost:8080/menu/{restaurant_id}" 
-
-
-
-    
-
-    qr = qrcode.QRCode(
-
-        version=1,
-
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-
-        box_size=10,
-
-        border=4,
-
-    )
-
-    qr.add_data(menu_url)
-
-    qr.make(fit=True)
-
-
-
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    
-
-    # Save image to buffer
-
-    buffered = io.BytesIO()
-
-    img.save(buffered, format="PNG")
-
-    img_content = buffered.getvalue()
-
-    
-
-    # Upload to R2
-
     try:
 
-        qr_url = await storage_service.upload_file(
-
-            file_content=img_content,
-
-            filename=f"qr_{restaurant_id}.png",
-
-            content_type="image/png",
-
-            folder="qr-codes"
-
-        )
-
-        
-
-        # Update restaurant document with the QR URL
-
-        await db.restaurants.update_one(
-
-            {"_id": ObjectId(restaurant_id)},
-
-            {"$set": {"qrCodeUrl": qr_url}}
-
-        )
-
-        
+        qr_url = await _create_and_store_qr(db, restaurant_id, menu_url)
 
         return {
 
@@ -160,67 +126,13 @@ async def regenerate_qr_code(
         raise HTTPException(status_code=404, detail="Restaurant not found or access denied")
 
 
-    # Always generate a new QR code for regeneration
-
-    menu_url = f"http://localhost:8080/menu/{restaurant_id}" 
+    menu_url = f"{settings.PUBLIC_APP_URL.rstrip('/')}/menu/{restaurant_id}"
 
 
-    qr = qrcode.QRCode(
-
-        version=1,
-
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-
-        box_size=10,
-
-        border=4,
-
-    )
-
-    qr.add_data(menu_url)
-
-    qr.make(fit=True)
-
-
-    img = qr.make_image(fill_color="black", back_color="white")
-
-
-    # Save image to buffer
-
-    buffered = io.BytesIO()
-
-    img.save(buffered, format="PNG")
-
-    img_content = buffered.getvalue()
-
-
-    # Upload to R2
 
     try:
 
-        qr_url = await storage_service.upload_file(
-
-            file_content=img_content,
-
-            filename=f"qr_{restaurant_id}.png",
-
-            content_type="image/png",
-
-            folder="qr-codes"
-
-        )
-
-
-        # Update restaurant document with the QR URL
-
-        await db.restaurants.update_one(
-
-            {"_id": ObjectId(restaurant_id)},
-
-            {"$set": {"qrCodeUrl": qr_url}}
-
-        )
-
+        qr_url = await _create_and_store_qr(db, restaurant_id, menu_url)
 
         return {
 

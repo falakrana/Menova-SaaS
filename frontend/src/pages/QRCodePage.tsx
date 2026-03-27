@@ -22,6 +22,8 @@ export default function QRCodePage() {
 
   const [qrUrl, setQrUrl] = useState<string | null>(null);
 
+  const [menuUrl, setMenuUrl] = useState<string>('');
+
   const [loading, setLoading] = useState(false);
 
 
@@ -39,6 +41,7 @@ export default function QRCodePage() {
         : await api.getQRCode(restaurant.id);
 
       setQrUrl(data.qr_code_url);
+      setMenuUrl(data.menu_url ?? '');
 
     } catch (err) {
 
@@ -70,7 +73,8 @@ export default function QRCodePage() {
 
 
 
-  const menuUrl = `${window.location.origin}/menu/${restaurant.id}`;
+  const fallbackMenuUrl = `${window.location.origin}/menu/${restaurant.id}`;
+  const resolvedMenuUrl = menuUrl || fallbackMenuUrl;
 
 
 
@@ -152,7 +156,7 @@ export default function QRCodePage() {
 
   const handleCopy = () => {
 
-    navigator.clipboard.writeText(menuUrl);
+    navigator.clipboard.writeText(resolvedMenuUrl);
 
     toast({ title: 'Link copied!' });
 
@@ -244,7 +248,7 @@ export default function QRCodePage() {
 
               <div className="flex items-center gap-2">
 
-                <div className="flex-1 px-3 py-2 rounded-lg bg-secondary text-sm text-muted-foreground truncate font-mono">{menuUrl}</div>
+                <div className="flex-1 px-3 py-2 rounded-lg bg-secondary text-sm text-muted-foreground truncate font-mono">{resolvedMenuUrl}</div>
 
                 <Button variant="outline" size="sm" onClick={handleCopy} aria-label="Copy menu link"><Copy className="w-4 h-4" /></Button>
 
