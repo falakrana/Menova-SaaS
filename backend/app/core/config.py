@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     CF_R2_BUCKET_NAME: str = os.getenv("CF_R2_BUCKET_NAME", "menova-images")
     CF_R2_PUBLIC_URL: str = os.getenv("CF_R2_PUBLIC_URL", "")  # e.g., https://pub-xxx.r2.dev or custom domain
 
-    PUBLIC_APP_URL: str = os.getenv("PUBLIC_APP_URL", "https://menova.vercel.app")
+    PUBLIC_APP_URL: str = os.getenv("PUBLIC_APP_URL")
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = []
