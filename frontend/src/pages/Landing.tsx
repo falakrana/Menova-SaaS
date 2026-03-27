@@ -25,8 +25,8 @@ const steps = [
 ];
 
 const plans = [
-  { name: 'Free', price: '₹0', period: '/year', features: ['Up to 15 menu items', '1 QR code', 'Basic customization', 'Mobile-ready menu'], cta: 'Start Free', popular: false },
-  { name: 'Pro', price: '₹1499', period: '/year', features: ['Unlimited menu items', 'Multiple QR codes', 'Full brand customization', 'Table ordering system', 'Analytics dashboard', 'Priority support'], cta: 'Start Free Trial', popular: true },
+  { name: 'Free', price: '₹0', period: '/year', features: ['Up to 15 menu items', 'Basic customization'], cta: 'Start Free', popular: false },
+  { name: 'Pro', price: '₹1499', period: '/year', features: ['Unlimited menu items', 'Analytics dashboard', 'Modern customization','Priority support'], cta: 'Start Free Trial', popular: true },
 ];
 
 const testimonials = [
