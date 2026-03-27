@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   UtensilsCrossed, QrCode, Smartphone, Palette, ArrowRight, Check,
   Menu, X, Zap, BarChart3, ShoppingCart, ChevronDown, Star, Globe,
-  LogOut, LayoutDashboard
+  LogOut, LayoutDashboard, Eye, Folder
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -25,9 +25,8 @@ const steps = [
 ];
 
 const plans = [
-  { name: 'Free', price: '₹0', period: '/month', features: ['Up to 15 menu items', '1 QR code', 'Basic customization', 'Mobile-ready menu'], cta: 'Start Free', popular: false },
-  { name: 'Pro', price: '₹499', period: '/month', features: ['Unlimited menu items', 'Multiple QR codes', 'Full brand customization', 'Table ordering system', 'Analytics dashboard', 'Priority support'], cta: 'Start Free Trial', popular: true },
-  { name: 'Enterprise', price: '₹1,499', period: '/month', features: ['Everything in Pro', 'Multi-location support', 'Custom subdomain', 'API access', 'Dedicated support', 'White-label option'], cta: 'Contact Sales', popular: false },
+  { name: 'Free', price: '₹0', period: '/year', features: ['Up to 15 menu items', '1 QR code', 'Basic customization', 'Mobile-ready menu'], cta: 'Start Free', popular: false },
+  { name: 'Pro', price: '₹499', period: '/year', features: ['Unlimited menu items', 'Multiple QR codes', 'Full brand customization', 'Table ordering system', 'Analytics dashboard', 'Priority support'], cta: 'Start Free Trial', popular: true },
 ];
 
 const testimonials = [
@@ -191,27 +190,53 @@ export default function Landing() {
                 </div>
               </div>
               <div className="p-6 bg-background">
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                  {[
-                    { label: 'Menu Views', value: '1,247', color: 'text-primary' },
-                    { label: 'QR Scans', value: '843', color: 'text-primary' },
-                    { label: 'Orders', value: '156', color: 'text-primary' },
-                    { label: 'Revenue', value: '₹45.2K', color: 'text-primary' },
-                  ].map((stat) => (
-                    <div key={stat.label} className="p-4 rounded-lg border border-border bg-card">
-                      <p className={`font-display text-xl font-bold ${stat.color}`}>{stat.value}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+                <h3 className="font-display text-2xl font-bold mb-1 text-left">Dashboard</h3>
+                <p className="text-sm text-muted-foreground mb-6 text-left">Overview of your restaurant's digital menu</p>
+                <div className="grid md:grid-cols-3 gap-4 mb-6">
+                  <div className="p-5 rounded-lg border border-border bg-card flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <Eye className="w-5 h-5" />
                     </div>
-                  ))}
+                    <div>
+                      <div className="font-display text-2xl font-extrabold">1,204</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Menu Views</div>
+                    </div>
+                  </div>
+                  <div className="p-5 rounded-lg border border-border bg-card flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <UtensilsCrossed className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-display text-2xl font-extrabold">48</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Menu Items</div>
+                    </div>
+                  </div>
+                  <div className="p-5 rounded-lg border border-border bg-card flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                      <Star className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-display text-xl font-extrabold">Chef&apos;s Special</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Popular Item</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {['Paneer Tikka', 'Butter Paneer', 'Veg Biryani'].map((name) => (
-                    <div key={name} className="p-3 rounded-lg border border-border bg-card">
-                      <div className="w-full h-16 rounded bg-muted mb-2" />
-                      <p className="text-sm font-medium">{name}</p>
-                      <p className="text-xs text-muted-foreground">₹249</p>
+                <div className="rounded-xl border border-border bg-card p-5">
+                  <div className="font-display font-semibold mb-4 text-left">Quick Actions</div>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <div className="border rounded-full px-5 py-3 flex items-center gap-3 text-sm">
+                      <Folder className="w-4 h-4 text-primary" />
+                      <span>Add Category</span>
                     </div>
-                  ))}
+                    <div className="border rounded-full px-5 py-3 flex items-center gap-3 text-sm">
+                      <UtensilsCrossed className="w-4 h-4 text-primary" />
+                      <span>Add Menu Item</span>
+                    </div>
+                    <div className="border rounded-full px-5 py-3 flex items-center gap-3 text-sm">
+                      <QrCode className="w-4 h-4 text-primary" />
+                      <span>Download QR</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -285,7 +310,7 @@ export default function Landing() {
             <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
             <p className="text-muted-foreground text-lg">Start free. Scale when you're ready.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {plans.map((plan, i) => (
               <motion.div
                 key={plan.name}
