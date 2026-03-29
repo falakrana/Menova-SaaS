@@ -26,7 +26,7 @@ const steps = [
 
 const plans = [
   { name: 'Free', price: '₹0', period: '/year', features: ['Up to 15 menu items', 'Basic customization'], cta: 'Start Free', popular: false },
-  { name: 'Pro', price: '₹1499', period: '/year', features: ['Unlimited menu items', 'Analytics dashboard', 'Modern customization','Priority support'], cta: 'Start Free Trial', popular: true },
+  { name: 'Pro', price: '₹1499', period: '/year', features: ['Unlimited menu items', 'Analytics dashboard', 'Modern customization', 'Priority support'], cta: 'Start Free Trial', popular: true },
 ];
 
 const testimonials = [
@@ -37,9 +37,8 @@ const testimonials = [
 
 const faqs = [
   { q: 'How does the QR code menu work?', a: 'You create your digital menu on Menova, generate a QR code, and print it. Customers scan the QR with their phone camera and your menu opens instantly — no app download needed.' },
-  { q: 'Can customers order from the menu?', a: 'Yes! With the Pro plan, customers can add items to a cart, enter their table number, and place orders directly from their phone.' },
   { q: 'Can I customize the look of my menu?', a: 'Absolutely. You can change colors, fonts, upload your logo, and make your digital menu match your restaurant\'s brand identity.' },
-  { q: 'Is there a free plan?', a: 'Yes, our Free plan lets you create a menu with up to 15 items and 1 QR code — perfect for getting started.' },
+  { q: 'Is there a free plan?', a: 'Yes, our Free plan lets you create a menu with up to 15 items and 1 QR code — perfect for getting started. It is activate for you for first 15 days, then you have to take pro plan.' },
   { q: 'Do I need technical skills?', a: 'Not at all. Menova is designed for restaurant owners. If you can use a smartphone, you can set up your menu.' },
 ];
 
@@ -67,12 +66,12 @@ export default function Landing() {
             </div>
             <span className="font-display font-black text-2xl tracking-tight text-slate-900">Menova</span>
           </Link>
-          
+
           <div className="hidden md:flex items-center gap-10">
             {['Features', 'How It Works', 'Pricing', 'FAQ'].map((item) => (
-              <a 
+              <a
                 key={item}
-                href={`#${item.toLowerCase().replace(/ /g, '-')}`} 
+                href={`#${item.toLowerCase().replace(/ /g, '-')}`}
                 className="text-sm font-bold text-slate-500 hover:text-orange-500 transition-colors uppercase tracking-widest px-2 py-1"
               >
                 {item}
@@ -102,7 +101,7 @@ export default function Landing() {
             {mobileNav ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
-        
+
         <AnimatePresence>
           {mobileNav && (
             <motion.div
@@ -113,10 +112,10 @@ export default function Landing() {
             >
               <div className="p-6 space-y-4">
                 {['Features', 'How It Works', 'Pricing', 'FAQ'].map((item) => (
-                  <a 
+                  <a
                     key={item}
-                    href={`#${item.toLowerCase().replace(/ /g, '-')}`} 
-                    className="block text-lg font-bold text-slate-600 py-2" 
+                    href={`#${item.toLowerCase().replace(/ /g, '-')}`}
+                    className="block text-lg font-bold text-slate-600 py-2"
                     onClick={() => setMobileNav(false)}
                   >
                     {item}
@@ -141,15 +140,15 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-6 z-10">
         <div className="max-w-6xl mx-auto text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} 
-            animate={{ opacity: 1, y: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-sm">
               <Zap className="w-3 h-3 fill-current" /> Next-Gen Menu Studio
             </div>
-            
+
             <h1 className="font-display text-4xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-8 text-slate-900">
               Modern menus<br />
               <span className="text-orange-500 relative inline-block">
@@ -158,11 +157,11 @@ export default function Landing() {
               </span><br />
               dining.
             </h1>
-            
+
             <p className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto mb-10 leading-relaxed font-medium">
               Create immersive digital menus that feel like an extension of your brand. Increase sales with beautiful visuals and analytics.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20 text-center">
               <Button size="lg" className="h-14 px-10 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[11px] hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all active:scale-95 group" asChild>
                 <Link to="/register">
@@ -171,7 +170,7 @@ export default function Landing() {
               </Button>
               <Button size="lg" variant="ghost" className="h-14 px-10 rounded-2xl text-slate-600 font-bold hover:bg-slate-100/50 transition-all group" asChild>
                 <Link to="/menu/demo">
-                   Live Demo <Eye className="ml-2 w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
+                  Live Demo <Eye className="ml-2 w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                 </Link>
               </Button>
             </div>
@@ -185,53 +184,85 @@ export default function Landing() {
             className="relative group"
           >
             <div className="absolute -inset-4 bg-gradient-to-tr from-orange-400/20 to-blue-400/20 rounded-[2.5rem] blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
-            
-            <div className="relative rounded-[2rem] border border-white/50 bg-white/40 backdrop-blur-3xl shadow-2xl p-1.5 overflow-hidden overflow-x-hidden">
-               <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden flex flex-col">
-                  {/* Browser Header */}
-                  <div className="flex items-center justify-between px-6 py-3.5 bg-slate-50/50 border-b border-slate-50">
-                    <div className="flex gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-200" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-200" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-200" />
-                    </div>
-                    <div className="px-3 py-1 rounded-lg bg-white border border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                       <Globe className="w-2.5 h-2.5" /> menova.app/dashboard
-                    </div>
-                    <div className="w-10 h-1.5 rounded-full bg-slate-200 opacity-20" />
-                  </div>
-                  
-                  {/* Mock Content */}
-                  <div className="p-8 lg:p-10 text-left">
-                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-                        <div>
-                           <h3 className="font-display font-black text-2xl text-slate-900 mb-1.5 tracking-tight">Morning, Spice Garden 👋</h3>
-                           <p className="text-slate-400 text-sm font-medium">Your digital menu is currently live and performing well.</p>
-                        </div>
-                        <div className="flex gap-2">
-                           <div className="px-3 py-1.5 rounded-xl bg-orange-50 text-orange-600 text-[9px] font-black uppercase tracking-widest border border-orange-100">Live</div>
-                           <div className="px-3 py-1.5 rounded-xl bg-slate-50 text-slate-400 text-[9px] font-black uppercase tracking-widest border border-slate-100">Pro Plan</div>
-                        </div>
-                     </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {[
-                          { label: 'Views Today', val: '2,841', icon: Eye, color: 'text-blue-500', bg: 'bg-blue-50' },
-                          { label: 'Scans', val: '432', icon: QrCode, color: 'text-orange-500', bg: 'bg-orange-50' },
-                          { label: 'Orders', val: '₹14.2k', icon: ShoppingBag, color: 'text-green-500', bg: 'bg-green-50' },
-                          { label: 'Likes', val: '1.2k', icon: Heart, color: 'text-red-500', bg: 'bg-red-50' },
-                        ].map((stat) => (
-                          <div key={stat.label} className="p-5 rounded-[1.5rem] border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:shadow-slate-200/40 transition-all duration-500">
-                             <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center mb-3`}>
-                                <stat.icon className="w-5 h-5" />
-                             </div>
-                             <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</div>
-                             <div className="text-2xl font-black text-slate-900 tracking-tight">{stat.val}</div>
-                          </div>
-                        ))}
-                     </div>
+            <div className="relative rounded-[2rem] border border-white/50 bg-white/40 backdrop-blur-3xl shadow-2xl p-1.5 overflow-hidden overflow-x-hidden">
+              <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden flex flex-col">
+                {/* Browser Header */}
+                <div className="flex items-center justify-between px-6 py-3.5 bg-slate-50/50 border-b border-slate-50">
+                  <div className="flex gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-200" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-200" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-200" />
                   </div>
-               </div>
+                  <div className="px-3 py-1 rounded-lg bg-white border border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                    <Globe className="w-2.5 h-2.5" /> menova.app/dashboard
+                  </div>
+                  <div className="w-10 h-1.5 rounded-full bg-slate-200 opacity-20" />
+                </div>
+
+                {/* Mock Content */}
+                <div className="p-8 lg:p-10 text-left">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+                    <div>
+                      <h3 className="font-display font-black text-2xl text-slate-900 mb-1.5 tracking-tight">Morning, Spice Garden 👋</h3>
+                      <p className="text-slate-400 text-sm font-medium">Your digital menu is currently live and performing well.</p>
+                    </div>
+                    <div className="flex gap-2">
+                       <div className="px-4 py-2 rounded-xl bg-slate-900 text-white flex items-center gap-2 hover:scale-105 active:scale-95 transition-all text-[10px] font-black shadow-lg shadow-slate-900/20">
+                          <Eye className="w-4 h-4" /> LIVE PREVIEW
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Main Stat Card - Spans 2 cols */}
+                    <div className="md:col-span-2 group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform duration-500"></div>
+                      <div className="relative z-10 flex flex-col h-full">
+                        <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-10 group-hover:scale-110 transition-transform shadow-inner">
+                          <BarChart3 className="w-6 h-6" />
+                        </div>
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Menu Views</p>
+                            <p className="text-5xl font-black text-slate-900 tracking-tighter">12,841</p>
+                          </div>
+                          <div className="h-10 w-10 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
+                             <ArrowRight className="w-5 h-5" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Secondary Stats */}
+                    <div className="group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
+                      <div className="flex flex-col h-full">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-8 border border-blue-100/50">
+                           <UtensilsCrossed className="w-5 h-5" />
+                        </div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Live Dishes</p>
+                        <p className="text-3xl font-black text-slate-900 leading-none mb-4">84</p>
+                        <div className="mt-auto text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5 hover:gap-2.5 transition-all">
+                           Manage <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
+                      <div className="flex flex-col h-full">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-8 border border-red-100/50">
+                           <Heart className="w-5 h-5 fill-current" />
+                        </div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bestseller</p>
+                        <p className="text-base font-black text-slate-900 leading-tight mb-4 truncate">Truffle Pizza</p>
+                        <div className="mt-auto text-[9px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1.5">
+                           Insights <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -256,7 +287,7 @@ export default function Landing() {
                 <p className="text-slate-500 font-medium text-sm max-w-md">Our high-fidelity editor gives you professional control without the technical complexity. Drag, drop, and customize in seconds.</p>
               </div>
               <div className="absolute bottom-0 right-0 w-1/2 h-full opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-700 pointer-events-none translate-y-16 translate-x-8">
-                 <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-[8rem]" />
+                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-[8rem]" />
               </div>
             </div>
 
@@ -298,48 +329,48 @@ export default function Landing() {
 
       {/* Modern Steps Section */}
       <section id="how-it-works" className="min-h-screen flex items-center pt-20 px-6 bg-slate-900 text-white overflow-hidden relative">
-         <div className="absolute top-0 left-0 w-full h-full noise-bg opacity-10" />
-         <div className="max-w-7xl mx-auto relative z-10 w-full py-20 lg:py-0">
-            <div className="flex flex-col lg:flex-row gap-16 items-center">
-               <div className="lg:w-1/2 space-y-10 text-left">
-                  <div className="space-y-4">
-                    <h2 className="text-4xl lg:text-7xl font-black tracking-tight leading-[0.95] mb-6">From setup to<br />orders in <span className="text-orange-500">minutes.</span></h2>
-                    <p className="text-lg text-slate-400 font-medium max-w-md">We&apos;ve eliminated the friction of going digital. No technical degree required.</p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                     {steps.map((s, idx) => (
-                        <motion.div 
-                          key={s.num} 
-                          initial={{ opacity: 0, x: -20 }} 
-                          whileInView={{ opacity: 1, x: 0 }} 
-                          viewport={{ once: true }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="flex gap-5 group"
-                        >
-                           <div className="font-display font-black text-xl text-slate-800 group-hover:text-orange-500 transition-colors shrink-0">{s.num}</div>
-                           <div>
-                              <h4 className="text-lg font-black mb-1.5 tracking-tight">{s.title}</h4>
-                              <p className="text-slate-500 text-sm font-medium">{s.desc}</p>
-                           </div>
-                        </motion.div>
-                     ))}
-                  </div>
-               </div>
-               
-               <div className="lg:w-1/2 relative">
-                  <div className="w-full aspect-square rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center justify-center p-10">
-                     <div className="relative w-full h-full bg-slate-800 rounded-[2rem] border border-white/10 shadow-3xl overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-blue-400/20 opacity-40 animate-pulse" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                           <QrCode className="w-32 h-32 text-white opacity-20" />
-                        </div>
-                     </div>
-                  </div>
-                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500 rounded-full blur-[60px] opacity-30" />
-               </div>
+        <div className="absolute top-0 left-0 w-full h-full noise-bg opacity-10" />
+        <div className="max-w-7xl mx-auto relative z-10 w-full py-20 lg:py-0">
+          <div className="flex flex-col lg:flex-row gap-16 items-center">
+            <div className="lg:w-1/2 space-y-10 text-left">
+              <div className="space-y-4">
+                <h2 className="text-4xl lg:text-7xl font-black tracking-tight leading-[0.95] mb-6">From setup to<br />orders in <span className="text-orange-500">minutes.</span></h2>
+                <p className="text-lg text-slate-400 font-medium max-w-md">We&apos;ve eliminated the friction of going digital. No technical degree required.</p>
+              </div>
+
+              <div className="space-y-6">
+                {steps.map((s, idx) => (
+                  <motion.div
+                    key={s.num}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="flex gap-5 group"
+                  >
+                    <div className="font-display font-black text-xl text-slate-800 group-hover:text-orange-500 transition-colors shrink-0">{s.num}</div>
+                    <div>
+                      <h4 className="text-lg font-black mb-1.5 tracking-tight">{s.title}</h4>
+                      <p className="text-slate-500 text-sm font-medium">{s.desc}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-         </div>
+
+            <div className="lg:w-1/2 relative">
+              <div className="w-full aspect-square rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center justify-center p-10">
+                <div className="relative w-full h-full bg-slate-800 rounded-[2rem] border border-white/10 shadow-3xl overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-blue-400/20 opacity-40 animate-pulse" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <QrCode className="w-32 h-32 text-white opacity-20" />
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500 rounded-full blur-[60px] opacity-30" />
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* High-End Pricing Cards */}
@@ -355,22 +386,38 @@ export default function Landing() {
             {plans.map((plan, i) => (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{
+                  opacity: 1,
+                  y: [0, -25, 0],
+                  rotate: [0, 0.8, -0.8, 0],
+                  transition: {
+                    opacity: { duration: 0.8, delay: i * 0.2 },
+                    y: {
+                      duration: 5 + i,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
+                    rotate: {
+                      duration: 8 + i,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+                  }
+                }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.2, duration: 0.8 }}
-                className={`group relative rounded-[2.5rem] p-8 lg:p-10 flex flex-col text-left transition-all duration-500 ${
-                  plan.popular 
-                    ? 'bg-slate-900 text-white shadow-[0_30px_60px_-15px_rgba(15,23,42,0.3)] scale-105 z-10' 
-                    : 'bg-white border border-slate-100 text-slate-900 shadow-lg shadow-slate-200/40'
-                }`}
+                whileHover={{ scale: plan.popular ? 1.08 : 1.03, zIndex: 50 }}
+                className={`group relative rounded-[2.5rem] p-8 lg:p-10 flex flex-col text-left transition-all duration-500 ${plan.popular
+                  ? 'bg-slate-900 text-white shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] scale-105 z-10'
+                  : 'bg-white border border-slate-100 text-slate-900 shadow-2xl shadow-slate-200/60'
+                  }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3.5 left-10 px-4 py-1 rounded-full bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
-                    Recommended Choice
+                    RECOMMENDED CHOICE
                   </div>
                 )}
-                
+
                 <div className="mb-8">
                   <h3 className={`font-black text-xl tracking-tight mb-3 ${plan.popular ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
@@ -390,13 +437,12 @@ export default function Landing() {
                   ))}
                 </ul>
 
-                <Button 
-                  variant={plan.popular ? 'default' : 'outline'} 
-                  className={`h-14 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95 ${
-                    plan.popular 
-                      ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-xl shadow-orange-500/20' 
-                      : 'bg-white text-slate-900 border-2 border-slate-100'
-                  }`}
+                <Button
+                  variant={plan.popular ? 'default' : 'outline'}
+                  className={`h-14 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95 ${plan.popular
+                    ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-xl shadow-orange-500/20'
+                    : 'bg-white text-slate-900 border-2 border-slate-100'
+                    }`}
                   asChild
                 >
                   <Link to={isLoggedIn ? "/dashboard" : "/register"}>
@@ -417,7 +463,7 @@ export default function Landing() {
             <div className="text-orange-500 font-black text-[9px] uppercase tracking-[0.3em]">Support</div>
             <h2 className="text-4xl font-black tracking-tight text-slate-900 leading-[0.95]">Curious?<br />We have answers.</h2>
           </div>
-          
+
           <div className="grid gap-3">
             {faqs.map((faq, i) => (
               <motion.div
@@ -458,21 +504,21 @@ export default function Landing() {
       <section className="py-24 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-[3rem] bg-slate-900 text-white p-12 lg:p-20 overflow-hidden shadow-2xl">
-             <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-500 skew-x-[-12deg] translate-x-1/2 opacity-10" />
-             <div className="relative z-10 max-w-2xl text-left">
-                <h2 className="text-4xl lg:text-8xl font-black tracking-tight leading-[0.8] mb-8">Start your<br />transformation<br /><span className="text-orange-500">today.</span></h2>
-                <p className="text-lg text-slate-400 font-medium mb-10 max-w-md">Join over 500+ restaurants already using Menova to elevate their customer experience.</p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                   <Button size="lg" className="h-14 px-10 rounded-xl bg-orange-500 text-white font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-orange-500/20" asChild>
-                     <Link to={isLoggedIn ? "/dashboard" : "/register"}>
-                       {isLoggedIn ? "Return to Dashboard" : "Begin onboarding"} <ArrowRight className="ml-2 w-4 h-4" />
-                     </Link>
-                   </Button>
-                </div>
-             </div>
-             
-             {/* Floating UI Element for CTA */}
-             <div className="absolute bottom-[-10%] right-[-5%] w-[35%] aspect-square rounded-full border-[25px] border-white/5 opacity-30 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-500 skew-x-[-12deg] translate-x-1/2 opacity-10" />
+            <div className="relative z-10 max-w-2xl text-left">
+              <h2 className="text-4xl lg:text-8xl font-black tracking-tight leading-[0.8] mb-8">Start your<br />transformation<br /><span className="text-orange-500">today.</span></h2>
+              <p className="text-lg text-slate-400 font-medium mb-10 max-w-md">Join over 500+ restaurants already using Menova to elevate their customer experience.</p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" className="h-14 px-10 rounded-xl bg-orange-500 text-white font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-orange-500/20" asChild>
+                  <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                    {isLoggedIn ? "Return to Dashboard" : "Begin onboarding"} <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Floating UI Element for CTA */}
+            <div className="absolute bottom-[-10%] right-[-5%] w-[35%] aspect-square rounded-full border-[25px] border-white/5 opacity-30 pointer-events-none" />
           </div>
         </div>
       </section>
@@ -487,7 +533,7 @@ export default function Landing() {
               </div>
               <span className="font-display font-black text-2xl tracking-tight text-slate-900">Menova</span>
             </div>
-            
+
             <div className="flex flex-wrap items-center justify-center gap-10">
               {['Features', 'Pricing', 'FAQ', 'Privacy', 'Terms'].map((link) => (
                 <a key={link} href="#" className="text-sm font-black uppercase tracking-widest text-slate-400 hover:text-orange-500 transition-colors">{link}</a>
@@ -495,17 +541,17 @@ export default function Landing() {
             </div>
 
             <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Globe className="w-4 h-4" /></div>
-                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Phone className="w-4 h-4" /></div>
+              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Globe className="w-4 h-4" /></div>
+              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Phone className="w-4 h-4" /></div>
             </div>
           </div>
-          
+
           <div className="mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400 font-bold text-xs uppercase tracking-widest">
-             <p>© 2024 MENOVA LABS PVT LTD. ALL RIGHTS RESERVED.</p>
-             <div className="flex items-center gap-6">
-                <span>Handcrafted with ❤️ by Menova</span>
-                <span className="text-orange-500">IND 🇮🇳</span>
-             </div>
+            <p>© 2024 MENOVA LABS PVT LTD. ALL RIGHTS RESERVED.</p>
+            <div className="flex items-center gap-6">
+              <span>Handcrafted with ❤️ by Menova</span>
+              <span className="text-orange-500">IND 🇮🇳</span>
+            </div>
           </div>
         </div>
       </footer>
