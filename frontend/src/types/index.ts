@@ -58,6 +58,9 @@ export interface MenuItem {
   /** When false, the item is hidden from the customer-facing public menu. */
   available: boolean;
   likesCount: number;
+  isVeg?: boolean;
+  isSpicy?: boolean;
+  isGlutenFree?: boolean;
   /** ISO date string (YYYY-MM-DD). */
   createdAt: string;
 }

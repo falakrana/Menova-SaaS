@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +24,7 @@ export default function MenuItems() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true });
+  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
   const [uploading, setUploading] = useState(false);
   const updateForm = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -33,13 +34,13 @@ export default function MenuItems() {
 
   const openAdd = () => {
     setEditingItem(null);
-    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true });
+    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
-    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available });
+    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree });
     setDialogOpen(true);
   };
 
@@ -69,6 +70,7 @@ export default function MenuItems() {
         toast({ title: 'Item updated' });
       } else {
         await addMenuItem({
+          ...form,
           name: form.name.trim(),
           description: form.description.trim(),
           price: parseFloat(form.price),
@@ -134,51 +136,95 @@ export default function MenuItems() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-20 rounded-xl border border-dashed border-border">
-            <UtensilsCrossed className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="font-display font-semibold text-lg mb-1">No items found</h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              {search || filterCat !== 'all' ? 'Try adjusting your filters.' : 'Add your first menu item to get started.'}
+          <div className="text-center py-24 rounded-[32px] border-2 border-dashed border-slate-200 bg-white shadow-xl shadow-slate-100">
+            <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <UtensilsCrossed className="w-10 h-10 text-primary" />
+            </div>
+            <h3 className="font-display font-black text-2xl text-slate-900 mb-2 tracking-tight">No items matched</h3>
+            <p className="text-slate-500 font-medium text-sm mb-8 max-w-xs mx-auto">
+               {search || filterCat !== 'all' ? 'Try adjusting your filters or search term to find what you are looking for.' : 'Start your digital menu by adding your first signature dish.'}
             </p>
-            {!search && filterCat === 'all' && <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Item</Button>}
+            {!search && filterCat === 'all' && <Button onClick={openAdd} size="lg" className="h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95"><Plus className="w-5 h-5 mr-2" /> Add Menu Item</Button>}
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((item) => (
-              <div key={item.id} className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg transition-all duration-200">
-                <div className="h-36 bg-secondary flex items-center justify-center overflow-hidden">
-                  {item.image ? (
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <UtensilsCrossed className="w-10 h-10 text-muted-foreground/30" />
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-display font-semibold text-sm">{item.name}</h3>
-                    <span className="font-display font-bold text-primary text-sm">₹{item.price}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{item.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs px-2 py-1 rounded-md bg-secondary text-muted-foreground">{item.categoryName}</span>
-                    <div className="flex items-center gap-2">
-                       <Switch
-                        checked={item.available}
-                        onCheckedChange={() => toggleItemAvailability(item.id)}
-                      />
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEdit(item)}>
-                        <Pencil className="w-3.5 h-3.5" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up">
+            {filtered.map((item, index) => {
+               const isHot = item.likesCount > 5;
+               return (
+                <motion.div 
+                  key={item.id} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group relative flex flex-col rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden"
+                >
+                  <div className="relative h-48 bg-slate-50 overflow-hidden">
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-100/50 group-hover:bg-slate-100 transition-colors">
+                        <UtensilsCrossed className="w-12 h-12 text-slate-200" />
+                      </div>
+                    )}
+                    
+                    {/* Corner Badges */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                       {isHot && (
+                          <span className="px-2.5 py-1 rounded-lg bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                             <Star className="w-3 h-3 fill-current" /> Hot
+                          </span>
+                       )}
+                       <span className="px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-md text-slate-900 border border-slate-200 text-[10px] font-bold uppercase tracking-wider">
+                          {item.categoryName}
+                       </span>
+                    </div>
+
+                    <div className="absolute top-4 right-4 flex gap-2 translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                      <Button variant="secondary" size="icon" className="w-9 h-9 rounded-xl shadow-lg" onClick={() => openEdit(item)}>
+                        <Pencil className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => setDeleteId(item.id)}>
-                        <Trash2 className="w-3.5 h-3.5" />
+                      <Button variant="destructive" size="icon" className="w-9 h-9 rounded-xl shadow-lg" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
+
+                    {!item.available && (
+                       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                          <span className="px-4 py-2 rounded-xl bg-white text-black text-xs font-black uppercase tracking-[0.2em] shadow-2xl">Inactive</span>
+                       </div>
+                    )}
                   </div>
-                </div>
-              </div>
-            ))}
+
+                  <div className="p-8 flex-1 flex flex-col">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-display font-black text-xl text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-1">{item.name}</h3>
+                      <span className="font-display font-black text-xl text-slate-900 tracking-tight">₹{item.price}</span>
+                    </div>
+                    <p className="text-slate-400 font-medium text-xs mb-8 line-clamp-2 leading-relaxed">{item.description}</p>
+                    
+                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
+                       <div className="flex items-center gap-2">
+                          <Switch
+                            checked={item.available}
+                            onCheckedChange={() => toggleItemAvailability(item.id)}
+                            className="data-[state=checked]:bg-primary"
+                          />
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                             {item.available ? "Visible" : "Hidden"}
+                          </span>
+                       </div>
+                       
+                       <div className="flex items-center gap-1 text-[10px] font-black text-slate-300 uppercase tracking-tighter">
+                          <Heart className="w-3.5 h-3.5" /> {item.likesCount || 0} Likes
+                       </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
+
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="sm:max-w-md">
@@ -209,6 +255,21 @@ export default function MenuItems() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+                  <Switch checked={form.isVeg} onCheckedChange={(v) => updateForm('isVeg', v)} />
+                  <Label className="text-xs font-bold">Vegetarian</Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+                  <Switch checked={form.isSpicy} onCheckedChange={(v) => updateForm('isSpicy', v)} />
+                  <Label className="text-xs font-bold">Spicy</Label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+                  <Switch checked={form.isGlutenFree} onCheckedChange={(v) => updateForm('isGlutenFree', v)} />
+                  <Label className="text-xs font-bold">Gluten Free</Label>
                 </div>
               </div>
 

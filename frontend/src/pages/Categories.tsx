@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, FolderOpen, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -69,47 +70,61 @@ export default function Categories() {
         </div>
 
         {categories.length === 0 ? (
-          <div className="text-center py-20 rounded-xl border border-dashed border-border">
-            <FolderOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="font-display font-semibold text-lg mb-1">No categories yet</h3>
-            <p className="text-muted-foreground text-sm mb-4">Create your first category to start building your menu.</p>
-            <Button onClick={openAdd}><Plus className="w-4 h-4 mr-2" /> Add Category</Button>
+          <div className="text-center py-24 rounded-[32px] border-2 border-dashed border-slate-200 bg-white shadow-xl shadow-slate-100">
+            <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <FolderOpen className="w-10 h-10 text-primary" />
+            </div>
+            <h3 className="font-display font-black text-2xl text-slate-900 mb-2 tracking-tight">Your menu is empty</h3>
+            <p className="text-slate-500 font-medium text-sm mb-8 max-w-xs mx-auto">Create your first category to start organizing your signature dishes.</p>
+            <Button onClick={openAdd} size="lg" className="h-14 px-8 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95"><Plus className="w-5 h-5 mr-2" /> Create Category</Button>
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border bg-slate-100">
-                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Name</th>
-                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Items</th>
-                    <th className="text-left text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Created</th>
-                    <th className="text-right text-xs font-medium text-slate-600 uppercase tracking-wider px-6 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((cat) => (
-                    <tr key={cat.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
-                      <td className="px-6 py-4 font-medium text-sm">{cat.name}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{cat.itemCount} items</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(cat.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(cat)} aria-label={`Edit ${cat.name}`}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => setDeleteId(cat.id)} className="text-destructive hover:text-destructive" aria-label={`Delete ${cat.name}`}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
+             {categories.map((cat, index) => (
+                <motion.div
+                  key={cat.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="group relative rounded-[2.5rem] p-8 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500"
+                >
+                   {/* Background Decor */}
+                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700"></div>
+                   
+                   <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-8">
+                         <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                            <FolderOpen className="w-7 h-7" />
+                         </div>
+                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                            <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-slate-100" onClick={() => openEdit(cat)}>
+                               <Pencil className="w-4.5 h-4.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl hover:bg-red-50 text-red-500" onClick={() => setDeleteId(cat.id)}>
+                               <Trash2 className="w-4.5 h-4.5" />
+                            </Button>
+                         </div>
+                      </div>
+
+                      <h3 className="font-display font-black text-2xl text-slate-900 tracking-tight leading-tight mb-2 group-hover:text-primary transition-colors">
+                         {cat.name}
+                      </h3>
+                      
+                      <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-50">
+                         <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{cat.itemCount} Total Items</span>
+                         </div>
+                         <span className="text-[10px] font-black text-slate-300 uppercase tracking-tighter">
+                            Added {new Date(cat.createdAt).toLocaleDateString()}
+                         </span>
+                      </div>
+                   </div>
+                </motion.div>
+             ))}
           </div>
         )}
+
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent>
