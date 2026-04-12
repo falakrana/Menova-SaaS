@@ -45,6 +45,12 @@ interface AppState {
   deleteMenuItem: (id: string) => Promise<void>;
   toggleItemAvailability: (id: string) => Promise<void>;
   uploadImage: (file: File, folder?: string) => Promise<{ url: string }>;
+  generateMenuItemImage: (data: {
+    name: string;
+    description?: string;
+    categoryName?: string;
+    stylePrompt?: string;
+  }) => Promise<{ url: string; prompt: string }>;
 
   // Orders
   fetchOrders: () => Promise<void>;
@@ -227,6 +233,10 @@ export const useStore = create<AppState>((set, get) => ({
   
   uploadImage: async (file: File, folder?: string) => {
     return await api.uploadImage(file, folder);
+  },
+
+  generateMenuItemImage: async (data) => {
+    return await api.generateMenuItemImage(data);
   },
 
   fetchOrders: async () => {

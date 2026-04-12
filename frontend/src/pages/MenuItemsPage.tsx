@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import type { MenuItem } from '@/types';
 
 export default function MenuItems() {
-  const { menuItems, categories, addMenuItem, updateMenuItem, deleteMenuItem, toggleItemAvailability, fetchMenuItems } = useStore();
+  const { menuItems, categories, addMenuItem, updateMenuItem, deleteMenuItem, toggleItemAvailability, fetchMenuItems, generateMenuItemImage } = useStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -26,6 +26,8 @@ export default function MenuItems() {
 
   const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
   const [uploading, setUploading] = useState(false);
+  const [generatingAi, setGeneratingAi] = useState(false);
+  const [aiStylePrompt, setAiStylePrompt] = useState('');
   const updateForm = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
 
   useEffect(() => {
@@ -35,12 +37,14 @@ export default function MenuItems() {
   const openAdd = () => {
     setEditingItem(null);
     setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
+    setAiStylePrompt('');
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
     setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree });
+    setAiStylePrompt('');
     setDialogOpen(true);
   };
 
@@ -57,6 +61,32 @@ export default function MenuItems() {
       toast({ title: 'Failed to upload image', variant: 'destructive' });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleGenerateAiImage = async () => {
+    const itemName = form.name.trim();
+    if (!itemName) {
+      toast({ title: 'Add item name first', description: 'AI image needs at least a dish name.', variant: 'destructive' });
+      return;
+    }
+
+    const category = categories.find((c) => c.id === form.categoryId);
+
+    setGeneratingAi(true);
+    try {
+      const result = await generateMenuItemImage({
+        name: itemName,
+        description: form.description.trim(),
+        categoryName: category?.name || '',
+        stylePrompt: aiStylePrompt.trim() || undefined,
+      });
+      updateForm('image', result.url);
+      toast({ title: 'Google AI image generated' });
+    } catch (err) {
+      toast({ title: 'Failed to generate Google AI image', variant: 'destructive' });
+    } finally {
+      setGeneratingAi(false);
     }
   };
 
@@ -201,6 +231,25 @@ export default function MenuItems() {
                       <span className="font-display font-black text-xl text-slate-900 tracking-tight">₹{item.price}</span>
                     </div>
                     <p className="text-slate-400 font-medium text-xs mb-8 line-clamp-2 leading-relaxed">{item.description}</p>
+                    {(item.isVeg || item.isSpicy || item.isGlutenFree) && (
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {item.isVeg && (
+                          <span className="px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wide">
+                            Vegetarian
+                          </span>
+                        )}
+                        {item.isSpicy && (
+                          <span className="px-2.5 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-700 text-[10px] font-bold uppercase tracking-wide">
+                            Spicy
+                          </span>
+                        )}
+                        {item.isGlutenFree && (
+                          <span className="px-2.5 py-1 rounded-full border border-sky-200 bg-sky-50 text-sky-700 text-[10px] font-bold uppercase tracking-wide">
+                            Gluten Free
+                          </span>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
                        <div className="flex items-center gap-2">
@@ -227,7 +276,7 @@ export default function MenuItems() {
 
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingItem ? 'Edit Item' : 'Add Item'}</DialogTitle>
             </DialogHeader>
@@ -299,9 +348,31 @@ export default function MenuItems() {
                           </>
                         )}
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading || generatingAi} />
                     </label>
                   )}
+
+                  <Textarea
+                    value={aiStylePrompt}
+                    onChange={(e) => setAiStylePrompt(e.target.value)}
+                    placeholder="Optional Google AI style prompt (e.g., rustic plating, dark background, overhead shot)"
+                    rows={2}
+                    disabled={generatingAi}
+                  />
+
+                  <Button type="button" variant="outline" onClick={handleGenerateAiImage} disabled={generatingAi || uploading}>
+                    {generatingAi ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate with Google AI
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
