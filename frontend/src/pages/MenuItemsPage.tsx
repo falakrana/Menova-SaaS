@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -27,7 +27,6 @@ export default function MenuItems() {
   const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
   const [uploading, setUploading] = useState(false);
   const [generatingAi, setGeneratingAi] = useState(false);
-  const [aiStylePrompt, setAiStylePrompt] = useState('');
   const updateForm = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
 
   useEffect(() => {
@@ -37,14 +36,12 @@ export default function MenuItems() {
   const openAdd = () => {
     setEditingItem(null);
     setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
-    setAiStylePrompt('');
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
     setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree });
-    setAiStylePrompt('');
     setDialogOpen(true);
   };
 
@@ -71,15 +68,10 @@ export default function MenuItems() {
       return;
     }
 
-    const category = categories.find((c) => c.id === form.categoryId);
-
     setGeneratingAi(true);
     try {
       const result = await generateMenuItemImage({
         name: itemName,
-        description: form.description.trim(),
-        categoryName: category?.name || '',
-        stylePrompt: aiStylePrompt.trim() || undefined,
       });
       updateForm('image', result.url);
       toast({ title: 'Google AI image generated' });
@@ -276,20 +268,27 @@ export default function MenuItems() {
 
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-lg p-4 [&>button]:hidden">
+            <DialogHeader className="flex-row items-center justify-between space-y-0">
               <DialogTitle>{editingItem ? 'Edit Item' : 'Add Item'}</DialogTitle>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                <Button size="sm" onClick={handleSave} disabled={loading}>
+                  {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {editingItem ? 'Update' : 'Add'}
+                </Button>
+              </div>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-2 py-2">
               <div>
                 <Label>Item Name</Label>
                 <Input placeholder="e.g. Paneer Tikka" value={form.name} onChange={(e) => updateForm('name', e.target.value)} className="mt-1.5" />
               </div>
               <div>
                 <Label>Description</Label>
-                <Textarea placeholder="Brief description..." value={form.description} onChange={(e) => updateForm('description', e.target.value)} className="mt-1.5" rows={3} />
+                <Textarea placeholder="Brief description..." value={form.description} onChange={(e) => updateForm('description', e.target.value)} className="mt-1.5" rows={2} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>Price (₹)</Label>
                   <Input type="number" placeholder="249" value={form.price} onChange={(e) => updateForm('price', e.target.value)} className="mt-1.5" />
@@ -307,26 +306,26 @@ export default function MenuItems() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
                   <Switch checked={form.isVeg} onCheckedChange={(v) => updateForm('isVeg', v)} />
-                  <Label className="text-xs font-bold">Vegetarian</Label>
+                  <Label className="text-[11px] font-bold">Vegetarian</Label>
                 </div>
-                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
                   <Switch checked={form.isSpicy} onCheckedChange={(v) => updateForm('isSpicy', v)} />
-                  <Label className="text-xs font-bold">Spicy</Label>
+                  <Label className="text-[11px] font-bold">Spicy</Label>
                 </div>
-                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border">
+                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
                   <Switch checked={form.isGlutenFree} onCheckedChange={(v) => updateForm('isGlutenFree', v)} />
-                  <Label className="text-xs font-bold">Gluten Free</Label>
+                  <Label className="text-[11px] font-bold">Gluten Free</Label>
                 </div>
               </div>
 
               <div>
                 <Label>Item Image</Label>
-                <div className="mt-1.5 flex flex-col gap-4">
+                <div className="mt-1.5 flex flex-col gap-2">
                   {form.image ? (
-                    <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border group">
+                    <div className="relative w-full h-24 rounded-lg overflow-hidden border border-border group">
                       <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         onClick={() => updateForm('image', '')}
@@ -337,13 +336,13 @@ export default function MenuItems() {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all">
+                      <div className="flex flex-col items-center justify-center py-2">
                         {uploading ? (
-                          <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
                         ) : (
                           <>
-                            <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                            <Upload className="w-6 h-6 text-muted-foreground mb-1" />
                             <p className="text-sm text-muted-foreground">Click to upload photo</p>
                           </>
                         )}
@@ -352,15 +351,7 @@ export default function MenuItems() {
                     </label>
                   )}
 
-                  <Textarea
-                    value={aiStylePrompt}
-                    onChange={(e) => setAiStylePrompt(e.target.value)}
-                    placeholder="Optional Google AI style prompt (e.g., rustic plating, dark background, overhead shot)"
-                    rows={2}
-                    disabled={generatingAi}
-                  />
-
-                  <Button type="button" variant="outline" onClick={handleGenerateAiImage} disabled={generatingAi || uploading}>
+                  <Button type="button" variant="outline" className="h-10" onClick={handleGenerateAiImage} disabled={generatingAi || uploading}>
                     {generatingAi ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -376,13 +367,6 @@ export default function MenuItems() {
                 </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleSave} disabled={loading}>
-                {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {editingItem ? 'Update' : 'Add'}
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
 
