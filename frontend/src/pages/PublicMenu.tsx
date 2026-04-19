@@ -45,6 +45,11 @@ const DietaryIcons = ({ item }: { item: any }) => (
         GF
       </div>
     )}
+    {item.specifications?.map((spec: string) => (
+      <div key={spec} className="px-1 py-0.5 rounded-sm bg-slate-100 text-slate-600 text-[7px] font-black uppercase tracking-tighter border border-slate-200">
+        {spec}
+      </div>
+    ))}
   </div>
 );
 

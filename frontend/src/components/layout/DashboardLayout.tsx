@@ -56,7 +56,7 @@ export default function DashboardLayout({
         </Link>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar relative">
+      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto no-scrollbar relative">
         <p className="px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-sidebar-foreground/30">Main Menu</p>
         {navItems.map((item) => (
           item.disabled ? (

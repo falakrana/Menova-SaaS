@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart, Sparkles } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import type { MenuItem } from '@/types';
 
 export default function MenuItems() {
-  const { menuItems, categories, addMenuItem, updateMenuItem, deleteMenuItem, toggleItemAvailability, fetchMenuItems, generateMenuItemImage } = useStore();
+  const { menuItems, categories, addMenuItem, updateMenuItem, deleteMenuItem, toggleItemAvailability, fetchMenuItems } = useStore();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -24,10 +24,25 @@ export default function MenuItems() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
+  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] as string[] });
+  const [tagInput, setTagInput] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [generatingAi, setGeneratingAi] = useState(false);
-  const updateForm = (field: string, value: string | boolean) => setForm((f) => ({ ...f, [field]: value }));
+
+  const updateForm = (field: string, value: any) => setForm((f) => ({ ...f, [field]: value }));
+
+  const addTag = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!form.specifications.includes(tagInput.trim())) {
+        updateForm('specifications', [...form.specifications, tagInput.trim()]);
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    updateForm('specifications', form.specifications.filter(t => t !== tag));
+  };
 
   useEffect(() => {
     fetchMenuItems();
@@ -35,13 +50,13 @@ export default function MenuItems() {
 
   const openAdd = () => {
     setEditingItem(null);
-    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false });
+    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] });
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
-    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree });
+    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree, specifications: item.specifications || [] });
     setDialogOpen(true);
   };
 
@@ -61,26 +76,7 @@ export default function MenuItems() {
     }
   };
 
-  const handleGenerateAiImage = async () => {
-    const itemName = form.name.trim();
-    if (!itemName) {
-      toast({ title: 'Add item name first', description: 'AI image needs at least a dish name.', variant: 'destructive' });
-      return;
-    }
 
-    setGeneratingAi(true);
-    try {
-      const result = await generateMenuItemImage({
-        name: itemName,
-      });
-      updateForm('image', result.url);
-      toast({ title: 'Google AI image generated' });
-    } catch (err) {
-      toast({ title: 'Failed to generate Google AI image', variant: 'destructive' });
-    } finally {
-      setGeneratingAi(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!form.name.trim() || !form.price || parseFloat(form.price) <= 0) return;
@@ -223,7 +219,7 @@ export default function MenuItems() {
                       <span className="font-display font-black text-xl text-slate-900 tracking-tight">₹{item.price}</span>
                     </div>
                     <p className="text-slate-400 font-medium text-xs mb-8 line-clamp-2 leading-relaxed">{item.description}</p>
-                    {(item.isVeg || item.isSpicy || item.isGlutenFree) && (
+                    {((item.specifications && item.specifications.length > 0) || item.isVeg || item.isSpicy || item.isGlutenFree) && (
                       <div className="flex flex-wrap gap-2 mb-6">
                         {item.isVeg && (
                           <span className="px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wide">
@@ -240,6 +236,11 @@ export default function MenuItems() {
                             Gluten Free
                           </span>
                         )}
+                        {item.specifications?.map(spec => (
+                          <span key={spec} className="px-2.5 py-1 rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-[10px] font-bold uppercase tracking-wide">
+                            {spec}
+                          </span>
+                        ))}
                       </div>
                     )}
                     
@@ -306,18 +307,30 @@ export default function MenuItems() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
-                  <Switch checked={form.isVeg} onCheckedChange={(v) => updateForm('isVeg', v)} />
-                  <Label className="text-[11px] font-bold">Vegetarian</Label>
-                </div>
-                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
-                  <Switch checked={form.isSpicy} onCheckedChange={(v) => updateForm('isSpicy', v)} />
-                  <Label className="text-[11px] font-bold">Spicy</Label>
-                </div>
-                <div className="flex items-center space-x-2 p-2 rounded-lg border border-border">
-                  <Switch checked={form.isGlutenFree} onCheckedChange={(v) => updateForm('isGlutenFree', v)} />
-                  <Label className="text-[11px] font-bold">Gluten Free</Label>
+              <div className="space-y-2">
+                <Label>Item Specifications (Type & Press Enter)</Label>
+                <div className="flex flex-wrap gap-2 p-3 min-h-[50px] rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                  {form.specifications.map((tag) => (
+                    <motion.span
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      key={tag}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold border border-primary/10"
+                    >
+                      {tag}
+                      <button onClick={() => removeTag(tag)} className="hover:text-primary-foreground hover:bg-primary rounded-full transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </motion.span>
+                  ))}
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={addTag}
+                    placeholder={form.specifications.length === 0 ? "e.g. Vegetarian, Extra Spicy, Dairy-free..." : "Add more..."}
+                    className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px]"
+                  />
                 </div>
               </div>
 
@@ -347,23 +360,11 @@ export default function MenuItems() {
                           </>
                         )}
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading || generatingAi} />
+                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                     </label>
                   )}
 
-                  <Button type="button" variant="outline" className="h-10" onClick={handleGenerateAiImage} disabled={generatingAi || uploading}>
-                    {generatingAi ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Generate with Google AI
-                      </>
-                    )}
-                  </Button>
+
                 </div>
               </div>
             </div>

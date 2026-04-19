@@ -61,6 +61,7 @@ export interface MenuItem {
   isVeg?: boolean;
   isSpicy?: boolean;
   isGlutenFree?: boolean;
+  specifications?: string[];
   /** ISO date string (YYYY-MM-DD). */
   createdAt: string;
 }

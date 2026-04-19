@@ -292,15 +292,7 @@ export const api = {
 
   },
 
-  generateMenuItemImage: async (data: {
-    name: string;
-    description?: string;
-    categoryName?: string;
-    stylePrompt?: string;
-  }) => {
-    const response = await apiClient.post('/uploads/ai-image', data);
-    return response.data as { url: string; prompt: string };
-  }
+
 
 };
 

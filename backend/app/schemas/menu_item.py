@@ -14,6 +14,7 @@ class MenuItemBase(BaseModel):
     isVeg: bool = False
     isSpicy: bool = False
     isGlutenFree: bool = False
+    specifications: list[str] = []
 
 class MenuItemCreate(MenuItemBase):
     pass
@@ -29,6 +30,7 @@ class MenuItemUpdate(BaseModel):
     isVeg: Optional[bool] = None
     isSpicy: Optional[bool] = None
     isGlutenFree: Optional[bool] = None
+    specifications: Optional[list[str]] = None
 
 class MenuItemInDB(MenuItemBase):
     id: str = Field(..., validation_alias="_id")
