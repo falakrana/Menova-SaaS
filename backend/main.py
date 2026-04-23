@@ -36,6 +36,6 @@ app.include_router(public.router, prefix=f"{settings.API_V1_STR}/public", tags=[
 app.include_router(qr_code.router, prefix=f"{settings.API_V1_STR}/qr-code", tags=["qr-code"])
 app.include_router(uploads.router, prefix=f"{settings.API_V1_STR}/uploads", tags=["uploads"])
 
-@app.get("/", methods=["GET", "HEAD"])
+@app.api_route("/", methods=["GET", "HEAD"])
 async def root():
     return {"message": "Welcome to Menova API"}
