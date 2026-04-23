@@ -157,9 +157,15 @@ export default function PaletteCard({
               </Tooltip>
             </TooltipProvider>
           </label>
-          <Select onValueChange={handlePresetChange}>
+          <Select 
+            value={THEME_PRESETS.find(p => 
+              p.primary.toLowerCase() === selectedColor.toLowerCase() && 
+              p.accent.toLowerCase() === accentColor.toLowerCase()
+            )?.id} 
+            onValueChange={handlePresetChange}
+          >
             <SelectTrigger className="w-full bg-slate-50 border-slate-200 h-11 shadow-sm transition-all hover:bg-slate-100/50">
-              <SelectValue placeholder="Classic Restaurant" />
+              <SelectValue placeholder="Custom Colors" />
             </SelectTrigger>
             <SelectContent>
               {THEME_PRESETS.map((p) => (
