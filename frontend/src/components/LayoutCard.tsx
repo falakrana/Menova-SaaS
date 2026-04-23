@@ -12,7 +12,6 @@ const LAYOUTS = [
   { id: 'classic', label: 'Classic List', desc: 'Standard top-to-bottom list with small thumbnails.', icon: <><span className="block w-full h-1 bg-slate-300 rounded-sm mb-1"/><span className="block w-full h-1 bg-slate-300 rounded-sm mb-1"/><span className="block w-2/3 h-1 bg-slate-300 rounded-sm"/></> },
   { id: 'grid', label: 'Card Grid', desc: '2-column grid layout for visually heavy menus.', icon: <div className="grid grid-cols-2 gap-1 h-full"><div className="bg-slate-300 rounded-sm h-full w-full"/><div className="bg-slate-300 rounded-sm h-full w-full"/></div> },
   { id: 'minimal', label: 'Minimal Menu', desc: 'Text-focused with no images for a clean look.', icon: <><span className="block w-full h-0.5 bg-slate-200 mb-2"/><span className="block w-3/4 h-1 bg-slate-400 rounded-sm mb-1"/><span className="block w-1/2 h-1 bg-slate-300 rounded-sm mb-2"/><span className="block w-full h-0.5 bg-slate-200"/></> },
-  { id: 'premium', label: 'Premium Menu', desc: 'Large edge-to-edge images and elegant spacing.', icon: <><span className="block w-full h-4 bg-slate-300 rounded-sm mb-1"/><span className="block w-1/2 h-1 bg-slate-500 rounded-sm mb-1"/></> },
 ];
 
 export default function LayoutCard({ selectedLayout, onLayoutChange, primaryColor }: LayoutCardProps) {

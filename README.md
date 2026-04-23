@@ -12,12 +12,12 @@
 ## ✨ Core Features
 
 ### 🎨 Advanced Brand Customization
-*   **Dynamic Layouts**: Choose from four professional menu styles: *Classic*, *Grid*, *Minimal*, or *Premium*.
+*   **Dynamic Layouts**: Choose from three professional menu styles: *Classic*, *Grid*, or *Minimal*.
 *   **Premium Typography**: Integrated with Google Fonts (Inter, Roboto, Outfit, Playfair Display, etc.) to match your restaurant's personality.
 *   **Accent Theming**: Instantly update your menu's primary colors to align with your brand identity.
 *   **Branding Assets**: Upload logos and set custom taglines that appear across all customer-facing touchpoints.
 
-### 📱 Premium Menu Preview
+### 📱 Interactive Menu Preview
 *   **Live Preview**: Real-time visual feedback as you customize your menu.
 *   **Device Simulation**: View your menu exactly how customers see it with interactive **Mobile**, **Tablet**, and **Desktop** frame toggles.
 *   **Responsive Navigation**: Smooth, no-scrollbar category bar with smart arrow indicators for easy browsing.

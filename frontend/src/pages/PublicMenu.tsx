@@ -410,7 +410,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className={
-              restaurant.layout === 'grid' || restaurant.layout === 'premium'
+              restaurant.layout === 'grid'
                 ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
                 : "flex flex-col gap-4 lg:gap-6 max-w-4xl mx-auto"
             }
@@ -524,7 +524,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
                     transition={{ delay: index * 0.05 }}
                     className={`group relative flex flex-col rounded-[2.5rem] border border-border/50 bg-white shadow-xl shadow-black/[0.02] hover:shadow-2xl transition-all duration-500 overflow-hidden ${
                       isHot ? 'ring-2 ring-[var(--accent-color)]/20 shadow-[var(--accent-color)]/5' : ''
-                    } ${layout === 'premium' ? 'sm:scale-105 hover:scale-110' : ''}`}
+                    } `}
                   >
                     <div className="relative h-44 bg-slate-50/50 flex items-center justify-center overflow-hidden">
                       {/* Decorative Pattern Background */}

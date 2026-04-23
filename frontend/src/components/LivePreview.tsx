@@ -243,7 +243,7 @@ export default function LivePreview({
                     Add Item
                   </button>
                 </div>
-                <div className={`w-24 h-24 rounded-xl bg-slate-200 object-cover shrink-0 overflow-hidden shadow-inner border border-slate-100/50 ${layout === 'premium' ? 'w-32 h-32' : ''}`}>
+                <div className={`w-24 h-24 rounded-xl bg-slate-200 object-cover shrink-0 overflow-hidden shadow-inner border border-slate-100/50 `}>
                   <img src="https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Tomato Bruschetta" className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function LivePreview({
                     Add Item
                   </button>
                 </div>
-                <div className={`w-24 h-24 rounded-xl bg-slate-200 object-cover shrink-0 overflow-hidden shadow-inner border border-slate-100/50 ${layout === 'premium' ? 'w-32 h-32' : ''}`}>
+                <div className={`w-24 h-24 rounded-xl bg-slate-200 object-cover shrink-0 overflow-hidden shadow-inner border border-slate-100/50 `}>
                   <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Special Filet" className="w-full h-full object-cover" />
                 </div>
               </div>
