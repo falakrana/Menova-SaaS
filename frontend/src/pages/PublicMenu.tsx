@@ -526,30 +526,35 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
                       isHot ? 'ring-2 ring-[var(--accent-color)]/20 shadow-[var(--accent-color)]/5' : ''
                     } ${layout === 'premium' ? 'sm:scale-105 hover:scale-110' : ''}`}
                   >
-                    {/* Item Image with Hover Zoom */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                      {item.image ? (
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted/40 backdrop-blur-sm">
-                           <UtensilsCrossed className="w-12 h-12 text-muted-foreground/10" />
-                        </div>
-                      )}
+                    <div className="relative h-44 bg-slate-50/50 flex items-center justify-center overflow-hidden">
+                      {/* Decorative Pattern Background */}
+                      <div className="absolute inset-0 opacity-[0.05] noise-bg" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 via-transparent to-[var(--primary-color)]/5" />
+                      
+                      {/* Circular Image Container */}
+                      <div className="relative w-32 h-32 rounded-full border-[6px] border-white shadow-2xl shadow-black/5 overflow-hidden z-10 transition-all duration-500 group-hover:scale-110 group-hover:border-[var(--accent-color)]/20 bg-white">
+                        {item.image ? (
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-slate-100/50">
+                             <UtensilsCrossed className="w-10 h-10 text-muted-foreground/20" />
+                          </div>
+                        )}
+                      </div>
                       
                       {/* Floating Badges */}
-                      <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
                         {isHot && (
-                           <span className="px-2.5 py-1 rounded-lg bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-widest shadow-lg">
+                           <span className="px-2.5 py-1 rounded-lg bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
                               Bestseller
                            </span>
                         )}
                       </div>
-                      
-                      </div>
+                    </div>
 
                     {/* Content Section */}
                     <div className="flex-1 p-8 flex flex-col text-left">
