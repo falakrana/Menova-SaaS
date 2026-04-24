@@ -95,14 +95,24 @@ async def get_current_user(
     user = await db.users.find_one({"clerkId": clerk_user_id})
 
     if not user:
-        # Auto-provision on first API call — create a minimal user record
-        user_doc = {
-            "clerkId": clerk_user_id,
-            "email": payload.get("email", ""),
-            "name": payload.get("name", "") or payload.get("username", ""),
-            "createdAt": datetime.utcnow(),
-        }
-        result = await db.users.insert_one(user_doc)
-        user = await db.users.find_one({"_id": ObjectId(result.inserted_id)})
+        # Auto-provision on first API call — create a minimal user record atomically
+        try:
+            await db.users.update_one(
+                {"clerkId": clerk_user_id},
+                {
+                    "$setOnInsert": {
+                        "clerkId": clerk_user_id,
+                        "email": payload.get("email", ""),
+                        "name": payload.get("name", "") or payload.get("username", ""),
+                        "createdAt": datetime.utcnow(),
+                    }
+                },
+                upsert=True
+            )
+        except Exception:
+            # Ignore DuplicateKeyError if multiple requests race and index exists
+            pass
+        
+        user = await db.users.find_one({"clerkId": clerk_user_id})
 
     return fix_id(user)
