@@ -1,557 +1,662 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  UtensilsCrossed, QrCode, Smartphone, Palette, ArrowRight, Check,
-  Menu, X, Zap, BarChart3, ShoppingCart, ChevronDown, Star, Globe,
-  LogOut, LayoutDashboard, Eye, Folder, ShoppingBag, Heart, Phone
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { useStore } from '@/store/useStore';
+  ArrowRight,
+  BarChart3,
+  Check,
+  ChevronDown,
+  Eye,
+  Heart,
+  Menu,
+  Search,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useStore } from "@/store/useStore";
+
+const plans = [
+  {
+    name: "Free",
+    price: "₹0",
+    period: "/year",
+    features: ["Up to 15 menu items", "Basic customization"],
+    popular: false,
+    cta: "Start free",
+  },
+  {
+    name: "Pro",
+    price: "₹1499",
+    period: "/year",
+    features: [
+      "Unlimited menu items",
+      "Analytics dashboard",
+      "Modern customization",
+      "Priority support",
+    ],
+    popular: true,
+    cta: "Start free trial",
+  },
+];
 
 const features = [
-  { icon: UtensilsCrossed, title: 'Digital Menu Builder', desc: 'Create beautiful menus with categories, images, and pricing in minutes.' },
-  { icon: QrCode, title: 'QR Code Generator', desc: 'Auto-generate QR codes. Customers scan and instantly view your menu.' },
-  { icon: Smartphone, title: 'Mobile Optimized', desc: 'Menus look stunning on every device — phone, tablet, or desktop.' },
-  { icon: Palette, title: 'Brand Customization', desc: 'Match your restaurant brand with custom colors, logos, and fonts.' },
-  { icon: BarChart3, title: 'Analytics Dashboard', desc: 'Track menu views, popular items, and order trends in real-time.' },
+  {
+    title: "All menu updates in one place",
+    copy: "Edit categories, pricing, and availability once and sync changes everywhere in real time.",
+  },
+  {
+    title: "QR ordering without friction",
+    copy: "Guests scan, browse, and order instantly with a clean flow designed for busy service hours.",
+  },
+  {
+    title: "Brand styling that feels yours",
+    copy: "Adjust fonts, colors, and media to match your restaurant atmosphere with no design tools needed.",
+  },
+  {
+    title: "Insights that help daily decisions",
+    copy: "Track popular dishes and menu performance so you can improve what guests actually order.",
+  },
+];
+
+const experienceTiles = [
+  {
+    title: "Food & Drink",
+    image:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Cafes",
+    image:
+      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Fine Dining",
+    image:
+      "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Street Food",
+    image:
+      "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Bakeries",
+    image:
+      "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Desserts",
+    image:
+      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Cloud Kitchens",
+    image:
+      "https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    title: "Family Restaurants",
+    image:
+      "https://images.unsplash.com/photo-1515669097368-22e68427d265?auto=format&fit=crop&w=1200&q=80",
+  },
 ];
 
 const steps = [
-  { num: '01', title: 'Create your restaurant', desc: 'Sign up and add your restaurant details in seconds.' },
-  { num: '02', title: 'Build your menu', desc: 'Add categories, items, images and prices with our intuitive editor.' },
-  { num: '03', title: 'Share with QR', desc: 'Generate a QR code, print it, and place it on your tables.' },
-  { num: '04', title: 'Get your insights', desc: 'Track menu views, popular items, and order trends in real-time.' },
-];
-
-const plans = [
-  { name: 'Free', price: '₹0', period: '/year', features: ['Up to 15 menu items', 'Basic customization'], cta: 'Start Free', popular: false },
-  { name: 'Pro', price: '₹1499', period: '/year', features: ['Unlimited menu items', 'Analytics dashboard', 'Modern customization', 'Priority support'], cta: 'Start Free Trial', popular: true },
+  {
+    title: "Set up your restaurant",
+    copy: "Add your name, logo, and menu categories in a few guided steps.",
+  },
+  {
+    title: "Start taking digital orders",
+    copy: "Publish your QR menu and let guests browse and place orders right from their table.",
+  },
+  {
+    title: "Grow with confidence",
+    copy: "Use live performance data to improve conversion and repeat ordering.",
+  },
 ];
 
 const testimonials = [
-  { name: 'Priya Sharma', role: 'Owner, Spice Garden', text: 'Menova transformed how we handle orders. Our customers love scanning the QR and ordering directly!', rating: 5 },
-  { name: 'Rahul Mehta', role: 'Manager, Café Bliss', text: 'Setup took 10 minutes. The table ordering feature alone has saved us two waitstaff per shift.', rating: 5 },
-  { name: 'Anita Desai', role: 'Owner, Taj Kitchen', text: 'Beautiful menus, easy to update. Our online orders went up 40% in the first month.', rating: 5 },
+  {
+    name: "Priya Sharma",
+    role: "Owner, Spice Garden",
+    quote:
+      "Menova helped us move from printed menus to a cleaner digital flow in under one day. Guests now order faster and our team spends less time clarifying items.",
+  },
+  {
+    name: "Rahul Mehta",
+    role: "Manager, Cafe Bliss",
+    quote:
+      "The menu builder is simple enough for our floor team, not just managers. Updates happen in minutes and we see the impact right away.",
+  },
+  {
+    name: "Anita Desai",
+    role: "Founder, Taj Kitchen",
+    quote:
+      "What stood out was how natural it feels for customers. The menu looks premium, the flow is fast, and we finally have useful engagement data.",
+  },
 ];
 
 const faqs = [
-  { q: 'How does the QR code menu work?', a: 'You create your digital menu on Menova, generate a QR code, and print it. Customers scan the QR with their phone camera and your menu opens instantly — no app download needed.' },
-  { q: 'Can I customize the look of my menu?', a: 'Absolutely. You can change colors, fonts, upload your logo, and make your digital menu match your restaurant\'s brand identity.' },
-  { q: 'Is there a free plan?', a: 'Yes, our Free plan lets you create a menu with up to 15 items and 1 QR code — perfect for getting started. It is activate for you for first 15 days, then you have to take pro plan.' },
-  { q: 'Do I need technical skills?', a: 'Not at all. Menova is designed for restaurant owners. If you can use a smartphone, you can set up your menu.' },
+  {
+    q: "How does the QR code menu work?",
+    a: "You create your digital menu on Menova, generate a QR code, and print it. Customers scan the QR with their phone camera and your menu opens instantly — no app download needed.",
+  },
+  {
+    q: "Can I customize the look of my menu?",
+    a: "Absolutely. You can change colors, fonts, upload your logo, and make your digital menu match your restaurant's brand identity.",
+  },
+  {
+    q: "Is there a free trial?",
+    a: "Yes, our Free plan lets you create a menu with up to 15 items and 1 QR code — perfect for getting started. It is activate for you for first 15 days, then you have to take pro plan.",
+  },
+  {
+    q: "Do I need technical skills to use Menova?",
+    a: "Not at all. Menova is designed for restaurant owners. If you can use a smartphone, you can set up your menu."
+  }
 ];
 
 export default function Landing() {
   const [mobileNav, setMobileNav] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const isLoggedIn = !!localStorage.getItem('menova_token');
+  const isLoggedIn = !!localStorage.getItem("menova_token");
   const logout = useStore((s) => s.logout);
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen bg-slate-50 selection:bg-orange-100 selection:text-orange-900 overflow-x-hidden">
-      {/* Immersive Background Elements */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-200/40 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-blue-200/40 rounded-full blur-[120px]" />
-      </div>
+  const navItems = [
+    { label: "Features", href: "#features", chevron: false },
+    { label: "How it works", href: "#how-it-works", chevron: false },
+    { label: "Pricing", href: "#pricing", chevron: false },
+    { label: "FAQ", href: "#faq", chevron: false },
+  ] as const;
 
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-slate-100/80">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link to={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:rotate-12 transition-transform duration-300">
-              <UtensilsCrossed className="w-5 h-5 text-white" />
+  return (
+    <div className="min-h-screen bg-background text-foreground overflow-x-clip">
+      <div className="sticky top-0 z-50 px-4 pt-3 sm:px-6 sm:pt-4">
+        <nav
+          className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 rounded-full border border-slate-200/80 bg-white/90 px-3 py-2.5 shadow-[0_8px_32px_rgba(15,23,42,0.08)] backdrop-blur-md sm:px-5 md:gap-3"
+          aria-label="Main"
+        >
+          <Link
+            to={isLoggedIn ? "/dashboard" : "/"}
+            className="flex items-center gap-2 shrink-0 pl-0.5"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background sm:h-9 sm:w-9">
+              <UtensilsCrossed className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
             </div>
-            <span className="font-display font-black text-2xl tracking-tight text-slate-900">Menova</span>
+            <span className="font-body text-lg font-bold tracking-tight text-foreground lowercase sm:text-xl">
+              menova
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-10">
-            {['Features', 'How It Works', 'Pricing', 'FAQ'].map((item) => (
+          <div className="hidden flex-1 items-center justify-center gap-0.5 md:flex">
+            {navItems.map((item) => (
               <a
-                key={item}
-                href={`#${item.toLowerCase().replace(/ /g, '-')}`}
-                className="text-sm font-bold text-slate-500 hover:text-orange-500 transition-colors uppercase tracking-widest px-2 py-1"
+                key={item.href}
+                href={item.href}
+                className="inline-flex items-center gap-0.5 rounded-full px-2 py-1.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-slate-100/80 hover:text-foreground"
               >
-                {item}
+                {item.label}
+                {item.chevron ? (
+                  <ChevronDown
+                    className="h-3.5 w-3.5 opacity-60"
+                    strokeWidth={2}
+                  />
+                ) : null}
               </a>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden items-center justify-end gap-1 sm:gap-2 md:flex">
+
             {isLoggedIn ? (
-              <Button asChild className="h-12 px-8 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all active:scale-95">
-                <Link to="/dashboard">
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
+              <>
+                <Link
+                  to="/dashboard"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-slate-100/80 hover:text-foreground"
+                >
                   Dashboard
                 </Link>
-              </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    navigate("/", { replace: true });
+                  }}
+                  className="rounded-full border border-slate-200/90 bg-white px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-50"
+                >
+                  Log out
+                </button>
+              </>
             ) : (
               <>
-                <Link to="/login" className="text-sm font-bold text-slate-600 hover:text-orange-500 px-4">Log In</Link>
-                <Button asChild className="h-12 px-8 rounded-2xl bg-orange-500 text-white font-bold hover:bg-orange-600 shadow-xl shadow-orange-500/20 transition-all active:scale-95">
-                  <Link to="/register">Get Started</Link>
-                </Button>
+                <Link
+                  to="/login"
+                  className="rounded-full px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-slate-100/80 hover:text-foreground"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/register"
+                  className="rounded-full bg-[#F2E6A0] px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-[#E8DC8F]"
+                >
+                  Get a demo
+                </Link>
               </>
             )}
           </div>
 
-          <button className="md:hidden p-2 text-slate-900" onClick={() => setMobileNav(!mobileNav)}>
-            {mobileNav ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <button
+            className="rounded-full p-2 text-foreground md:hidden"
+            onClick={() => setMobileNav((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            {mobileNav ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
-        </div>
+        </nav>
 
-        <AnimatePresence>
-          {mobileNav && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="md:hidden border-t border-slate-100 bg-white overflow-hidden"
-            >
-              <div className="p-6 space-y-4">
-                {['Features', 'How It Works', 'Pricing', 'FAQ'].map((item) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase().replace(/ /g, '-')}`}
-                    className="block text-lg font-bold text-slate-600 py-2"
-                    onClick={() => setMobileNav(false)}
-                  >
-                    {item}
-                  </a>
-                ))}
-                <div className="pt-4 border-t border-slate-50 flex flex-col gap-3">
-                  {isLoggedIn ? (
-                    <Button className="w-full h-14 rounded-2xl font-bold bg-slate-900" asChild><Link to="/dashboard">Dashboard</Link></Button>
-                  ) : (
-                    <>
-                      <Link to="/login" className="block text-center font-bold py-3 text-slate-600">Log In</Link>
-                      <Button className="w-full h-14 rounded-2xl font-bold bg-orange-500 shadow-xl shadow-orange-500/20" asChild><Link to="/register">Start Free Trial</Link></Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 z-10">
-        <div className="max-w-6xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-sm">
-              <Zap className="w-3 h-3 fill-current" /> Next-Gen Menu Studio
+        {mobileNav && (
+          <div className="mt-2 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-lg backdrop-blur-md md:hidden">
+            <div className="mb-3 space-y-1">
+              {navItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/90 hover:bg-slate-50"
+                  onClick={() => setMobileNav(false)}
+                >
+                  {item.label}
+                  {item.chevron ? (
+                    <ChevronDown className="h-4 w-4 opacity-50" />
+                  ) : null}
+                </a>
+              ))}
             </div>
+            <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
+              <Button variant="outline" className="w-full" asChild>
+                <Link
+                  to={isLoggedIn ? "/dashboard" : "/login"}
+                  onClick={() => setMobileNav(false)}
+                >
+                  {isLoggedIn ? "Dashboard" : "Sign in"}
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="w-full rounded-full border-0 bg-[#F2E6A0] text-foreground font-semibold hover:bg-[#E8DC8F]"
+              >
+                <Link
+                  to={isLoggedIn ? "/dashboard" : "/register"}
+                  onClick={() => setMobileNav(false)}
+                >
+                  {isLoggedIn ? "Open dashboard" : "Get a demo"}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
-            <h1 className="font-display text-4xl sm:text-6xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-8 text-slate-900">
-              Modern menus<br />
-              <span className="text-orange-500 relative inline-block">
-                for modern
-                <div className="absolute -bottom-1.5 left-0 right-0 h-2 bg-orange-100/50 -rotate-1 -z-10" />
-              </span><br />
-              dining.
-            </h1>
-
-            <p className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto mb-10 leading-relaxed font-medium">
-              Create immersive digital menus that feel like an extension of your brand. Increase sales with beautiful visuals and analytics.
+      <header className="border-b border-border/70">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-end">
+          <div>
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              For restaurants, cafes, and food brands
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20 text-center">
-              <Button size="lg" className="h-14 px-10 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[11px] hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all active:scale-95 group" asChild>
-                <Link to="/register">
-                  Claim your spot <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <h1 className="mb-6 text-5xl font-semibold leading-tight sm:text-6xl">
+              Finally, a better way to run your digital menu.
+            </h1>
+            <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
+              Build a menu that feels like your restaurant. Take QR orders
+              faster, reduce admin work, and help guests enjoy a smoother dining
+              experience.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Button size="lg" asChild>
+                <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                  {isLoggedIn ? "Go to dashboard" : "Try for free"}{" "}
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="ghost" className="h-14 px-10 rounded-2xl text-slate-600 font-bold hover:bg-slate-100/50 transition-all group" asChild>
-                <Link to="/menu/demo">
-                  Live Demo <Eye className="ml-2 w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
-                </Link>
+              <Button size="lg" variant="outline" asChild>
+                <Link to="/menu/demo">View live demo</Link>
               </Button>
             </div>
-          </motion.div>
-
-          {/* Immersive Dashboard Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 80 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative group"
-          >
-            <div className="absolute -inset-4 bg-gradient-to-tr from-orange-400/20 to-blue-400/20 rounded-[2.5rem] blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
-
-            <div className="relative rounded-[2rem] border border-white/50 bg-white/40 backdrop-blur-3xl shadow-2xl p-1.5 overflow-hidden overflow-x-hidden">
-              <div className="rounded-[1.5rem] border border-slate-100 bg-white shadow-sm overflow-hidden flex flex-col">
-                {/* Browser Header */}
-                <div className="flex items-center justify-between px-6 py-3.5 bg-slate-50/50 border-b border-slate-50">
-                  <div className="flex gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-200" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-200" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-200" />
-                  </div>
-                  <div className="px-3 py-1 rounded-lg bg-white border border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                    <Globe className="w-2.5 h-2.5" /> menova.app/dashboard
-                  </div>
-                  <div className="w-10 h-1.5 rounded-full bg-slate-200 opacity-20" />
-                </div>
-
-                {/* Mock Content */}
-                <div className="p-8 lg:p-10 text-left">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-                    <div>
-                      <h3 className="font-display font-black text-2xl text-slate-900 mb-1.5 tracking-tight">Morning, Spice Garden 👋</h3>
-                      <p className="text-slate-400 text-sm font-medium">Your digital menu is currently live and performing well.</p>
-                    </div>
-                    <div className="flex gap-2">
-                       <div className="px-4 py-2 rounded-xl bg-slate-900 text-white flex items-center gap-2 hover:scale-105 active:scale-95 transition-all text-[10px] font-black shadow-lg shadow-slate-900/20">
-                          <Eye className="w-4 h-4" /> LIVE PREVIEW
-                       </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Main Stat Card - Spans 2 cols */}
-                    <div className="md:col-span-2 group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform duration-500"></div>
-                      <div className="relative z-10 flex flex-col h-full">
-                        <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-10 group-hover:scale-110 transition-transform shadow-inner">
-                          <BarChart3 className="w-6 h-6" />
-                        </div>
-                        <div className="flex items-end justify-between">
-                          <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Menu Views</p>
-                            <p className="text-5xl font-black text-slate-900 tracking-tighter">12,841</p>
-                          </div>
-                          <div className="h-10 w-10 rounded-full border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
-                             <ArrowRight className="w-5 h-5" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Secondary Stats */}
-                    <div className="group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
-                      <div className="flex flex-col h-full">
-                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-8 border border-blue-100/50">
-                           <UtensilsCrossed className="w-5 h-5" />
-                        </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Live Dishes</p>
-                        <p className="text-3xl font-black text-slate-900 leading-none mb-4">84</p>
-                        <div className="mt-auto text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5 hover:gap-2.5 transition-all">
-                           Manage <ArrowRight className="w-3 h-3" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="group relative overflow-hidden rounded-[2.5rem] p-6 bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-500">
-                      <div className="flex flex-col h-full">
-                        <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-8 border border-red-100/50">
-                           <Heart className="w-5 h-5 fill-current" />
-                        </div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bestseller</p>
-                        <p className="text-base font-black text-slate-900 leading-tight mb-4 truncate">Truffle Pizza</p>
-                        <div className="mt-auto text-[9px] font-black text-red-600 uppercase tracking-widest flex items-center gap-1.5">
-                           Insights <ArrowRight className="w-3 h-3" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Modern Bento Features */}
-      <section id="features" className="py-24 px-6 text-center lg:text-left">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16">
-            <div className="max-w-2xl text-left">
-              <div className="text-orange-500 font-black text-[9px] uppercase tracking-[0.3em] mb-4">Core Capabilities</div>
-              <h2 className="font-display text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-[0.9]">Everything you need to <span className="text-slate-400 italic">wow</span> guests.</h2>
-            </div>
-            <p className="text-lg text-slate-500 font-medium max-w-sm text-left">From creation to analytics, we handle the heavy lifting of digital operations.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 auto-rows-[240px] gap-5">
-            <div className="md:col-span-8 p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between group overflow-hidden relative text-left">
-              <div className="relative z-10">
-                <UtensilsCrossed className="w-10 h-10 text-slate-900 mb-4 group-hover:rotate-12 transition-transform duration-500" />
-                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Studio Menu Builder</h3>
-                <p className="text-slate-500 font-medium text-sm max-w-md">Our high-fidelity editor gives you professional control without the technical complexity. Drag, drop, and customize in seconds.</p>
-              </div>
-              <div className="absolute bottom-0 right-0 w-1/2 h-full opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-700 pointer-events-none translate-y-16 translate-x-8">
-                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-[8rem]" />
-              </div>
-            </div>
+          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg">
+            <img
+              src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1600&q=80"
+              alt="Guests enjoying food in a warm restaurant setting"
+              className="h-[420px] w-full object-cover"
+            />
+          </div>
+        </div>
+      </header>
 
-            <div className="md:col-span-4 p-8 rounded-[2rem] bg-slate-900 text-white shadow-xl shadow-slate-900/10 flex flex-col justify-between group text-left">
-              <div>
-                <QrCode className="w-10 h-10 text-orange-500 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-2xl font-black mb-3 tracking-tight">Instant QR Dispatch</h3>
-                <p className="text-slate-400 font-medium text-sm">Download dynamic QR codes that never expire. Change your menu instantly without reprinting.</p>
+      <section
+        id="dashboard-preview"
+        className="border-b border-border/70 py-10 sm:py-14"
+      >
+        <div className="mx-auto w-full max-w-6xl px-6">
+          <p className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Product preview
+          </p>
+          <h2 className="mb-8 text-center text-2xl font-semibold sm:text-3xl">
+            Your dashboard at a glance
+          </h2>
+          <div className="overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-lg sm:p-4">
+            <div className="overflow-hidden rounded-[1.5rem] border border-border/80 bg-background text-left">
+              <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
+                <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                  menova.app/dashboard
+                </span>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-semibold text-background"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  Live preview
+                </button>
               </div>
-              <ArrowRight className="w-6 h-6 text-white/20 group-hover:translate-x-2 transition-all group-hover:text-orange-500" />
-            </div>
 
-            <div className="md:col-span-4 p-8 rounded-[2rem] bg-orange-500 text-white flex flex-col justify-between group text-left">
-              <div>
-                <Smartphone className="w-10 h-10 text-white mb-4" />
-                <h3 className="text-2xl font-black mb-3 tracking-tight">Immersive Mobile UX</h3>
-                <p className="text-orange-50/80 font-medium text-sm">Not just a PDF. A fully interactive web-app experience with blur effects, animations, and smooth scrolling.</p>
-              </div>
-            </div>
+              <div className="p-5">
+                <h3 className="text-2xl font-semibold">
+                  Morning, Spice Garden 👋
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Your digital menu is currently live and performing well.
+                </p>
 
-            <div className="md:col-span-4 p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between group text-left">
-              <div>
-                <Palette className="w-10 h-10 text-slate-900 mb-4" />
-                <h3 className="text-2xl font-black mb-3 tracking-tight">Pixel Perfect Branding</h3>
-                <p className="text-slate-500 font-medium text-sm">Fine-tune spacing, colors, and shadows to match your high-end interior and brand identity.</p>
-              </div>
-            </div>
+                <div className="mt-5 grid gap-4 md:grid-cols-4">
+                  <article className="rounded-3xl border border-border bg-card p-5 md:col-span-2">
+                    <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <BarChart3 className="h-5 w-5" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      Total menu views
+                    </p>
+                    <div className="mt-1 flex items-end justify-between">
+                      <p className="text-5xl font-semibold leading-none">
+                        12,841
+                      </p>
+                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </article>
 
-            <div className="md:col-span-4 p-8 rounded-[2rem] bg-white border border-slate-100 shadow-sm flex flex-col justify-between group text-left">
-              <div>
-                <BarChart3 className="w-10 h-10 text-slate-900 mb-4" />
-                <h3 className="text-2xl font-black mb-3 tracking-tight">Deep Analytics</h3>
-                <p className="text-slate-500 font-medium text-sm">See what your customers are looking at. Track dish popularity and view engagement in real-time.</p>
+                  <article className="rounded-3xl border border-border bg-card p-5">
+                    <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+                      <UtensilsCrossed className="h-5 w-5" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      Live dishes
+                    </p>
+                    <p className="mt-1 text-4xl font-semibold leading-none">
+                      84
+                    </p>
+                    <p className="mt-3 text-xs font-semibold text-primary">
+                      Manage
+                    </p>
+                  </article>
+
+                  <article className="rounded-3xl border border-border bg-card p-5">
+                    <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+                      <Heart className="h-5 w-5 fill-current" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      Bestseller
+                    </p>
+                    <p className="mt-1 line-clamp-1 text-2xl font-semibold leading-tight">
+                      Truffle Pizza
+                    </p>
+                    <p className="mt-3 text-xs font-semibold text-primary">
+                      Insights
+                    </p>
+                  </article>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Modern Steps Section */}
-      <section id="how-it-works" className="min-h-screen flex items-center pt-20 px-6 bg-slate-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-full noise-bg opacity-10" />
-        <div className="max-w-7xl mx-auto relative z-10 w-full py-20 lg:py-0">
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2 space-y-10 text-left">
-              <div className="space-y-4">
-                <h2 className="text-4xl lg:text-7xl font-black tracking-tight leading-[0.95] mb-6">From setup to<br />orders in <span className="text-orange-500">minutes.</span></h2>
-                <p className="text-lg text-slate-400 font-medium max-w-md">We&apos;ve eliminated the friction of going digital. No technical degree required.</p>
-              </div>
+      <section id="features" className="border-b border-border/70 py-20">
+        <div className="mx-auto w-full max-w-6xl px-6">
+          <div className="mb-10 max-w-2xl">
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+              Built for daily operations
+            </p>
+            <h2 className="mb-4 text-4xl font-semibold">
+              Less admin, more guest experience
+            </h2>
+            <p className="text-lg leading-relaxed text-muted-foreground">
+              Menova keeps menu publishing, ordering, and tracking in one clean
+              workflow so your team can focus on service.
+            </p>
+          </div>
 
-              <div className="space-y-6">
-                {steps.map((s, idx) => (
-                  <motion.div
-                    key={s.num}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex gap-5 group"
-                  >
-                    <div className="font-display font-black text-xl text-slate-800 group-hover:text-orange-500 transition-colors shrink-0">{s.num}</div>
-                    <div>
-                      <h4 className="text-lg font-black mb-1.5 tracking-tight">{s.title}</h4>
-                      <p className="text-slate-500 text-sm font-medium">{s.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:w-1/2 relative">
-              <div className="w-full aspect-square rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex items-center justify-center p-10">
-                <div className="relative w-full h-full bg-slate-800 rounded-[2rem] border border-white/10 shadow-3xl overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-blue-400/20 opacity-40 animate-pulse" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <QrCode className="w-32 h-32 text-white opacity-20" />
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-500 rounded-full blur-[60px] opacity-30" />
-            </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {features.map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-[1.75rem] border border-border bg-card p-7"
+              >
+                <h3 className="mb-3 text-2xl font-semibold">{feature.title}</h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  {feature.copy}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* High-End Pricing Cards */}
-      <section id="pricing" className="py-32 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="max-w-2xl mx-auto mb-16 text-center">
-            <div className="text-orange-500 font-black text-[9px] uppercase tracking-[0.3em] mb-4">Investment</div>
-            <h2 className="text-4xl lg:text-6xl font-black tracking-tight text-slate-900 mb-6">Simple pricing.<br />Rapid ROI.</h2>
-            <p className="text-lg text-slate-500 font-medium leading-relaxed">Choose the plan that fits your operation. Scale as your business grows.</p>
+      <section id="how-it-works" className="border-b border-border/70 py-20">
+        <div className="mx-auto w-full max-w-6xl px-6">
+          <h2 className="mb-12 text-4xl font-semibold">
+            Get started in three simple steps
+          </h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            {steps.map((step, index) => (
+              <article
+                key={step.title}
+                className="rounded-[1.75rem] border border-border bg-card p-7"
+              >
+                <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                  Step {index + 1}
+                </p>
+                <h3 className="mb-3 text-2xl font-semibold">{step.title}</h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  {step.copy}
+                </p>
+              </article>
+            ))}
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {plans.map((plan, i) => (
-              <motion.div
+      <section id="pricing" className="border-b border-border/70 py-20">
+        <div className="mx-auto w-full max-w-6xl px-6 text-center">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Investment
+          </p>
+          <h2 className="mb-4 text-5xl font-semibold leading-tight sm:text-6xl">
+            Simple pricing.
+            <br />
+            Rapid ROI.
+          </h2>
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
+            Choose the plan that fits your operation. Scale as your business
+            grows.
+          </p>
+
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+            {plans.map((plan) => (
+              <article
                 key={plan.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{
-                  opacity: 1,
-                  y: [0, -25, 0],
-                  rotate: [0, 0.8, -0.8, 0],
-                  transition: {
-                    opacity: { duration: 0.8, delay: i * 0.2 },
-                    y: {
-                      duration: 5 + i,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    },
-                    rotate: {
-                      duration: 8 + i,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }
-                  }
-                }}
-                viewport={{ once: true }}
-                whileHover={{ scale: plan.popular ? 1.08 : 1.03, zIndex: 50 }}
-                className={`group relative rounded-[2.5rem] p-8 lg:p-10 flex flex-col text-left transition-all duration-500 ${plan.popular
-                  ? 'bg-slate-900 text-white shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] scale-105 z-10'
-                  : 'bg-white border border-slate-100 text-slate-900 shadow-2xl shadow-slate-200/60'
-                  }`}
+                className={`relative flex flex-col rounded-[2rem] border p-8 text-left shadow-md ${
+                  plan.popular
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-card text-foreground"
+                }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-10 px-4 py-1 rounded-full bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
-                    RECOMMENDED CHOICE
-                  </div>
+                  <span className="absolute -top-3 left-8 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground">
+                    Recommended choice
+                  </span>
                 )}
 
-                <div className="mb-8">
-                  <h3 className={`font-black text-xl tracking-tight mb-3 ${plan.popular ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
-                    <span className={`text-xs font-bold opacity-60`}>{plan.period}</span>
-                  </div>
+                <h3 className="mb-3 text-2xl font-semibold">{plan.name}</h3>
+                <div className="mb-8 flex items-end gap-1.5">
+                  <span className="text-5xl font-semibold leading-none">
+                    {plan.price}
+                  </span>
+                  <span
+                    className={
+                      plan.popular
+                        ? "text-background/70"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {plan.period}
+                  </span>
                 </div>
 
-                <ul className="space-y-4 mb-10 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-4 text-xs font-bold font-display">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${plan.popular ? 'bg-orange-500/20 text-orange-500' : 'bg-slate-100 text-slate-400'}`}>
-                        <Check className="w-2.5 h-2.5" />
-                      </div>
-                      <span className="opacity-80">{f}</span>
+                <ul className="mb-8 space-y-3 flex-1">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-center gap-2.5 text-sm"
+                    >
+                      <Check className="h-4 w-4 text-primary" />
+                      <span
+                        className={
+                          plan.popular
+                            ? "text-background/90"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
 
                 <Button
-                  variant={plan.popular ? 'default' : 'outline'}
-                  className={`h-14 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all active:scale-95 ${plan.popular
-                    ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-xl shadow-orange-500/20'
-                    : 'bg-white text-slate-900 border-2 border-slate-100'
-                    }`}
                   asChild
+                  size="lg"
+                  variant={plan.popular ? "secondary" : "outline"}
+                  className={
+                    plan.popular
+                      ? "w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "w-full"
+                  }
                 >
                   <Link to={isLoggedIn ? "/dashboard" : "/register"}>
-                    {isLoggedIn ? "Manage My Account" : plan.cta}
+                    {isLoggedIn ? "Manage my account" : plan.cta}
                   </Link>
                 </Button>
-              </motion.div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ Glass Accordion */}
-      <section id="faq" className="py-24 px-6 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-orange-200/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="text-center mb-16 space-y-4">
-            <div className="text-orange-500 font-black text-[9px] uppercase tracking-[0.3em]">Support</div>
-            <h2 className="text-4xl font-black tracking-tight text-slate-900 leading-[0.95]">Curious?<br />We have answers.</h2>
-          </div>
-
-          <div className="grid gap-3">
-            {faqs.map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className={`rounded-[1.5rem] border overflow-hidden transition-all duration-500 ${openFaq === i ? 'bg-white border-white shadow-2xl shadow-slate-200/60' : 'bg-white/40 border-slate-200/40 hover:bg-white/80'}`}
+      <section id="faq" className="border-b border-border/70 py-20">
+        <div className="mx-auto w-full max-w-4xl px-6">
+          <h2 className="mb-10 text-center text-4xl font-semibold">
+            Here to help
+          </h2>
+          <div className="space-y-3">
+            {faqs.map((faq, index) => (
+              <div
+                key={faq.q}
+                className="overflow-hidden rounded-3xl border border-border bg-card"
               >
                 <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-6 lg:p-7 text-left transition-colors"
+                  className="flex w-full items-center justify-between px-6 py-5 text-left"
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 >
-                  <span className="font-black text-slate-900 text-sm lg:text-base pr-6 tracking-tight">{faq.q}</span>
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${openFaq === i ? 'bg-slate-900 text-white scale-110' : 'bg-slate-100 text-slate-400'}`}>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-500 ${openFaq === i ? 'rotate-180' : ''}`} />
-                  </div>
+                  <span className="font-semibold">{faq.q}</span>
+                  <ChevronDown
+                    className={`h-5 w-5 text-muted-foreground transition-transform ${
+                      openFaq === index ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
-                <AnimatePresence>
-                  {openFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="px-6 lg:px-7 pb-6 lg:pb-7"
-                    >
-                      <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-2xl">{faq.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {openFaq === index && (
+                  <p className="px-6 pb-6 leading-relaxed text-muted-foreground">
+                    {faq.a}
+                  </p>
+                )}
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Global CTA Section */}
-      <section className="py-24 px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative rounded-[3rem] bg-slate-900 text-white p-12 lg:p-20 overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-500 skew-x-[-12deg] translate-x-1/2 opacity-10" />
-            <div className="relative z-10 max-w-2xl text-left">
-              <h2 className="text-4xl lg:text-8xl font-black tracking-tight leading-[0.8] mb-8">Start your<br />transformation<br /><span className="text-orange-500">today.</span></h2>
-              <p className="text-lg text-slate-400 font-medium mb-10 max-w-md">Join over 500+ restaurants already using Menova to elevate their customer experience.</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="h-14 px-10 rounded-xl bg-orange-500 text-white font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all active:scale-95 shadow-xl shadow-orange-500/20" asChild>
-                  <Link to={isLoggedIn ? "/dashboard" : "/register"}>
-                    {isLoggedIn ? "Return to Dashboard" : "Begin onboarding"} <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </Button>
+      <section className="py-20">
+        <div className="mx-auto w-full max-w-6xl px-6">
+          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg">
+            <div className="grid lg:grid-cols-2">
+              <img
+                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80"
+                alt="Restaurant team working together in service"
+                className="h-full min-h-[300px] w-full object-cover"
+              />
+              <div className="flex flex-col justify-center p-10 lg:p-12">
+                <h2 className="mb-5 text-4xl font-semibold">
+                  Ready to get your time back?
+                </h2>
+                <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
+                  Start your free trial and launch a menu experience that feels
+                  premium, simple, and fast for your team and guests.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button size="lg" asChild>
+                    <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                      {isLoggedIn ? "Go to dashboard" : "Try for free"}
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link to="/login">Book a walkthrough</Link>
+                  </Button>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-5 text-sm text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-primary" />
+                    Cancel anytime
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-primary" />
+                    No setup fee
+                  </span>
+                </div>
               </div>
             </div>
-
-            {/* Floating UI Element for CTA */}
-            <div className="absolute bottom-[-10%] right-[-5%] w-[35%] aspect-square rounded-full border-[25px] border-white/5 opacity-30 pointer-events-none" />
           </div>
         </div>
       </section>
 
-      {/* Luxury Footer */}
-      <footer className="py-16 px-6 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center">
-                <UtensilsCrossed className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-display font-black text-2xl tracking-tight text-slate-900">Menova</span>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-10">
-              {['Features', 'Pricing', 'FAQ', 'Privacy', 'Terms'].map((link) => (
-                <a key={link} href="#" className="text-sm font-black uppercase tracking-widest text-slate-400 hover:text-orange-500 transition-colors">{link}</a>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Globe className="w-4 h-4" /></div>
-              <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-orange-500 cursor-pointer transition-all"><Phone className="w-4 h-4" /></div>
-            </div>
-          </div>
-
-          <div className="mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-400 font-bold text-xs uppercase tracking-widest">
-            <p>© 2024 MENOVA LABS PVT LTD. ALL RIGHTS RESERVED.</p>
-            <div className="flex items-center gap-6">
-              <span>Handcrafted with ❤️ by Menova</span>
-              <span className="text-orange-500">IND 🇮🇳</span>
-            </div>
+      <footer className="border-t border-border py-10">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <p>© 2026 Menova. Built for modern restaurant teams.</p>
+          <div className="flex items-center gap-5">
+            <a href="#features" className="hover:text-foreground">
+              Features
+            </a>
+            <a href="#faq" className="hover:text-foreground">
+              FAQ
+            </a>
+            <a href="#how-it-works" className="hover:text-foreground">
+              How it works
+            </a>
           </div>
         </div>
       </footer>

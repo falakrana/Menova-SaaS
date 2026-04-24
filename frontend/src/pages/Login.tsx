@@ -47,29 +47,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-background">
       {/* Left panel */}
-      <div className="hidden lg:flex w-1/2 gradient-hero items-center justify-center p-12">
+      <div className="hidden lg:flex w-1/2 items-center justify-center border-r border-border bg-muted/40 p-12">
         <div className="max-w-md">
-          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-8">
+          <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background">
             <UtensilsCrossed className="w-6 h-6 text-primary-foreground" />
           </div>
-          <h2 className="font-display text-3xl font-bold text-primary-foreground mb-4">Welcome back to Menova</h2>
-          <p className="text-primary-foreground/60 leading-relaxed">Manage your digital menus, track performance, and delight your customers — all from one dashboard.</p>
+          <h2 className="mb-4 font-display text-4xl font-semibold text-foreground">Welcome back to Menova</h2>
+          <p className="leading-relaxed text-muted-foreground">
+            Manage your menu, track engagement, and keep service smooth with one clean workflow.
+          </p>
         </div>
       </div>
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm rounded-[1.75rem] border border-border bg-card p-7 shadow-md">
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
               <UtensilsCrossed className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-xl">Menova</span>
+            <span className="font-display font-semibold text-xl">Menova</span>
           </div>
 
-          <h1 className="font-display text-2xl font-bold mb-1">Log in</h1>
+          <h1 className="font-display text-3xl font-semibold mb-1">Log in</h1>
           <p className="text-muted-foreground text-sm mb-8">Enter your credentials to continue</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
