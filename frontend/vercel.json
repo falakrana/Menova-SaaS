@@ -1,5 +1,5 @@
 {
   "routes": [
-    { "source": "/(.*)", "destination": "/" }
+{ "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
