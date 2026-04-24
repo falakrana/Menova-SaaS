@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth, useClerk } from "@clerk/react";
 import {
   ArrowRight,
   BarChart3,
@@ -159,7 +160,9 @@ const faqs = [
 export default function Landing() {
   const [mobileNav, setMobileNav] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const isLoggedIn = !!localStorage.getItem("menova_token");
+  const { isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+  const isLoggedIn = !!isSignedIn;
   const logout = useStore((s) => s.logout);
   const navigate = useNavigate();
 
@@ -219,8 +222,9 @@ export default function Landing() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     logout();
+                    await signOut();
                     navigate("/", { replace: true });
                   }}
                   className="rounded-full border border-slate-200/90 bg-white px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-slate-50"

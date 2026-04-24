@@ -22,8 +22,6 @@ interface AppState {
 
   // Initialization & Auth
   initialize: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
 
   // Restaurant
@@ -74,66 +72,30 @@ export const useStore = create<AppState>((set, get) => ({
     totalOrders: 0,
   },
   sidebarOpen: true,
-  isLoading: !!localStorage.getItem('menova_token'), // Boot up as true if token exists to prevent refresh flash
+  isLoading: false,
   error: null,
   cart: [],
   tableNumber: null,
   orders: [],
 
   initialize: async () => {
-    const token = localStorage.getItem('menova_token');
-    if (!token) {
-      set({ isLoading: false });
-      return;
-    }
-
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       await get().fetchRestaurant();
       await Promise.all([
         get().fetchCategories(),
         get().fetchMenuItems(),
         get().fetchOrders(),
-        get().fetchStats()
+        get().fetchStats(),
       ]);
     } catch (err: any) {
       set({ error: err.message });
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        get().logout();
-      }
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  login: async (email, password) => {
-    set({ isLoading: true, error: null });
-    try {
-      await api.login(email, password);
-      await get().initialize();
-    } catch (err: any) {
-      set({ error: err.response?.data?.detail || 'Login failed' });
-      throw err;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  register: async (name, email, password) => {
-    set({ isLoading: true, error: null });
-    try {
-      await api.register({ name, email, password });
-      await get().login(email, password);
-    } catch (err: any) {
-      set({ error: err.response?.data?.detail || 'Registration failed' });
-      throw err;
     } finally {
       set({ isLoading: false });
     }
   },
 
   logout: () => {
-    localStorage.removeItem('menova_token');
     set({
       restaurant: null,
       categories: [],

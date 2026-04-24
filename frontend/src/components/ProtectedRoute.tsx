@@ -1,11 +1,14 @@
+import { useAuth } from "@clerk/react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useStore } from "@/store/useStore";
 
 export default function ProtectedRoute() {
-  const { isLoading, restaurant, error } = useStore();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoading } = useStore();
   const location = useLocation();
 
-  if (isLoading) {
+  // Wait for Clerk to finish loading and store initialization to complete
+  if (!isLoaded || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
@@ -16,13 +19,7 @@ export default function ProtectedRoute() {
     );
   }
 
-  const token = localStorage.getItem('menova_token');
-  
-  if (!token) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (!isLoading && !restaurant && !error) {
+  if (!isSignedIn) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

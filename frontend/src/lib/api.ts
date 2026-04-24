@@ -1,88 +1,38 @@
 import axios from 'axios';
 
-
-
 const API_ORIGIN = import.meta.env.VITE_API_BASE_URL as string | undefined;
 
 const API_BASE = API_ORIGIN
-
   ? `${API_ORIGIN.replace(/\/$/, '')}/api/v1`
-
   : '/api/v1';
 
-
-
 const apiClient = axios.create({
-
   baseURL: API_BASE,
-
   headers: {
-
     'Content-Type': 'application/json',
-
   },
-
 });
 
+// Clerk session token getter — set by AuthSyncProvider once Clerk is ready
+let _getClerkToken: (() => Promise<string | null>) | null = null;
 
+export const setClerkTokenGetter = (fn: () => Promise<string | null>) => {
+  _getClerkToken = fn;
+};
 
-// Add a request interceptor to add the JWT token to headers
-
+// Attach Clerk JWT to every request
 apiClient.interceptors.request.use(
-
-  (config) => {
-
-    const token = localStorage.getItem('menova_token');
-
+  async (config) => {
+    const token = _getClerkToken ? await _getClerkToken() : null;
     if (token) {
-
       config.headers.Authorization = `Bearer ${token}`;
-
     }
-
     return config;
-
   },
-
   (error) => Promise.reject(error)
-
 );
 
-
-
 export const api = {
-
-  // Auth
-
-  login: async (email: string, password: string) => {
-
-    const formData = new FormData();
-
-    formData.append('username', email);
-
-    formData.append('password', password);
-
-    const response = await apiClient.post('/auth/login', formData, {
-
-      headers: { 'Content-Type': 'multipart/form-data' },
-
-    });
-
-    const { access_token } = response.data;
-
-    localStorage.setItem('menova_token', access_token);
-
-    return response.data;
-
-  },
-
-  register: async (data: any) => {
-
-    const response = await apiClient.post('/auth/register', data);
-
-    return response.data;
-
-  },
 
   getMe: async () => {
 

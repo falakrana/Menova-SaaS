@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/react";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -53,6 +54,7 @@ export default function DashboardLayout({
   const navigate = useNavigate();
   const restaurant = useStore((s) => s.restaurant);
   const logout = useStore((s) => s.logout);
+  const { signOut } = useClerk();
 
   if (!restaurant) return null;
 
@@ -219,8 +221,9 @@ export default function DashboardLayout({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"
-                    onClick={() => {
+                    onClick={async () => {
                       logout();
+                      await signOut();
                       navigate("/", { replace: true });
                     }}
                   >

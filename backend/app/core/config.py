@@ -11,10 +11,15 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Security
+    # Security (legacy — kept for backward compatibility)
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me-in-production")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 week
+
+    # Clerk — set CLERK_JWKS_URL in your backend .env
+    # Format: https://<your-clerk-frontend-api>/.well-known/jwks.json
+    # Find it in the Clerk dashboard → API Keys → Frontend API URL
+    CLERK_JWKS_URL: str = os.getenv("CLERK_JWKS_URL", "")
     
     # MongoDB
     MONGODB_URL: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
