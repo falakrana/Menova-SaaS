@@ -115,4 +115,11 @@ async def get_current_user(
         
         user = await db.users.find_one({"clerkId": clerk_user_id})
 
+    if not user:
+        # Avoid returning None, which later causes 500s in route handlers.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User record could not be resolved for this token.",
+        )
+
     return fix_id(user)

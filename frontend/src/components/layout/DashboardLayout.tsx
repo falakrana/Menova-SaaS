@@ -13,6 +13,9 @@ import {
   LogOut,
   ChefHat,
   ClipboardList,
+  AlertTriangle,
+  Loader2,
+  RefreshCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/store/useStore";
@@ -53,6 +56,9 @@ export default function DashboardLayout({
   const location = useLocation();
   const navigate = useNavigate();
   const restaurant = useStore((s) => s.restaurant);
+  const isLoading = useStore((s) => s.isLoading);
+  const error = useStore((s) => s.error);
+  const initialize = useStore((s) => s.initialize);
   const logout = useStore((s) => s.logout);
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -61,7 +67,39 @@ export default function DashboardLayout({
   const displayEmail = user?.primaryEmailAddress?.emailAddress || restaurant?.email || "";
   const userInitial = displayName.charAt(0).toUpperCase();
 
-  if (!restaurant) return null;
+  if (!restaurant) {
+    if (isLoading) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="flex items-center gap-3 text-slate-600">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span className="text-sm font-medium">Loading dashboard...</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="max-w-md w-full rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+          <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
+            <AlertTriangle className="w-6 h-6" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 mb-2">Dashboard failed to load</h2>
+          <p className="text-sm text-slate-600 mb-5">
+            {error || "We could not load your restaurant profile. Please try again."}
+          </p>
+          <button
+            onClick={() => void initialize()}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
+          >
+            <RefreshCcw className="w-4 h-4" />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const isActive = (path: string) => {
     if (path === "/dashboard") return location.pathname === "/dashboard";
