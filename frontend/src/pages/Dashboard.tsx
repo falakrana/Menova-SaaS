@@ -2,6 +2,7 @@ import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, Star, BarChart3, 
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
+import { useUser } from '@clerk/react';
 import { useStore } from '@/store/useStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useState } from 'react';
@@ -21,11 +22,14 @@ import { DateRange } from "react-day-picker";
 import { api } from "@/lib/api";
 
 export default function Dashboard() {
+  const { user } = useUser();
   const stats = useStore((s) => s.stats);
   const menuItems = useStore((s) => s.menuItems);
   const fetchStats = useStore((s) => s.fetchStats);
   const [showPopularModal, setShowPopularModal] = useState(false);
   const [showViewsModal, setShowViewsModal] = useState(false);
+
+  const firstName = user?.firstName || user?.username || "there";
 
   useEffect(() => {
     // Initial fetch
@@ -64,7 +68,7 @@ export default function Dashboard() {
                  Platform Overview
                </motion.div>
                <h1 className="font-display text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-                 Welcome back, <br/>
+                 Welcome back, {firstName}!<br/>
                  <span className="text-gradient">Ready to serve?</span>
                </h1>
                <p className="text-slate-500 font-medium text-lg leading-relaxed">

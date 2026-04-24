@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useUser } from '@clerk/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Loader2 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { user, isLoaded: clerkLoaded } = useUser();
   const { restaurant, updateRestaurant } = useStore();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -17,6 +19,7 @@ export default function SettingsPage() {
     phone: '',
     location: ''
   });
+  const syncedOnceRef = useRef(false);
 
   useEffect(() => {
     if (restaurant) {
@@ -28,6 +31,36 @@ export default function SettingsPage() {
       });
     }
   }, [restaurant]);
+
+  // Prefill from Clerk and auto-sync to backend on first load
+  useEffect(() => {
+    if (!clerkLoaded || !user || !restaurant || syncedOnceRef.current) return;
+
+    const clerkEmail = user.primaryEmailAddress?.emailAddress || '';
+    const clerkName = user.fullName || user.firstName || user.username || '';
+
+    // Only prefill if restaurant fields are empty and Clerk has data
+    const needsSync = 
+      (!restaurant.email && clerkEmail) || 
+      (!restaurant.name && clerkName);
+
+    if (needsSync) {
+      const merged = {
+        name: restaurant.name || clerkName || 'My Restaurant',
+        email: restaurant.email || clerkEmail,
+        phone: restaurant.phone || '',
+        location: restaurant.location || ''
+      };
+
+      setForm(merged);
+
+      // Auto-save to backend once
+      syncedOnceRef.current = true;
+      updateRestaurant(merged).catch(() => {
+        // Silent fail on auto-sync; user can manually save
+      });
+    }
+  }, [clerkLoaded, user, restaurant, updateRestaurant]);
 
   const handleSave = async () => {
     setLoading(true);

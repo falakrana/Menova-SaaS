@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useClerk } from "@clerk/react";
+import { useClerk, useUser } from "@clerk/react";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -55,6 +55,11 @@ export default function DashboardLayout({
   const restaurant = useStore((s) => s.restaurant);
   const logout = useStore((s) => s.logout);
   const { signOut } = useClerk();
+  const { user } = useUser();
+
+  const displayName = user?.fullName || user?.firstName || user?.username || restaurant?.name || "User";
+  const displayEmail = user?.primaryEmailAddress?.emailAddress || restaurant?.email || "";
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   if (!restaurant) return null;
 
@@ -202,20 +207,35 @@ export default function DashboardLayout({
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-[#F1F5F9] p-0.5 shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     aria-label="Account menu"
                   >
-                    <span className="flex h-full w-full items-center justify-center rounded-[14px] gradient-primary text-sm font-black text-white">
-                      {restaurant.name.charAt(0)}
-                    </span>
+                    {user?.imageUrl ? (
+                      <img
+                        src={user.imageUrl}
+                        alt={displayName}
+                        className="h-full w-full rounded-[14px] object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center rounded-[14px] gradient-primary text-sm font-black text-white">
+                        {userInitial}
+                      </span>
+                    )}
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-64">
                   <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1.5">
                       <p className="text-sm font-semibold leading-none text-foreground">
-                        {restaurant.name}
+                        {displayName}
                       </p>
-                      <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground">
-                        Pro store
-                      </p>
+                      {displayEmail && (
+                        <p className="text-xs text-muted-foreground leading-none">
+                          {displayEmail}
+                        </p>
+                      )}
+                      {restaurant?.name && restaurant.name !== displayName && (
+                        <p className="text-[10px] font-bold uppercase tracking-tight text-muted-foreground mt-1 pt-1 border-t border-border">
+                          {restaurant.name}
+                        </p>
+                      )}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
