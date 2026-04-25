@@ -242,20 +242,32 @@ export default function DashboardLayout({
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-[#F1F5F9] p-0.5 shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                    className="group flex items-center gap-3 rounded-full border border-slate-200/80 bg-white/50 p-1.5 pr-4 shadow-sm backdrop-blur-xl ring-2 ring-transparent transition-all duration-300 hover:bg-white hover:shadow-md hover:border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                     aria-label="Account menu"
                   >
-                    {user?.imageUrl ? (
-                      <img
-                        src={user.imageUrl}
-                        alt={displayName}
-                        className="h-full w-full rounded-[14px] object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-full w-full items-center justify-center rounded-[14px] gradient-primary text-sm font-black text-white">
-                        {userInitial}
+                    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-105 bg-slate-100 border border-slate-200">
+                      {user?.hasImage ? (
+                        <img
+                          src={user.imageUrl}
+                          alt={displayName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center bg-slate-800 text-xs font-black text-white shadow-inner">
+                          {userInitial}
+                        </span>
+                      )}
+                    </div>
+                    <div className="hidden flex-col items-start sm:flex">
+                      <span className="text-[13px] font-bold text-slate-800 leading-tight">
+                        {displayName.split(' ')[0]}
                       </span>
-                    )}
+                      {restaurant?.name && (
+                        <span className="text-[10px] font-semibold text-slate-400 leading-tight truncate max-w-[120px]">
+                          {restaurant.name}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64">
