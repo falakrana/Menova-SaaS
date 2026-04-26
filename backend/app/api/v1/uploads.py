@@ -79,6 +79,98 @@ async def upload_image(
         raise HTTPException(status_code=500, detail=f"Failed to process and upload image: {str(e)}")
 
 
+from pydantic import BaseModel
+
+class ImageUrlRequest(BaseModel):
+    url: str
+    folder: str = "others"
+
+@router.post("/image-url")
+async def upload_image_from_url(
+    request: ImageUrlRequest,
+    current_user: dict = Depends(deps.get_current_user),
+) -> dict:
+    import httpx
+    import base64
+    import re
+    
+    url = request.url
+    folder = request.folder
+    
+    try:
+        content = None
+        
+        # 1. Handle Base64 Data URI
+        if url.startswith("data:image/"):
+            try:
+                # Format: data:image/jpeg;base64,/9j/4AAQSkZJRg...
+                header, encoded = url.split(",", 1)
+                content = base64.b64decode(encoded)
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid Base64 data provided")
+        
+        # 2. Handle HTTP/S URL
+        else:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            async with httpx.AsyncClient(headers=headers) as client:
+                response = await client.get(url, follow_redirects=True, timeout=15.0)
+                if response.status_code != 200:
+                    raise HTTPException(status_code=400, detail=f"Could not fetch image from URL (Status: {response.status_code})")
+                
+                content_type = response.headers.get("content-type", "")
+                if not content_type.startswith("image/"):
+                    raise HTTPException(status_code=400, detail="URL does not point to a valid image")
+                
+                content = response.content
+        
+        if not content:
+            raise HTTPException(status_code=400, detail="No image content found")
+
+        # 3. Validation & Processing logic
+        try:
+            image_buffer = io.BytesIO(content)
+            img = Image.open(image_buffer)
+            img.verify()
+            image_buffer.seek(0)
+            img = Image.open(image_buffer)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid image content or disguised script detected.")
+
+        cleaned_buffer = io.BytesIO()
+        img_format = img.format if img.format else "JPEG"
+        
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGBA")
+        else:
+            img = img.convert("RGB")
+            
+        img.save(cleaned_buffer, format=img_format)
+        cleaned_content = cleaned_buffer.getvalue()
+        
+        extension = f".{img_format.lower()}"
+        if extension == ".jpeg":
+            extension = ".jpg"
+
+        cloud_url = await storage_service.upload_file(
+            file_content=cleaned_content,
+            filename=f"image{extension}",
+            content_type=f"image/{img_format.lower()}",
+            folder=folder
+        )
+        
+        return {
+            "filename": "image" if url.startswith("data:") else (url.split("/")[-1].split("?")[0] or "image"),
+            "url": cloud_url
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
+
+
 
 
 

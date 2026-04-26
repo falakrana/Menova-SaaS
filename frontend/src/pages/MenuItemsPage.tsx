@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Plus, Pencil, Trash2, Search, UtensilsCrossed, Loader2, Upload, X, Star, Heart, Camera, Globe, Link } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,11 @@ export default function MenuItems() {
   const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] as string[] });
   const [tagInput, setTagInput] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'device' | 'url' | 'camera' | null>(null);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const updateForm = (field: string, value: any) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -51,14 +56,17 @@ export default function MenuItems() {
   const openAdd = () => {
     setEditingItem(null);
     setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] });
+    setUploadMode(null);
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
     setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree, specifications: item.specifications || [] });
+    setUploadMode(null);
     setDialogOpen(true);
   };
+
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,6 +76,7 @@ export default function MenuItems() {
     try {
       const { url } = await useStore.getState().uploadImage(file, 'menu-items');
       updateForm('image', url);
+      setUploadMode(null);
       toast({ title: 'Image uploaded successfully' });
     } catch (err) {
       toast({ title: 'Failed to upload image', variant: 'destructive' });
@@ -75,6 +84,79 @@ export default function MenuItems() {
       setUploading(false);
     }
   };
+
+  const handleUrlUpload = async () => {
+    if (!imageUrlInput.trim()) return;
+    setUploading(true);
+    try {
+      const { url } = await useStore.getState().uploadImageFromUrl(imageUrlInput.trim(), 'menu-items');
+      updateForm('image', url);
+      setUploadMode(null);
+      setImageUrlInput('');
+      toast({ title: 'Image uploaded from URL' });
+    } catch (err) {
+      toast({ title: 'Failed to fetch image from URL', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setStream(s);
+      setUploadMode('camera');
+    } catch (err) {
+      toast({ title: 'Could not access camera', variant: 'destructive' });
+    }
+  };
+
+  const stopCamera = useCallback(() => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setUploadMode(null);
+  }, [stream]);
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0);
+        canvasRef.current.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+            setUploading(true);
+            try {
+              const { url } = await useStore.getState().uploadImage(file, 'menu-items');
+              updateForm('image', url);
+              stopCamera();
+              toast({ title: 'Photo captured and uploaded' });
+            } catch (err) {
+              toast({ title: 'Failed to upload photo', variant: 'destructive' });
+            } finally {
+              setUploading(false);
+            }
+          }
+        }, 'image/jpeg');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      stopCamera();
+    }
+  }, [dialogOpen, stopCamera]);
+
+  useEffect(() => {
+    if (uploadMode === 'camera' && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [uploadMode, stream]);
 
 
 
@@ -343,35 +425,90 @@ export default function MenuItems() {
 
               <div>
                 <Label>Item Image</Label>
-                <div className="mt-1.5 flex flex-col gap-2">
+                <div className="mt-2 min-h-[140px] flex items-center justify-center">
                   {form.image ? (
-                    <div className="relative w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white shadow-xl group">
+                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl group animate-in zoom-in-50 duration-300">
                       <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
                       <button 
-                        onClick={() => updateForm('image', '')}
+                        onClick={() => { updateForm('image', ''); setUploadMode(null); }}
                         className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                         type="button"
                       >
                         <X className="w-6 h-6" />
                       </button>
                     </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center w-32 h-32 mx-auto border-2 border-dashed border-slate-200 rounded-full cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all">
-                      <div className="flex flex-col items-center justify-center py-2">
-                        {uploading ? (
-                          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
-                        ) : (
-                          <>
-                            <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Upload</p>
-                          </>
+                  ) : uploadMode === 'url' ? (
+                    <div className="w-full space-y-3 animate-in slide-in-from-bottom-4 duration-300">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Link className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <Input 
+                            placeholder="Paste image URL..." 
+                            value={imageUrlInput} 
+                            onChange={(e) => setImageUrlInput(e.target.value)} 
+                            className="pl-9 h-11 rounded-xl"
+                            onKeyDown={(e) => e.key === 'Enter' && handleUrlUpload()}
+                          />
+                        </div>
+                        <Button onClick={handleUrlUpload} disabled={uploading || !imageUrlInput} className="h-11 rounded-xl px-6">
+                          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch'}
+                        </Button>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setUploadMode(null)} className="w-full text-slate-400 hover:text-slate-600">
+                        <X className="w-4 h-4 mr-2" /> Cancel
+                      </Button>
+                    </div>
+                  ) : uploadMode === 'camera' ? (
+                    <div className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
+                        <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                        <canvas ref={canvasRef} className="hidden" />
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 text-white animate-spin" />
+                          </div>
                         )}
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                    </label>
+                      <div className="flex gap-2">
+                        <Button onClick={capturePhoto} disabled={uploading} className="flex-1 h-12 rounded-xl bg-primary shadow-lg shadow-primary/20">
+                          Capture Photo
+                        </Button>
+                        <Button variant="outline" onClick={stopCamera} disabled={uploading} className="h-12 rounded-xl px-4 border-slate-200">
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-6 animate-in fade-in duration-500">
+                      <label className="group flex flex-col items-center gap-2 cursor-pointer transition-all active:scale-90">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Upload className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                      </label>
+
+                      <button 
+                        onClick={() => setUploadMode('url')}
+                        className="group flex flex-col items-center gap-2 transition-all active:scale-90"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Globe className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">URL</span>
+                      </button>
+
+                      <button 
+                        onClick={startCamera}
+                        className="group flex flex-col items-center gap-2 transition-all active:scale-90"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Camera className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Camera</span>
+                      </button>
+                    </div>
                   )}
-
-
                 </div>
               </div>
             </div>

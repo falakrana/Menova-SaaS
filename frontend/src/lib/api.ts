@@ -201,19 +201,17 @@ export const api = {
   // Uploads
 
   uploadImage: async (file: File, folder: string = 'others') => {
-
     const formData = new FormData();
-
     formData.append('file', file);
-
     const response = await apiClient.post(`/uploads/image?folder=${folder}`, formData, {
-
       headers: { 'Content-Type': 'multipart/form-data' },
-
     });
-
     return response.data;
+  },
 
+  uploadImageFromUrl: async (url: string, folder: string = 'others') => {
+    const response = await apiClient.post('/uploads/image-url', { url, folder });
+    return response.data;
   },
 
 
