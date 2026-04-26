@@ -17,8 +17,8 @@ import MenuPreview from "./pages/MenuPreview";
 import CustomizationPage from "./pages/CustomizationPage";
 import SettingsPage from "./pages/SettingsPage";
 import PublicMenu from "./pages/PublicMenu";
-import CartPage from "./pages/CartPage";
-import OrdersPage from "./pages/OrdersPage";
+
+
 import NotFound from "./pages/NotFound";
 
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -73,14 +73,14 @@ const App = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/menu/:id" element={<PublicMenu />} />
               <Route path="/menu/demo" element={<PublicMenu />} />
-              <Route path="/cart" element={<CartPage />} />
+
 
               {/* Protected Dashboard Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/dashboard/categories" element={<Categories />} />
                 <Route path="/dashboard/items" element={<MenuItemsPage />} />
-                <Route path="/dashboard/orders" element={<OrdersPage />} />
+
                 <Route path="/dashboard/qr-code" element={<QRCodePage />} />
                 <Route path="/dashboard/preview" element={<MenuPreview />} />
                 <Route path="/dashboard/customization" element={<CustomizationPage />} />

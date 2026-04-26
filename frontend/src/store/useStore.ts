@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Restaurant, Category, MenuItem, DashboardStats, CartItem, Order } from '@/types';
+import type { Restaurant, Category, MenuItem, DashboardStats } from '@/types';
 import { api } from '@/lib/api';
 
 interface AppState {
@@ -11,12 +11,7 @@ interface AppState {
   isLoading: boolean;
   error: string | null;
 
-  // ── Cart (public menu / customer side) ──────────────────────────────
-  cart: CartItem[];
-  tableNumber: number | null;
 
-  // ── Orders (restaurant side) ────────────────────────────────────────
-  orders: Order[];
 
   // ── Actions ────────────────────────────────────────────────────────
 
@@ -45,17 +40,6 @@ interface AppState {
   uploadImage: (file: File, folder?: string) => Promise<{ url: string }>;
 
 
-  // Orders
-  fetchOrders: () => Promise<void>;
-  updateOrderStatus: (orderId: string, status: Order['status']) => Promise<void>;
-
-  // Cart
-  setTableNumber: (num: number) => void;
-  addToCart: (item: MenuItem) => void;
-  removeFromCart: (itemId: string) => void;
-  updateCartQuantity: (itemId: string, quantity: number) => void;
-  clearCart: () => void;
-  placeOrder: () => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -69,14 +53,11 @@ export const useStore = create<AppState>((set, get) => ({
     menuViews: 0,
     qrScans: 0,
     popularItem: 'None',
-    totalOrders: 0,
   },
   sidebarOpen: true,
   isLoading: false,
   error: null,
-  cart: [],
-  tableNumber: null,
-  orders: [],
+  error: null,
 
   initialize: async () => {
     set({ isLoading: true, error: null });
@@ -85,7 +66,6 @@ export const useStore = create<AppState>((set, get) => ({
       await Promise.all([
         get().fetchCategories(),
         get().fetchMenuItems(),
-        get().fetchOrders(),
         get().fetchStats(),
       ]);
     } catch (err: any) {
@@ -100,9 +80,6 @@ export const useStore = create<AppState>((set, get) => ({
       restaurant: null,
       categories: [],
       menuItems: [],
-      orders: [],
-      cart: [],
-      tableNumber: null,
       error: null,
     });
   },
@@ -194,53 +171,4 @@ export const useStore = create<AppState>((set, get) => ({
 
 
 
-  fetchOrders: async () => {
-    const data = await api.getOrders();
-    set({ orders: data, stats: { ...get().stats, totalOrders: data.length } });
-  },
-
-  updateOrderStatus: async (id, status) => {
-    const updated = await api.updateOrderStatus(id, status);
-    set((s) => ({
-      orders: s.orders.map((o) => (o.id === id ? updated : o)),
-    }));
-  },
-
-  setTableNumber: (num) => set({ tableNumber: num }),
-
-  addToCart: (item) => set((s) => {
-    const existing = s.cart.find((c) => c.menuItem.id === item.id);
-    if (existing) {
-      return { cart: s.cart.map((c) => c.menuItem.id === item.id ? { ...c, quantity: c.quantity + 1 } : c) };
-    }
-    return { cart: [...s.cart, { menuItem: item, quantity: 1 }] };
-  }),
-
-  removeFromCart: (itemId) => set((s) => ({
-    cart: s.cart.filter((c) => c.menuItem.id !== itemId),
-  })),
-
-  updateCartQuantity: (itemId, quantity) => set((s) => ({
-    cart: quantity <= 0
-      ? s.cart.filter((c) => c.menuItem.id !== itemId)
-      : s.cart.map((c) => c.menuItem.id === itemId ? { ...c, quantity } : c),
-  })),
-
-  clearCart: () => set({ cart: [] }),
-
-  placeOrder: async () => {
-    const { cart, tableNumber, restaurant } = get();
-    if (cart.length === 0 || !tableNumber || !restaurant) return;
-
-    const total = cart.reduce((sum, c) => sum + c.menuItem.price * c.quantity, 0);
-    const orderData = {
-      tableNumber,
-      items: cart,
-      total,
-      restaurantId: restaurant.id,
-    };
-
-    await api.placeOrder(orderData);
-    set({ cart: [], tableNumber: null });
-  }
 }));

@@ -70,7 +70,7 @@ async def get_restaurant_stats(
     
     total_categories = await db.categories.count_documents({"restaurantId": restaurant_id})
     total_items = await db.menu_items.count_documents({"restaurantId": restaurant_id})
-    total_orders = await db.orders.count_documents({"restaurantId": restaurant_id})
+
     
     # Calculate popular item based on highest likesCount
     popular_item_doc = await db.menu_items.find({"restaurantId": restaurant_id}).sort("likesCount", -1).limit(1).to_list(length=1)
@@ -80,7 +80,7 @@ async def get_restaurant_stats(
         "menuViews": restaurant.get("menuViews", 0),
         "totalCategories": total_categories,
         "totalItems": total_items,
-        "totalOrders": total_orders,
+
         "popularItem": popular_item,
         "qrCodeActive": True, # Assuming active if restaurant exists
         "qrScans": restaurant.get("qrScans", 0)

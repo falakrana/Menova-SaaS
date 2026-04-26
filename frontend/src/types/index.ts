@@ -75,24 +75,5 @@ export interface DashboardStats {
   qrScans: number;
   /** Name of the most ordered or featured item. */
   popularItem: string;
-  totalOrders: number;
 }
 
-/** A line item in the shopping cart (one menu item + chosen quantity). */
-export interface CartItem {
-  menuItem: MenuItem;
-  quantity: number;
-}
-
-/** An order placed by a customer from the public menu. */
-export interface Order {
-  id: string;
-  tableNumber: number;
-  items: CartItem[];
-  /** Total price in ₹ (pre-calculated and stored at order creation). */
-  total: number;
-  /** Lifecycle status managed by restaurant staff on the Orders page. */
-  status: 'pending' | 'preparing' | 'ready' | 'completed';
-  /** ISO timestamp of when the order was placed. */
-  createdAt: string;
-}

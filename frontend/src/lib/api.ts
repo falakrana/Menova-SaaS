@@ -156,24 +156,6 @@ export const api = {
 
 
 
-  // Orders
-
-  getOrders: async () => {
-
-    const response = await apiClient.get('/orders');
-
-    return response.data;
-
-  },
-
-  updateOrderStatus: async (id: string, status: string) => {
-
-    const response = await apiClient.put(`/orders/${id}/status`, { status });
-
-    return response.data;
-
-  },
-
 
 
   // Public
@@ -181,14 +163,6 @@ export const api = {
   getPublicMenu: async (restaurantId: string) => {
 
     const response = await apiClient.get(`/public/menu/${restaurantId}`);
-
-    return response.data;
-
-  },
-
-  placeOrder: async (data: any) => {
-
-    const response = await apiClient.post('/public/orders', data);
 
     return response.data;
 

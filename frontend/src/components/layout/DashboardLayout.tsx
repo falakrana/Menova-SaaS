@@ -33,12 +33,7 @@ const navItems = [
   { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { title: "Categories", path: "/dashboard/categories", icon: FolderOpen },
   { title: "Menu Items", path: "/dashboard/items", icon: UtensilsCrossed },
-  {
-    title: "Orders",
-    path: "/dashboard/orders",
-    icon: ClipboardList,
-    disabled: true,
-  },
+
   { title: "QR Code", path: "/dashboard/qr-code", icon: QrCode },
   { title: "Menu Preview", path: "/dashboard/preview", icon: Eye },
   { title: "Customization", path: "/dashboard/customization", icon: ChefHat },

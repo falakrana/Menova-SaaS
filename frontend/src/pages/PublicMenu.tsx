@@ -1,6 +1,6 @@
 import { 
-  UtensilsCrossed, Heart, ShoppingCart, ChevronLeft, ChevronRight, 
-  Flame, Star, Search, Info, Plus, Minus, ShoppingBag, 
+  UtensilsCrossed, Heart, ChevronLeft, ChevronRight, 
+  Flame, Star, Search, Info, Plus, Minus, 
   Clock, MapPin, Phone, ArrowLeft, Share2
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -55,13 +55,12 @@ const DietaryIcons = ({ item }: { item: any }) => (
 
 export default function PublicMenu({ previewData, embedded = false, hideCart = false, embeddedDevice }: PublicMenuProps) {
   const { id } = useParams();
-  const { cart, addToCart, updateCartQuantity, tableNumber, setTableNumber } = useStore();
+
   const [restaurant, setRestaurant] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [activeCat, setActiveCat] = useState('');
-  const [showTableEntry, setShowTableEntry] = useState(false);
-  const [tableInput, setTableInput] = useState('');
+
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -154,10 +153,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
   if (!restaurant) return <div className="min-h-screen flex items-center justify-center">Restaurant not found</div>;
 
   const filteredItems = menuItems.filter((i) => i.categoryId === activeCat && i.available);
-  const cartCount = cart.reduce((s, c) => s + c.quantity, 0);
-  const cartTotal = cart.reduce((s, c) => s + c.menuItem.price * c.quantity, 0);
 
-  const getCartQty = (itemId: string) => cart.find((c) => c.menuItem.id === itemId)?.quantity || 0;
 
   const currencySymbols: Record<string, string> = {
     'INR': '₹',
@@ -179,50 +175,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
     }
   };
 
-  if (showTableEntry) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-sm text-center"
-        >
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 transition-colors shadow-lg overflow-hidden"
-            style={{ backgroundColor: 'var(--primary-color)', color: 'white' }}
-          >
-            {restaurant.logoUrl ? (
-              <img src={restaurant.logoUrl} alt={restaurant.name} className="w-full h-full object-cover" />
-            ) : (
-              <UtensilsCrossed className="w-8 h-8" />
-            )}
-          </div>
-          <h1 className="font-display text-2xl font-bold mb-2">{restaurant.name}</h1>
-          {restaurant.tagline && <p className="text-muted-foreground text-sm mb-4 italic">"{restaurant.tagline}"</p>}
-          <p className="text-muted-foreground text-xs mb-8">Enter your table number to start ordering</p>
-          <Input
-            type="number"
-            placeholder="Table Number"
-            value={tableInput}
-            onChange={(e) => setTableInput(e.target.value)}
-            className="text-center text-2xl font-display font-bold h-16 mb-4"
-            min={1}
-          />
-          <Button
-            className="w-full h-12 gradient-primary"
-            style={{ backgroundColor: 'var(--primary-color)' }}
-            disabled={!tableInput || Number(tableInput) < 1}
-            onClick={() => {
-              setTableNumber(Number(tableInput));
-              setShowTableEntry(false);
-            }}
-          >
-            View Menu
-          </Button>
-        </motion.div>
-      </div>
-    );
-  }
+
 
   return (
     <div 
@@ -270,11 +223,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
           )}
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-            {tableNumber && (
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-xs font-semibold border border-white/10 shadow-sm transition-all hover:bg-white/20">
-                Table {tableNumber}
-              </span>
-            )}
+
             <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-xs font-semibold border border-white/10 shadow-sm transition-all hover:bg-white/20">
               {restaurant.location || "Online"}
             </span>
@@ -424,7 +373,6 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
               </div>
             ) : (
               filteredItems.map((item, index) => {
-                const qty = getCartQty(item.id);
                 const layout = restaurant.layout || 'classic';
                 const isHot = item.likesCount > 4;
 
@@ -607,40 +555,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
         </AnimatePresence>
       </div>
 
-      {/* Cart FAB */}
-      {!hideCart && cartCount > 0 && (
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: -20, opacity: 1 }}
-          transition={{ type: "spring", damping: 20 }}
-          className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none"
-        >
-          <div className="max-w-lg mx-auto pointer-events-auto">
-            <Button
-              className="w-full h-16 text-lg justify-between text-white shadow-[0_20px_50px_rgba(0,0,0,0.2)] active:scale-[0.97] transition-all rounded-[1.5rem] border-0 px-6 overflow-hidden relative group"
-              style={{ backgroundColor: 'var(--primary-color)' }}
-              onClick={() => navigate('/cart')}
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              <div className="flex items-center gap-4 relative z-10">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
-                  <ShoppingCart className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-left">
-                  <span className="block text-[10px] font-black uppercase tracking-widest text-white/60 leading-none mb-1">Items In Cart</span>
-                  <span className="font-bold">{cartCount} Dish{cartCount > 1 ? 'es' : ''} Selected</span>
-                </div>
-              </div>
 
-              <div className="text-right relative z-10 flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/60 leading-none mb-1 text-right">Total Price</span>
-                <span className="font-display font-black text-2xl">{formatPrice(cartTotal)}</span>
-              </div>
-            </Button>
-          </div>
-        </motion.div>
-      )}
 
       {/* Modern Footer */}
       {!embedded && (

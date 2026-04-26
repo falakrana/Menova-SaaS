@@ -108,8 +108,8 @@ const steps = [
     copy: "Add your name, logo, and menu categories in a few guided steps.",
   },
   {
-    title: "Start taking digital orders",
-    copy: "Publish your QR menu and let guests browse and place orders right from their table.",
+    title: "Start sharing digital menus",
+    copy: "Publish your QR menu and let guests browse right from their table.",
   },
   {
     title: "Grow with confidence",
@@ -315,7 +315,7 @@ export default function Landing() {
               Finally, a better way to run your digital menu.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Build a menu that feels like your restaurant. Take QR orders
+              Build a menu that feels like your restaurant. Share QR menus
               faster, reduce admin work, and help guests enjoy a smoother dining
               experience.
             </p>

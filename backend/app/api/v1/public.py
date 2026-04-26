@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from app.core.database import get_database
 from app.schemas.menu_item import MenuItem
 from app.schemas.category import Category
-from app.schemas.order import Order, OrderCreate
+
 from app.api.v1 import deps
 from bson import ObjectId
 from datetime import datetime
@@ -76,13 +76,3 @@ async def toggle_like_item(item_id: str, like: bool) -> Any:
         
     return deps.fix_id(result)
 
-@router.post("/orders", response_model=Order)
-async def place_order(order_in: OrderCreate) -> Any:
-    db = get_database()
-    order_dict = order_in.model_dump()
-    order_dict["createdAt"] = datetime.utcnow()
-    order_dict["status"] = "pending"
-    
-    result = await db.orders.insert_one(order_dict)
-    order_dict["_id"] = str(result.inserted_id)
-    return order_dict

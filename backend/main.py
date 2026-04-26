@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import connect_to_mongo, close_mongo_connection
-from app.api.v1 import auth, restaurant, menu, orders, public, qr_code, uploads
+from app.api.v1 import auth, restaurant, menu, public, qr_code, uploads
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -31,7 +31,7 @@ async def shutdown_db_client():
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(restaurant.router, prefix=f"{settings.API_V1_STR}/restaurant", tags=["restaurant"])
 app.include_router(menu.router, prefix=settings.API_V1_STR, tags=["menu"]) # categories and menu-items already have prefixes in their routes
-app.include_router(orders.router, prefix=f"{settings.API_V1_STR}/orders", tags=["orders"])
+
 app.include_router(public.router, prefix=f"{settings.API_V1_STR}/public", tags=["public"])
 app.include_router(qr_code.router, prefix=f"{settings.API_V1_STR}/qr-code", tags=["qr-code"])
 app.include_router(uploads.router, prefix=f"{settings.API_V1_STR}/uploads", tags=["uploads"])
