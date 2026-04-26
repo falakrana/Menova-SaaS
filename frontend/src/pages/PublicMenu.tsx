@@ -59,7 +59,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
   const [restaurant, setRestaurant] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
-  const [activeCat, setActiveCat] = useState('');
+  const [activeCat, setActiveCat] = useState('all');
 
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -113,8 +113,8 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
         setRestaurant(previewData.restaurant);
         setCategories(previewData.categories);
         setMenuItems(previewData.menuItems);
-        if (previewData.categories.length > 0 && !activeCat) {
-          setActiveCat(previewData.categories[0].id);
+        if (previewData.categories.length > 0) {
+          setActiveCat('all');
         }
         setLoading(false);
         return;
@@ -130,7 +130,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
         setRestaurant(data.restaurant);
         setCategories(data.categories);
         setMenuItems(data.menuItems);
-        if (data.categories.length > 0) setActiveCat(data.categories[0].id);
+        if (data.categories.length > 0) setActiveCat('all');
       } catch (err) {
         console.error(err);
       } finally {
@@ -152,7 +152,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading menu...</div>;
   if (!restaurant) return <div className="min-h-screen flex items-center justify-center">Restaurant not found</div>;
 
-  const filteredItems = menuItems.filter((i) => i.categoryId === activeCat && i.available);
+  const filteredItems = menuItems.filter((i) => (activeCat === 'all' || i.categoryId === activeCat) && i.available);
 
 
   const currencySymbols: Record<string, string> = {
@@ -256,6 +256,17 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
           ref={scrollRef}
           className="flex px-4 py-3 gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1"
         >
+          <button
+            onClick={() => setActiveCat('all')}
+            className={`px-6 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all duration-300 transform active:scale-95 ${
+              activeCat === 'all'
+                ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/25 scale-105'
+                : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent'
+            }`}
+            style={{ fontFamily: restaurant.fontStyle }}
+          >
+            All
+          </button>
           {categories.map((cat) => (
             <button
               key={cat.id}
@@ -293,7 +304,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
       <div className={`max-w-7xl mx-auto px-4 py-8 lg:py-12 space-y-8 ${restaurant.menuAlignment === 'center' ? 'text-center' : ''} surface-elegant`}>
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: restaurant.fontStyle }}>
-             {categories.find(c => c.id === activeCat)?.name || "Menu"}
+             {activeCat === 'all' ? "All Items" : categories.find(c => c.id === activeCat)?.name || "Menu"}
           </h2>
           <div className="h-0.5 flex-1 bg-gradient-to-r from-border/50 via-border to-transparent ml-4 opacity-50"></div>
         </div>
