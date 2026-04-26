@@ -32,9 +32,12 @@ def get_password_hash(password: str) -> str:
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(pwd_bytes, salt).decode('utf-8')
 
+import bleach
+
 def sanitize_text(text: str) -> str:
-    """Basic XSS prevention by removing common script tags and brackets."""
+    """Robust XSS prevention using the bleach library."""
     if not text:
         return text
-    # Very basic sanitization, in production consider using a library like 'bleach'
-    return text.replace("<", "&lt;").replace(">", "&gt;")
+    # strip=True removes the tags entirely instead of escaping them
+    # tags=[] means no HTML tags are allowed
+    return bleach.clean(text, tags=[], attributes={}, strip=True)

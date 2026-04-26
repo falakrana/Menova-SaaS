@@ -117,6 +117,14 @@ async def create_menu_item(
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
+    # Verify that the category belongs to this restaurant
+    category = await db.categories.find_one({
+        "_id": ObjectId(item_in.categoryId),
+        "restaurantId": str(restaurant["_id"])
+    })
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found or access denied")
+
     item_dict = item_in.model_dump()
     for key in ["name", "description"]:
         if key in item_dict and isinstance(item_dict[key], str):
@@ -127,9 +135,9 @@ async def create_menu_item(
     
     result = await db.menu_items.insert_one(item_dict)
     
-    # Update category item count
+    # Update category item count (now verified to belong to this restaurant)
     await db.categories.update_one(
-        {"_id": ObjectId(item_in.categoryId)},
+        {"_id": ObjectId(item_in.categoryId), "restaurantId": str(restaurant["_id"])},
         {"$inc": {"itemCount": 1}}
     )
     
@@ -152,6 +160,32 @@ async def update_menu_item(
         if key in update_data and isinstance(update_data[key], str):
             update_data[key] = security.sanitize_text(update_data[key])
             
+    # Fetch old item to check category change
+    old_item = await db.menu_items.find_one({"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])})
+    if not old_item:
+        raise HTTPException(status_code=404, detail="Menu item not found or access denied")
+
+    # If category is changing, verify ownership of new category and update counts
+    if "categoryId" in update_data and update_data["categoryId"] != old_item["categoryId"]:
+        new_category = await db.categories.find_one({
+            "_id": ObjectId(update_data["categoryId"]),
+            "restaurantId": str(restaurant["_id"])
+        })
+        if not new_category:
+            raise HTTPException(status_code=400, detail="New category not found or access denied")
+        
+        # Decrement old category count
+        await db.categories.update_one(
+            {"_id": ObjectId(old_item["categoryId"]), "restaurantId": str(restaurant["_id"])},
+            {"$inc": {"itemCount": -1}}
+        )
+        
+        # Increment new category count
+        await db.categories.update_one(
+            {"_id": ObjectId(update_data["categoryId"]), "restaurantId": str(restaurant["_id"])},
+            {"$inc": {"itemCount": 1}}
+        )
+
     item = await db.menu_items.find_one_and_update(
         {"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])},
         {"$set": update_data},
