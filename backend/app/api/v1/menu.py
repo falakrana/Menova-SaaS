@@ -61,7 +61,7 @@ async def update_category(
         update_data["name"] = security.sanitize_text(update_data["name"])
         
     category = await db.categories.find_one_and_update(
-        {"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])},
+        {"_id": deps.to_object_id(id), "restaurantId": str(restaurant["_id"])},
         {"$set": update_data},
         return_document=True
     )
@@ -79,7 +79,7 @@ async def delete_category(
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
         
-    result = await db.categories.delete_one({"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])})
+    result = await db.categories.delete_one({"_id": deps.to_object_id(id), "restaurantId": str(restaurant["_id"])})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Category not found or access denied")
     
@@ -119,7 +119,7 @@ async def create_menu_item(
     
     # Verify that the category belongs to this restaurant
     category = await db.categories.find_one({
-        "_id": ObjectId(item_in.categoryId),
+        "_id": deps.to_object_id(item_in.categoryId),
         "restaurantId": str(restaurant["_id"])
     })
     if not category:
@@ -137,7 +137,7 @@ async def create_menu_item(
     
     # Update category item count (now verified to belong to this restaurant)
     await db.categories.update_one(
-        {"_id": ObjectId(item_in.categoryId), "restaurantId": str(restaurant["_id"])},
+        {"_id": deps.to_object_id(item_in.categoryId), "restaurantId": str(restaurant["_id"])},
         {"$inc": {"itemCount": 1}}
     )
     
@@ -161,14 +161,14 @@ async def update_menu_item(
             update_data[key] = security.sanitize_text(update_data[key])
             
     # Fetch old item to check category change
-    old_item = await db.menu_items.find_one({"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])})
+    old_item = await db.menu_items.find_one({"_id": deps.to_object_id(id), "restaurantId": str(restaurant["_id"])})
     if not old_item:
         raise HTTPException(status_code=404, detail="Menu item not found or access denied")
 
     # If category is changing, verify ownership of new category and update counts
     if "categoryId" in update_data and update_data["categoryId"] != old_item["categoryId"]:
         new_category = await db.categories.find_one({
-            "_id": ObjectId(update_data["categoryId"]),
+            "_id": deps.to_object_id(update_data["categoryId"]),
             "restaurantId": str(restaurant["_id"])
         })
         if not new_category:
@@ -176,18 +176,18 @@ async def update_menu_item(
         
         # Decrement old category count
         await db.categories.update_one(
-            {"_id": ObjectId(old_item["categoryId"]), "restaurantId": str(restaurant["_id"])},
+            {"_id": deps.to_object_id(old_item["categoryId"]), "restaurantId": str(restaurant["_id"])},
             {"$inc": {"itemCount": -1}}
         )
         
         # Increment new category count
         await db.categories.update_one(
-            {"_id": ObjectId(update_data["categoryId"]), "restaurantId": str(restaurant["_id"])},
+            {"_id": deps.to_object_id(update_data["categoryId"]), "restaurantId": str(restaurant["_id"])},
             {"$inc": {"itemCount": 1}}
         )
 
     item = await db.menu_items.find_one_and_update(
-        {"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])},
+        {"_id": deps.to_object_id(id), "restaurantId": str(restaurant["_id"])},
         {"$set": update_data},
         return_document=True
     )
@@ -205,7 +205,7 @@ async def delete_menu_item(
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
         
-    item = await db.menu_items.find_one({"_id": ObjectId(id), "restaurantId": str(restaurant["_id"])})
+    item = await db.menu_items.find_one({"_id": deps.to_object_id(id), "restaurantId": str(restaurant["_id"])})
     if not item:
         raise HTTPException(status_code=404, detail="Menu item not found or access denied")
     
@@ -213,7 +213,7 @@ async def delete_menu_item(
     
     # Update category item count
     await db.categories.update_one(
-        {"_id": ObjectId(item["categoryId"]), "restaurantId": str(restaurant["_id"])},
+        {"_id": deps.to_object_id(item["categoryId"]), "restaurantId": str(restaurant["_id"])},
         {"$inc": {"itemCount": -1}}
     )
     

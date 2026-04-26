@@ -4,6 +4,7 @@ from typing import Optional
 
 import httpx
 from bson import ObjectId
+from bson.errors import InvalidId
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -55,6 +56,17 @@ def fix_id(doc: dict) -> dict:
     return doc
 
 
+def to_object_id(id_str: str) -> ObjectId:
+    """Safely convert a string to an ObjectId. Raises 404 if invalid."""
+    try:
+        return ObjectId(id_str)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resource not found with the provided ID"
+        )
+
+
 # ---------------------------------------------------------------------------
 # Main dependency — verify Clerk JWT and return (or provision) the user
 # ---------------------------------------------------------------------------
@@ -74,7 +86,8 @@ async def get_current_user(
             token,
             jwks,
             algorithms=["RS256"],
-            options={"verify_aud": False},
+            audience="https://sweet-slug-0.clerk.accounts.dev", 
+            options={"verify_aud": True},
         )
     except JWTError:
         raise HTTPException(

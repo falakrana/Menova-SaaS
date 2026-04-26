@@ -43,7 +43,7 @@ async def _create_and_store_qr(db, restaurant_id: str, menu_url: str) -> str:
     )
 
     await db.restaurants.update_one(
-        {"_id": ObjectId(restaurant_id)},
+        {"_id": deps.to_object_id(restaurant_id)},
         {"$set": {"qrCodeUrl": qr_url, "qrMenuUrl": menu_url}},
     )
 
@@ -62,7 +62,7 @@ async def generate_qr_code(
 
     db = get_database()
 
-    restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id), "userId": str(current_user["_id"])})
+    restaurant = await db.restaurants.find_one({"_id": deps.to_object_id(restaurant_id), "userId": str(current_user["_id"])})
 
     if not restaurant:
 
@@ -118,7 +118,7 @@ async def regenerate_qr_code(
 
     db = get_database()
 
-    restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id), "userId": str(current_user["_id"])})
+    restaurant = await db.restaurants.find_one({"_id": deps.to_object_id(restaurant_id), "userId": str(current_user["_id"])})
 
 
     if not restaurant:

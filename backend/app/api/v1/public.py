@@ -21,7 +21,7 @@ async def get_public_menu(restaurant_id: str, request: Request, response: Respon
     if not has_viewed:
         # Increment total counter and log the individual view for analytics
         restaurant = await db.restaurants.find_one_and_update(
-            {"_id": ObjectId(restaurant_id)},
+            {"_id": deps.to_object_id(restaurant_id)},
             {"$inc": {"menuViews": 1}},
             return_document=True
         )
@@ -44,7 +44,7 @@ async def get_public_menu(restaurant_id: str, request: Request, response: Respon
         )
     else:
         # Just fetch
-        restaurant = await db.restaurants.find_one({"_id": ObjectId(restaurant_id)})
+        restaurant = await db.restaurants.find_one({"_id": deps.to_object_id(restaurant_id)})
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
@@ -66,7 +66,7 @@ async def toggle_like_item(item_id: str, like: bool) -> Any:
     increment = 1 if like else -1
     
     result = await db.menu_items.find_one_and_update(
-        {"_id": ObjectId(item_id)},
+        {"_id": deps.to_object_id(item_id)},
         {"$inc": {"likesCount": increment}},
         return_document=True
     )
