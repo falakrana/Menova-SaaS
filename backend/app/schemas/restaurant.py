@@ -20,6 +20,7 @@ class RestaurantBase(BaseModel):
     menuAlignment: Optional[str] = "left"
     showDescriptions: Optional[bool] = True
     layout: Optional[str] = "classic"
+    templateId: Optional[str] = "standard"
     menuViews: Optional[int] = 0
 
 class RestaurantCreate(RestaurantBase):
@@ -44,6 +45,7 @@ class RestaurantUpdate(BaseModel):
     menuAlignment: Optional[str] = None
     showDescriptions: Optional[bool] = None
     layout: Optional[str] = None
+    templateId: Optional[str] = None
 
 class RestaurantInDB(RestaurantBase):
     id: str = Field(..., validation_alias="_id")

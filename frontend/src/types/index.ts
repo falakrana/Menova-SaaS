@@ -29,6 +29,7 @@ export interface Restaurant {
   menuAlignment?: string;
   showDescriptions?: boolean;
   layout?: string;
+  templateId?: string;
 }
 
 /** A menu category (e.g. "Starters", "Main Course"). */

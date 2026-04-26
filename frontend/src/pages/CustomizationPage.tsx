@@ -12,12 +12,15 @@ import { api } from '@/lib/api';
 import { Loader2, Check, RefreshCcw } from 'lucide-react';
 import { useStore } from '@/store/useStore';
 
+import TemplateCard from '@/components/TemplateCard';
+
 export default function CustomizationPage() {
   const { toast } = useToast();
   const restaurant = useStore(state => state.restaurant);
   const updateRestaurant = useStore(state => state.updateRestaurant);
 
   // States initialized from store
+  const [selectedTemplate, setSelectedTemplate] = useState(restaurant?.templateId || 'standard');
   const [selectedColor, setSelectedColor] = useState(restaurant?.themeColor || '#0f172a');
   const [accentColor, setAccentColor] = useState(restaurant?.accentColor || '#f97316');
   const [headingFont, setHeadingFont] = useState(restaurant?.fontStyle?.split(',')[0] || 'Inter');
@@ -32,7 +35,7 @@ export default function CustomizationPage() {
   const [showDescriptions, setShowDescriptions] = useState(restaurant?.showDescriptions ?? true);
 
   const [selectedLayout, setSelectedLayout] = useState(restaurant?.layout || 'classic');
-  const [activeTab, setActiveTab] = useState('Visuals');
+  const [activeTab, setActiveTab] = useState('Templates');
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
@@ -60,6 +63,25 @@ export default function CustomizationPage() {
     }, 1500);
   };
 
+  // Synchronize state when restaurant data loads/changes
+  React.useEffect(() => {
+    if (restaurant) {
+      setSelectedTemplate(restaurant.templateId || 'standard');
+      setSelectedColor(restaurant.themeColor || '#0f172a');
+      setAccentColor(restaurant.accentColor || '#f97316');
+      setHeadingFont(restaurant.fontStyle?.split(',')[0] || 'Inter');
+      setBodyFont(restaurant.bodyFont || 'Roboto');
+      setTagline(restaurant.tagline || '');
+      setMenuTextSize(restaurant.menuTextSize || 'md');
+      setCurrency(restaurant.currency || 'INR');
+      setPriceFormat(restaurant.priceFormat || 'PREFIX_SPACE');
+      setMenuAlignment(restaurant.menuAlignment || 'left');
+      setShowDescriptions(restaurant.showDescriptions ?? true);
+      setSelectedLayout(restaurant.layout || 'classic');
+      setLogoUrl(restaurant.logoUrl);
+    }
+  }, [restaurant]);
+
   React.useEffect(() => {
     document.documentElement.style.setProperty('--primary-color', selectedColor);
     document.documentElement.style.setProperty('--accent-color', accentColor);
@@ -77,6 +99,7 @@ export default function CustomizationPage() {
 
       await updateRestaurant({
         ...restaurant,
+        templateId: selectedTemplate,
         themeColor: selectedColor,
         fontStyle: `${headingFont}, sans-serif`,
         bodyFont,
@@ -107,6 +130,7 @@ export default function CustomizationPage() {
   };
 
   const handleReset = () => {
+    setSelectedTemplate('standard');
     setSelectedColor('#0f172a');
     setAccentColor('#f97316');
     setHeadingFont('Inter');
@@ -183,6 +207,19 @@ export default function CustomizationPage() {
             {/* LEFT PANEL - Settings Form */}
             <div className="space-y-8">
 
+              {activeTab === 'Templates' && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <TemplateCard 
+                    selectedTemplate={selectedTemplate}
+                    onTemplateChange={(t) => {
+                      setSelectedTemplate(t);
+                      triggerAutoSave();
+                    }}
+                    primaryColor={selectedColor}
+                  />
+                </div>
+              )}
+
               {activeTab === 'Visuals' && (
                 <div className="space-y-6 animate-in fade-in duration-300">
                   <BrandingCard
@@ -250,6 +287,7 @@ export default function CustomizationPage() {
                   logoUrl={logoUrl}
                   headingFont={headingFont}
                   bodyFont={bodyFont}
+                  templateId={selectedTemplate}
                   layout={selectedLayout}
                   tagline={tagline}
                   menuTextSize={menuTextSize}

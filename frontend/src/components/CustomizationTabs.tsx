@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Palette, Type, Layout } from 'lucide-react';
+import { Palette, Type, Layout, LayoutTemplate } from 'lucide-react';
 
 type CustomizationTabsProps = {
   activeTab: string;
@@ -8,6 +8,7 @@ type CustomizationTabsProps = {
 };
 
 const tabData = [
+  { id: 'Templates', icon: LayoutTemplate, label: 'Templates' },
   { id: 'Visuals', icon: Palette, label: 'Visuals' },
   { id: 'Typography', icon: Type, label: 'Typography' },
   { id: 'Layout', icon: Layout, label: 'Layout' }

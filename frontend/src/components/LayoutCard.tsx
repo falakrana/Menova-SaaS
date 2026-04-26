@@ -1,10 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Check } from 'lucide-react';
 
 type LayoutCardProps = {
   selectedLayout: string;
-  onLayoutChange: (val: string) => void;
+  onLayoutChange: (layout: string) => void;
   primaryColor: string;
 };
 
@@ -16,43 +14,31 @@ const LAYOUTS = [
 
 export default function LayoutCard({ selectedLayout, onLayoutChange, primaryColor }: LayoutCardProps) {
   return (
-    <Card className="rounded-xl shadow-sm border-slate-200">
-      <CardHeader className="border-b border-slate-100 pb-4">
-        <CardTitle className="text-lg font-semibold text-slate-900">Menu Layout</CardTitle>
-        <CardDescription className="text-sm">
-          Choose how items are displayed to your customers.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {LAYOUTS.map((layout) => {
-            const isSelected = selectedLayout === layout.id;
-            return (
-              <div 
-                key={layout.id}
-                onClick={() => onLayoutChange(layout.id)}
-                className={`flex flex-col border rounded-xl p-4 cursor-pointer transition-all duration-200
-                  ${isSelected ? 'border-2 shadow-sm bg-slate-50/50' : 'border-slate-200 hover:border-slate-300 bg-white'}
-                `}
-                style={isSelected ? { borderColor: primaryColor } : {}}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-10 h-10 rounded-md bg-slate-100 border border-slate-200 p-2 flex flex-col justify-center">
-                    {layout.icon}
-                  </div>
-                  {isSelected && (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: primaryColor }}>
-                      <Check size={12} strokeWidth={3} />
-                    </div>
-                  )}
-                </div>
-                <h4 className="font-semibold text-slate-900 text-sm">{layout.label}</h4>
-                <p className="text-xs text-slate-500 leading-relaxed mt-1">{layout.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      {LAYOUTS.map((layout) => (
+        <button
+          key={layout.id}
+          onClick={() => onLayoutChange(layout.id)}
+          className={`w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 flex items-center gap-4 ${
+            selectedLayout === layout.id
+              ? 'bg-white border-primary shadow-lg shadow-primary/10 ring-1 ring-primary/20'
+              : 'bg-slate-50 border-transparent hover:border-slate-200'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-xl bg-slate-200 shrink-0 p-2 overflow-hidden flex flex-col justify-center">
+            {layout.icon}
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-slate-900 leading-tight mb-1">{layout.label}</p>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">{layout.desc}</p>
+          </div>
+          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+            selectedLayout === layout.id ? 'border-primary bg-primary' : 'border-slate-300'
+          }`}>
+            {selectedLayout === layout.id && <div className="w-2 h-2 rounded-full bg-white" />}
+          </div>
+        </button>
+      ))}
+    </div>
   );
 }
