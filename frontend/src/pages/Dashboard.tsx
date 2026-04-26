@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, Star, BarChart3, X, Heart, TrendingUp } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -460,16 +460,31 @@ function TopPerformingCategoriesCard() {
             <h3 className="font-black text-slate-900 text-base">Top Performing Categories</h3>
           </div>
           
-          <div className="pl-10 relative group">
+          <div className="pl-10 relative group flex items-center gap-2">
              <button 
                 onClick={() => setSortBy(sortBy === 'items' ? 'likes' : 'items')}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-100 transition-all group"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-100 transition-all shadow-sm active:scale-95"
              >
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
                   Based on <span className="text-primary">{sortBy === 'items' ? 'item count' : 'total likes'}</span>
                 </span>
                 <TrendingUp className={`w-3 h-3 text-primary transition-transform duration-500 ${sortBy === 'likes' ? 'rotate-0' : 'rotate-180 opacity-40'}`} />
              </button>
+
+             <motion.div
+               animate={{ 
+                 opacity: [1, 0, 1],
+                 x: [0, -3, 0]
+               }}
+               transition={{ 
+                 repeat: Infinity, 
+                 duration: 1.2,
+                 ease: "easeInOut"
+               }}
+               className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary"
+             >
+               <ArrowLeft className="w-3.5 h-3.5" />
+             </motion.div>
           </div>
         </div>
       </div>
