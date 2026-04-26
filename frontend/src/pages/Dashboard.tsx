@@ -1,7 +1,7 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, Star, BarChart3, X, Heart } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, Star, BarChart3, X, Heart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useUser } from '@clerk/react';
 import { useStore } from '@/store/useStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -32,22 +32,12 @@ export default function Dashboard() {
   const firstName = user?.firstName || user?.username || "there";
 
   useEffect(() => {
-    // Initial fetch
     fetchStats();
-
-    // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
       fetchStats();
     }, 30000);
-
     return () => clearInterval(interval);
   }, [fetchStats]);
-
-  const widgets = [
-    { label: 'Menu Views', value: stats.menuViews.toLocaleString(), icon: Eye, onClick: () => setShowViewsModal(true) },
-    { label: 'Menu Items', value: stats.totalItems.toLocaleString(), icon: UtensilsCrossed, link: '/dashboard/items' },
-    { label: 'Popular Item', value: stats.popularItem, icon: Star, onClick: () => setShowPopularModal(true) },
-  ];
 
   return (
     <DashboardLayout>
@@ -145,6 +135,12 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
+        {/* Menu Performance + Top Categories */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <MenuPerformanceCard />
+          <TopPerformingCategoriesCard />
+        </div>
+
         {/* Quick Actions & Tools Container */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            <div className="lg:col-span-2 space-y-8">
@@ -221,6 +217,325 @@ function WidgetContent({ w }: { w: any }) {
     </>
   );
 }
+
+// ── Menu Performance Card ────────────────────────────────────────────────────
+function MenuPerformanceCard() {
+  const [range, setRange] = useState<'7' | '14' | '30'>('7');
+  const [data, setData] = useState<{ date: string; views: number }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const days = parseInt(range);
+        const start = startOfDay(subDays(new Date(), days - 1)).toISOString();
+        const end = endOfDay(new Date()).toISOString();
+        const res = await api.getViewsAnalytics(start, end);
+        setData(res);
+      } catch {
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [range]);
+
+  // SVG chart dimensions
+  const W = 560;
+  const H = 160;
+  const PAD = { top: 20, right: 20, bottom: 30, left: 40 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+
+  const maxViews = Math.max(...data.map(d => d.views), 1);
+  const totalViews = data.reduce((s, d) => s + d.views, 0);
+
+  const pts = data.map((d, i) => ({
+    x: data.length > 1 ? (i / (data.length - 1)) * chartW : chartW / 2,
+    y: chartH - (d.views / maxViews) * chartH,
+    ...d,
+  }));
+
+  const pathD = pts.length > 1
+    ? pts.reduce((acc, p, i) => {
+        if (i === 0) return `M ${p.x} ${p.y}`;
+        const prev = pts[i - 1];
+        const cx = (prev.x + p.x) / 2;
+        return `${acc} C ${cx} ${prev.y}, ${cx} ${p.y}, ${p.x} ${p.y}`;
+      }, '')
+    : '';
+
+  const areaD = pathD
+    ? `${pathD} L ${pts[pts.length - 1].x} ${chartH} L ${pts[0].x} ${chartH} Z`
+    : '';
+
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; views: number; date: string } | null>(null);
+
+  return (
+    <motion.div
+      whileHover={{ y: -3 }}
+      className="lg:col-span-3 bg-white rounded-[28px] border border-slate-200 shadow-xl shadow-slate-200/40 p-7 flex flex-col gap-5"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+            <h3 className="font-black text-slate-900 text-base">Menu Performance</h3>
+          </div>
+          <p className="text-xs text-slate-400 font-medium pl-10">Overview of your menu performance</p>
+        </div>
+        {/* Range selector */}
+        <div className="flex gap-1 bg-slate-100 rounded-xl p-1">
+          {(['7', '14', '30'] as const).map(r => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                range === r
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+            >
+              {r}d
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Total */}
+      <div className="flex items-baseline gap-2 pl-1">
+        <span className="text-3xl font-black text-slate-900">{totalViews.toLocaleString()}</span>
+        <span className="text-sm text-slate-400 font-medium">views in last {range} days</span>
+      </div>
+
+      {/* Chart */}
+      <div className="relative w-full" style={{ height: H }}>
+        {loading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          </div>
+        ) : data.length < 2 ? (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-300 text-sm font-medium">
+            Not enough data yet
+          </div>
+        ) : (
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="w-full h-full"
+            onMouseLeave={() => setTooltip(null)}
+          >
+            <defs>
+              <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--color-primary, #16a34a)" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="var(--color-primary, #16a34a)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <g transform={`translate(${PAD.left},${PAD.top})`}>
+              {/* Grid lines */}
+              {[0, 0.25, 0.5, 0.75, 1].map(t => (
+                <line
+                  key={t}
+                  x1={0} y1={chartH * t}
+                  x2={chartW} y2={chartH * t}
+                  stroke="#f1f5f9" strokeWidth={1}
+                />
+              ))}
+              {/* Y labels */}
+              {[0, 0.5, 1].map(t => (
+                <text
+                  key={t}
+                  x={-6} y={chartH * t + 4}
+                  textAnchor="end"
+                  fontSize={9}
+                  fill="#94a3b8"
+                >
+                  {Math.round(maxViews * (1 - t))}
+                </text>
+              ))}
+              {/* Area fill */}
+              <path d={areaD} fill="url(#perfGrad)" />
+              {/* Line */}
+              <path
+                d={pathD}
+                fill="none"
+                stroke="var(--color-primary, #16a34a)"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {/* Dots + hover */}
+              {pts.map((p, i) => (
+                <g key={i} onMouseEnter={() => setTooltip({ x: p.x, y: p.y, views: p.views, date: p.date })}>
+                  <circle cx={p.x} cy={p.y} r={10} fill="transparent" />
+                  <circle
+                    cx={p.x} cy={p.y} r={4}
+                    fill="white"
+                    stroke="var(--color-primary, #16a34a)"
+                    strokeWidth={2}
+                  />
+                </g>
+              ))}
+              {/* X labels — show first, mid, last */}
+              {pts.length > 0 && [pts[0], pts[Math.floor(pts.length / 2)], pts[pts.length - 1]].map((p, i) => (
+                <text
+                  key={i}
+                  x={p.x} y={chartH + 18}
+                  textAnchor="middle"
+                  fontSize={9}
+                  fill="#94a3b8"
+                >
+                  {format(new Date(p.date), 'MMM d')}
+                </text>
+              ))}
+              {/* Tooltip */}
+              {tooltip && (
+                <g transform={`translate(${tooltip.x + (tooltip.x > chartW * 0.7 ? -80 : 12)},${Math.max(0, tooltip.y - 30)})`}>
+                  <rect rx={8} ry={8} width={76} height={38} fill="#0f172a" opacity={0.9} />
+                  <text x={8} y={15} fontSize={10} fill="#94a3b8">
+                    {format(new Date(tooltip.date), 'MMM d')}
+                  </text>
+                  <text x={8} y={30} fontSize={12} fontWeight="bold" fill="white">
+                    {tooltip.views} views
+                  </text>
+                </g>
+              )}
+            </g>
+          </svg>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Top Performing Categories Card ──────────────────────────────────────────
+function TopPerformingCategoriesCard() {
+  const categories = useStore(s => s.categories);
+  const menuItems = useStore(s => s.menuItems);
+  const [sortBy, setSortBy] = useState<'items' | 'likes'>('items');
+
+  const CATEGORY_COLORS = [
+    'bg-emerald-500',
+    'bg-orange-400',
+    'bg-blue-400',
+    'bg-purple-400',
+    'bg-rose-400',
+    'bg-amber-400',
+  ];
+
+  const ranked = useMemo(() => {
+    return categories
+      .map(cat => ({
+        ...cat,
+        itemCount: menuItems.filter(i => i.categoryId === cat.id).length,
+        likes: menuItems
+          .filter(i => i.categoryId === cat.id)
+          .reduce((s, i) => s + (i.likesCount || 0), 0),
+      }))
+      .sort((a, b) => sortBy === 'items' ? b.itemCount - a.itemCount : b.likes - a.likes)
+      .slice(0, 6);
+  }, [categories, menuItems, sortBy]);
+
+  const maxValue = useMemo(() => {
+    if (ranked.length === 0) return 1;
+    return Math.max(...ranked.map(c => sortBy === 'items' ? c.itemCount : c.likes), 1);
+  }, [ranked, sortBy]);
+
+  return (
+    <motion.div
+      whileHover={{ y: -3 }}
+      className="lg:col-span-2 bg-white rounded-[28px] border border-slate-200 shadow-xl shadow-slate-200/40 p-7 flex flex-col gap-5 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center shadow-sm">
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <h3 className="font-black text-slate-900 text-base">Top Performing Categories</h3>
+          </div>
+          
+          <div className="pl-10 relative group">
+             <button 
+                onClick={() => setSortBy(sortBy === 'items' ? 'likes' : 'items')}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-100 transition-all group"
+             >
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  Based on <span className="text-primary">{sortBy === 'items' ? 'item count' : 'total likes'}</span>
+                </span>
+                <TrendingUp className={`w-3 h-3 text-primary transition-transform duration-500 ${sortBy === 'likes' ? 'rotate-0' : 'rotate-180 opacity-40'}`} />
+             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="flex flex-col gap-4 flex-1 mt-2">
+        {ranked.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center text-slate-300 text-sm font-medium italic">
+            No categories yet
+          </div>
+        ) : (
+          ranked.map((cat, i) => {
+            const currentVal = sortBy === 'items' ? cat.itemCount : cat.likes;
+            return (
+              <motion.div 
+                key={cat.id} 
+                layout 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex items-center gap-3 group"
+              >
+                {/* Color dot */}
+                <div className={`w-2 h-2 rounded-full shrink-0 shadow-sm ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]}`} />
+                {/* Name */}
+                <span className="text-sm font-bold text-slate-600 w-24 shrink-0 truncate group-hover:text-slate-900 transition-colors">{cat.name}</span>
+                {/* Bar Container */}
+                <div className="flex-1 bg-slate-50 rounded-full h-2.5 overflow-hidden border border-slate-100/50 shadow-inner">
+                  <motion.div
+                    initial={false}
+                    animate={{ 
+                      width: `${(currentVal / maxValue) * 100}%`,
+                      backgroundColor: i % 2 === 0 ? 'var(--color-primary, #16a34a)' : undefined
+                    }}
+                    transition={{ duration: 1.2, type: "spring", bounce: 0.2 }}
+                    className={`h-full rounded-full ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]} opacity-80 group-hover:opacity-100 transition-opacity`}
+                  />
+                </div>
+                {/* Value */}
+                <div className="w-8 flex justify-end">
+                   <motion.span 
+                     key={sortBy}
+                     initial={{ opacity: 0, y: 5 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     className="text-sm font-black text-slate-900 tabular-nums"
+                   >
+                     {currentVal}
+                   </motion.span>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Footer */}
+      <Link
+        to="/dashboard/categories"
+        className="flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-[0.2em] hover:text-primary hover:gap-2.5 transition-all mt-auto pt-4 border-t border-slate-50"
+      >
+        Manage Categories <ArrowRight className="w-3 h-3" />
+      </Link>
+    </motion.div>
+  );
+}
+
 
 function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onOpenChange: (open: boolean) => void, totalViews: number }) {
   const [date, setDate] = useState<DateRange | undefined>({
