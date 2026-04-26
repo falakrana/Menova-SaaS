@@ -395,15 +395,15 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
                       layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="group relative flex items-center justify-between p-6 rounded-3xl bg-white/50 backdrop-blur-sm border border-slate-100/50 hover:bg-white transition-all duration-300"
+                      className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-3xl bg-white/50 backdrop-blur-sm border border-slate-100/50 hover:bg-white transition-all duration-300 gap-4"
                     >
-                      <div className="flex-1 min-w-0 pr-6 text-left">
+                      <div className="flex-1 min-w-0 sm:pr-6 text-left">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-display font-black text-lg line-clamp-1 group-hover:text-primary transition-colors">{item.name}</h3>
+                          <h3 className="font-display font-black text-lg group-hover:text-primary transition-colors">{item.name}</h3>
                           {isHot && <Star className="w-3 h-3 text-orange-400 fill-current" />}
                           <DietaryIcons item={item} />
                         </div>
-                        <p className="text-xs text-muted-foreground font-medium line-clamp-1">{item.description}</p>
+                        <p className="text-xs text-muted-foreground font-medium">{item.description}</p>
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="font-display font-black text-xl tracking-tight shrink-0">{formatPrice(item.price)}</span>
