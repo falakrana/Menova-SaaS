@@ -2,13 +2,11 @@ import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, UtensilsCrossed } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
-import { useNavigate } from 'react-router-dom';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
 
 export default function DefaultTemplate({
   restaurant, categories, menuItems, activeCat, setActiveCat, likedItems, toggleLike, formatPrice, embedded
 }: TemplateProps) {
-  const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
@@ -176,6 +174,7 @@ export default function DefaultTemplate({
           formatPrice={formatPrice}
           fontStyle={restaurant.fontStyle}
           primaryColor={restaurant.themeColor}
+          theme="default"
         />
       </div>
 

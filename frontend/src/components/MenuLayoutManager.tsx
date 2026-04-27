@@ -1,27 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Star, Flame, UtensilsCrossed } from 'lucide-react';
 
-const DietaryIcons = ({ item }: { item: any }) => (
-  <div className="flex items-center gap-1.5 shrink-0 mt-1">
-    {item.isVeg && (
-      <div className="w-3.5 h-3.5 rounded-sm border border-green-600 flex items-center justify-center p-[2px]">
-        <div className="w-full h-full rounded-full bg-green-600" />
-      </div>
-    )}
-    {item.isSpicy && <Flame className="w-4 h-4 text-orange-500 fill-current" />}
-    {item.isGlutenFree && (
-      <div className="px-1 py-0.5 rounded-sm bg-blue-100 text-blue-800 text-[7px] font-black uppercase tracking-tighter border border-blue-200">
-        GF
-      </div>
-    )}
-    {item.specifications?.map((spec: string) => (
-      <div key={spec} className="px-1 py-0.5 rounded-sm bg-slate-100 text-slate-600 text-[7px] font-black uppercase tracking-tighter border border-slate-200">
-        {spec}
-      </div>
-    ))}
-  </div>
+type Theme = 'light' | 'dark' | 'warm' | 'default';
+
+const DietaryBadge = ({ label, bg, text, border }: { label: string; bg: string; text: string; border: string }) => (
+  <span
+    className="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tight border"
+    style={{ background: bg, color: text, borderColor: border }}
+  >
+    {label}
+  </span>
 );
+
+const DietaryIcons = ({ item, theme }: { item: any; theme: Theme }) => {
+  const isDark = theme === 'dark';
+  return (
+    <div className="flex items-center gap-1 shrink-0 flex-wrap">
+      {item.isVeg && (
+        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tight border"
+          style={{ background: '#dcfce7', color: '#16a34a', borderColor: '#bbf7d0' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+          Veg
+        </span>
+      )}
+      {item.isSpicy && (
+        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tight border"
+          style={{ background: '#fff7ed', color: '#ea580c', borderColor: '#fed7aa' }}
+        >
+          <Flame className="w-2.5 h-2.5" />
+          Spicy
+        </span>
+      )}
+      {item.isGlutenFree && (
+        <DietaryBadge label="GF" bg={isDark ? '#1e3a5f' : '#dbeafe'} text={isDark ? '#93c5fd' : '#1d4ed8'} border={isDark ? '#2563eb40' : '#bfdbfe'} />
+      )}
+      {item.specifications?.map((spec: string) => (
+        <DietaryBadge
+          key={spec}
+          label={spec}
+          bg={isDark ? '#27272a' : '#f1f5f9'}
+          text={isDark ? '#a1a1aa' : '#475569'}
+          border={isDark ? '#3f3f46' : '#e2e8f0'}
+        />
+      ))}
+    </div>
+  );
+};
+
+function ImageWithSkeleton({ src, alt, className }: { src?: string; alt: string; className?: string }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
+  if (!src || error) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-slate-100/10`}>
+        <UtensilsCrossed className="w-8 h-8 text-slate-400/30" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${className} relative overflow-hidden`}>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-slate-200/30 via-slate-100/50 to-slate-200/30" />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        onError={() => setError(true)}
+        className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </div>
+  );
+}
 
 interface MenuLayoutManagerProps {
   layout: string;
@@ -31,16 +85,68 @@ interface MenuLayoutManagerProps {
   formatPrice: (price: number) => string;
   fontStyle?: string;
   primaryColor?: string;
+  theme?: Theme;
 }
 
-export default function MenuLayoutManager({ 
-  layout, items, likedItems, toggleLike, formatPrice, fontStyle, primaryColor 
+function getCardStyles(theme: Theme) {
+  switch (theme) {
+    case 'dark':
+      return {
+        card: 'bg-zinc-900 border border-zinc-800 shadow-xl hover:shadow-2xl hover:border-zinc-700',
+        text: 'text-zinc-100',
+        subtext: 'text-zinc-400',
+        price: 'text-zinc-100',
+        likeBtn: 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:text-red-400 hover:bg-zinc-700',
+        likeBtnActive: 'bg-red-500 border-red-400 text-white shadow-lg',
+        badge: 'bg-zinc-800 text-zinc-300 border-zinc-700',
+        hotBadge: 'bg-orange-500 text-white',
+      };
+    case 'warm':
+      return {
+        card: 'bg-white border border-[#D47530]/10 shadow-md hover:shadow-xl',
+        text: 'text-[#4A4036]',
+        subtext: 'text-[#8C7A6B]',
+        price: 'text-[#D47530]',
+        likeBtn: 'bg-[#F9F6F0] border-[#D47530]/20 text-[#8C7A6B] hover:text-red-400 hover:bg-red-50',
+        likeBtnActive: 'bg-red-500 border-red-400 text-white shadow-lg',
+        badge: 'bg-[#F9F6F0] text-[#8C7A6B] border-[#D47530]/15',
+        hotBadge: 'bg-[#D47530] text-white',
+      };
+    case 'light':
+      return {
+        card: 'bg-white border border-slate-100 shadow-md hover:shadow-xl',
+        text: 'text-slate-900',
+        subtext: 'text-slate-500',
+        price: 'text-slate-900',
+        likeBtn: 'bg-slate-50 border-slate-200 text-slate-400 hover:text-red-500 hover:bg-red-50',
+        likeBtnActive: 'bg-red-500 border-red-400 text-white shadow-lg',
+        badge: 'bg-slate-100 text-slate-600 border-slate-200',
+        hotBadge: 'bg-orange-400 text-white',
+      };
+    default:
+      return {
+        card: 'bg-white/5 border border-slate-100/10 shadow-xl hover:shadow-2xl',
+        text: 'text-foreground',
+        subtext: 'text-muted-foreground',
+        price: 'text-foreground',
+        likeBtn: 'bg-muted/50 border-transparent text-muted-foreground hover:bg-white hover:text-red-500',
+        likeBtnActive: 'bg-red-500 border-red-400 text-white shadow-lg',
+        badge: 'bg-slate-100 text-slate-600 border-slate-200',
+        hotBadge: 'bg-orange-400 text-white',
+      };
+  }
+}
+
+export default function MenuLayoutManager({
+  layout, items, likedItems, toggleLike, formatPrice, fontStyle, primaryColor, theme = 'default',
 }: MenuLayoutManagerProps) {
+  const styles = getCardStyles(theme);
+
   if (items.length === 0) {
     return (
-      <div className="col-span-full text-center py-20 px-4 bg-white/5 bg-black/5 backdrop-blur-sm rounded-[32px] border border-dashed border-border/60">
+      <div className="col-span-full text-center py-20 px-4 bg-white/5 backdrop-blur-sm rounded-[32px] border border-dashed border-border/60">
         <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
-           <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30" />
+          <UtensilsCrossed className="w-8 h-8 text-muted-foreground/30" />
         </div>
         <p className="text-muted-foreground font-medium">No items available in this category.</p>
       </div>
@@ -52,14 +158,15 @@ export default function MenuLayoutManager({
       layout
       className={
         layout === 'grid'
-          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8"
-          : "flex flex-col gap-4 lg:gap-6 max-w-4xl mx-auto w-full"
+          ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8'
+          : 'flex flex-col gap-4 lg:gap-5 max-w-4xl mx-auto w-full'
       }
     >
       {items.map((item, index) => {
         const isHot = item.likesCount > 4;
+        const liked = likedItems.includes(item.id);
 
-        // 1. MINIMAL LAYOUT
+        // MINIMAL LAYOUT
         if (layout === 'minimal') {
           return (
             <motion.div
@@ -67,153 +174,136 @@ export default function MenuLayoutManager({
               layout
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="group relative flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-3xl bg-white/5 border border-slate-100/10 hover:bg-white/10 transition-all duration-300 gap-4 w-full"
+              transition={{ delay: index * 0.04, duration: 0.35 }}
+              className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card}`}
             >
-              <div className="flex-1 min-w-0 sm:pr-6 text-left">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-display font-black text-lg group-hover:text-primary transition-colors" style={{ fontFamily: fontStyle }}>{item.name}</h3>
-                  {isHot && <Star className="w-3 h-3 text-orange-400 fill-current" />}
-                  <DietaryIcons item={item} />
+              <div className="flex-1 min-w-0 sm:pr-4 text-left">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3 className={`font-display font-black text-lg leading-none ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                    {item.name}
+                  </h3>
+                  {isHot && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
                 </div>
-                <p className="text-xs text-muted-foreground font-medium">{item.description}</p>
+                <div className="mb-1">
+                  <DietaryIcons item={item} theme={theme} />
+                </div>
+                <p className={`text-xs font-medium ${styles.subtext}`}>{item.description}</p>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="font-display font-black text-xl tracking-tight shrink-0">{formatPrice(item.price)}</span>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={`font-display font-black text-xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${
-                    likedItems.includes(item.id) 
-                      ? 'bg-red-500 border-red-400 text-white shadow-lg' 
-                      : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-white hover:text-red-500'
-                  }`}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
                 >
-                  <Heart className={`w-5 h-5 ${likedItems.includes(item.id) ? 'fill-current' : ''}`} />
+                  <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
                 </button>
               </div>
             </motion.div>
           );
         }
 
-        // 2. CLASSIC LAYOUT
+        // CLASSIC LAYOUT
         if (layout === 'classic') {
           return (
             <motion.div
               key={item.id}
               layout
-              className="group flex flex-col sm:flex-row rounded-[2.5rem] bg-white/5 border border-slate-100/10 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden h-fit sm:h-44 w-full"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              className={`group flex flex-col sm:flex-row rounded-3xl transition-all duration-500 overflow-hidden h-fit sm:h-44 w-full ${styles.card}`}
             >
-              <div className="w-full sm:w-44 h-44 sm:h-full relative overflow-hidden shrink-0">
-                {item.image ? (
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                ) : (
-                  <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200">
-                     <UtensilsCrossed size={40} />
+              <div className="w-full sm:w-44 h-44 sm:h-full relative shrink-0">
+                <ImageWithSkeleton
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full group-hover:scale-105 transition-transform duration-700"
+                />
+                {isHot && (
+                  <div className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${styles.hotBadge}`}>
+                    🔥 Hot
                   </div>
                 )}
-                {isHot && <div className="absolute top-3 left-3 px-2 py-0.5 rounded-lg bg-orange-400 text-white text-[8px] font-black uppercase tracking-widest">Hot</div>}
               </div>
 
-              <div className="flex-1 p-6 flex flex-col justify-between text-left">
-                 <div>
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                       <h3 className="font-display font-black text-xl group-hover:text-primary transition-colors leading-none" style={{ fontFamily: fontStyle }}>{item.name}</h3>
-                       <DietaryIcons item={item} />
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium line-clamp-2 leading-relaxed mb-4">{item.description}</p>
-                 </div>
-                 <div className="flex items-center justify-between mt-auto">
-                    <span className="font-display font-black text-2xl tracking-tight">{formatPrice(item.price)}</span>
-                    <button
-                       onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                       className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${
-                         likedItems.includes(item.id) 
-                           ? 'bg-red-500 border-red-400 text-white shadow-lg' 
-                           : 'bg-muted/50 border-transparent text-muted-foreground hover:bg-white hover:text-red-500'
-                       }`}
-                    >
-                       <Heart className={`w-5 h-5 ${likedItems.includes(item.id) ? 'fill-current' : ''}`} />
-                    </button>
-                 </div>
+              <div className="flex-1 p-5 flex flex-col justify-between text-left">
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-1.5">
+                    <h3 className={`font-display font-black text-lg leading-snug ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                      {item.name}
+                    </h3>
+                  </div>
+                  <div className="mb-2">
+                    <DietaryIcons item={item} theme={theme} />
+                  </div>
+                  <p className={`text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
+                </div>
+                <div className="flex items-center justify-between mt-auto pt-3">
+                  <span className={`font-display font-black text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                  >
+                    <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           );
         }
 
-        // 3. GRID LAYOUT
+        // GRID LAYOUT
         return (
           <motion.div
             key={item.id}
             layout
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.05 }}
-            className={`group relative flex flex-col rounded-[2.5rem] border border-border/50 bg-white/5 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden w-full ${
-              isHot ? 'ring-2 ring-[var(--accent-color)]/20 shadow-[var(--accent-color)]/5' : ''
-            } `}
+            transition={{ delay: index * 0.05, duration: 0.4 }}
+            className={`group relative flex flex-col rounded-3xl transition-all duration-500 overflow-hidden w-full ${styles.card} ${
+              isHot ? 'ring-2 ring-orange-400/20' : ''
+            }`}
           >
-            <div className="relative h-44 bg-slate-50/10 flex items-center justify-center overflow-hidden">
-              <div className="absolute inset-0 opacity-[0.05] noise-bg" />
-              
-              <div className="relative w-32 h-32 rounded-full border-[6px] border-white shadow-2xl overflow-hidden z-10 transition-all duration-500 group-hover:scale-110 bg-white/10">
-                {item.image ? (
-                  <img 
-                    src={item.image} 
-                    alt={item.name} 
-                    className="w-full h-full object-cover" 
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-100/10">
-                     <UtensilsCrossed className="w-10 h-10 text-muted-foreground/20" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-                {isHot && (
-                   <span className="px-2.5 py-1 rounded-lg bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
-                      Bestseller
-                   </span>
-                )}
-              </div>
+            <div className="relative h-44 overflow-hidden">
+              <ImageWithSkeleton
+                src={item.image}
+                alt={item.name}
+                className="w-full h-44 group-hover:scale-110 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              {isHot && (
+                <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${styles.hotBadge}`}>
+                  🔥 Bestseller
+                </div>
+              )}
             </div>
 
-            <div className="flex-1 p-8 flex flex-col text-left">
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <h3 
-                  className="font-display font-black text-xl leading-snug group-hover:text-[var(--primary-color)] transition-colors duration-300"
-                  style={{ fontFamily: fontStyle }}
-                >
-                  {item.name}
-                </h3>
-                <DietaryIcons item={item} />
+            <div className="flex-1 p-5 flex flex-col text-left">
+              <div className="mb-1.5">
+                <DietaryIcons item={item} theme={theme} />
               </div>
-              
+              <h3
+                className={`font-display font-black text-lg leading-snug mb-1 ${styles.text}`}
+                style={{ fontFamily: fontStyle }}
+              >
+                {item.name}
+              </h3>
               {item.description && (
-                <p className="text-muted-foreground/80 font-medium text-xs mb-8 line-clamp-2 leading-relaxed">
+                <p className={`text-xs mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
                   {item.description}
                 </p>
               )}
-              
-              <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-50/10">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Price</span>
-                  <span className="font-display font-black text-2xl tracking-tighter">
-                    {formatPrice(item.price)}
-                  </span>
-                </div>
 
-                <div className="flex items-center gap-3">
-                   <button
-                     onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 border backdrop-blur-md ${
-                       likedItems.includes(item.id) 
-                         ? 'bg-red-500 border-red-400 text-white shadow-lg' 
-                         : 'bg-slate-100/10 border-slate-200/10 text-muted-foreground hover:text-red-500 hover:bg-white'
-                     }`}
-                   >
-                     <Heart className={`w-6 h-6 ${likedItems.includes(item.id) ? 'fill-current' : ''}`} />
-                   </button>
-                </div>
+              <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100/10">
+                <span className={`font-display font-black text-xl tracking-tighter ${styles.price}`}>
+                  {formatPrice(item.price)}
+                </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                >
+                  <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                </button>
               </div>
             </div>
           </motion.div>
