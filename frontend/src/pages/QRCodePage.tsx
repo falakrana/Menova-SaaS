@@ -3,6 +3,16 @@ import { useState, useEffect } from 'react';
 import { Download, Printer, Copy, Loader2, RefreshCw } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,6 +35,7 @@ export default function QRCodePage() {
   const [menuUrl, setMenuUrl] = useState<string>('');
 
   const [loading, setLoading] = useState(false);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
 
 
 
@@ -162,6 +173,11 @@ export default function QRCodePage() {
 
   };
 
+  const handleRegenerateConfirm = async () => {
+    setShowRegenerateConfirm(false);
+    await fetchQRCode(true);
+  };
+
 
 
   return (
@@ -180,7 +196,7 @@ export default function QRCodePage() {
 
           </div>
 
-          <Button variant="outline" onClick={() => fetchQRCode(true)} disabled={loading}>
+          <Button variant="outline" onClick={() => setShowRegenerateConfirm(true)} disabled={loading}>
 
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
 
@@ -279,6 +295,22 @@ export default function QRCodePage() {
         </div>
 
       </div>
+      <AlertDialog open={showRegenerateConfirm} onOpenChange={setShowRegenerateConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Regenerate QR code?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Regenerating creates a new QR code. If you have already printed the current one, you will need to print the new QR code again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRegenerateConfirm} disabled={loading}>
+              Regenerate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </DashboardLayout>
 
