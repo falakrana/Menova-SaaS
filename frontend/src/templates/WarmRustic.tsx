@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, UtensilsCrossed } from 'lucide-react';
+import { Search, X, UtensilsCrossed, MapPin } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
+import LocationModal from '@/components/LocationModal';
 
 export default function WarmRustic({
   restaurant, categories, menuItems, activeCat, setActiveCat, likedItems, toggleLike, formatPrice, embedded
@@ -10,6 +11,7 @@ export default function WarmRustic({
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const catScrollRef = useRef<HTMLDivElement>(null);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const layout = restaurant.layout || 'classic';
   const accent = restaurant.accentColor || '#D47530';
@@ -148,15 +150,17 @@ export default function WarmRustic({
         )}
 
         {restaurant.location && (
-          <motion.span
+          <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-3 inline-block text-xs font-semibold px-3 py-1 rounded-full"
+            onClick={() => setLocationModalOpen(true)}
+            className="mt-3 inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full cursor-pointer hover:scale-105 transition-transform"
             style={{ backgroundColor: `${accent}15`, color: accent }}
           >
-            📍 {restaurant.location}
-          </motion.span>
+            <MapPin className="w-4 h-4" />
+            <span>View Location</span>
+          </motion.button>
         )}
 
         {/* Ornamental divider */}
@@ -276,6 +280,13 @@ export default function WarmRustic({
           </p>
         </div>
       )}
+
+      <LocationModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        location={restaurant.location || ''}
+        restaurantName={restaurant.name}
+      />
     </div>
   );
 }

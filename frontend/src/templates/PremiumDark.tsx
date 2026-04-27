@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, UtensilsCrossed } from 'lucide-react';
+import { Search, X, UtensilsCrossed, MapPin } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
+import LocationModal from '@/components/LocationModal';
 
 export default function PremiumDark({
   restaurant, categories, menuItems, activeCat, setActiveCat, likedItems, toggleLike, formatPrice, embedded
 }: TemplateProps) {
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const filteredItems = menuItems.filter((i) => {
     const matchesCat = activeCat === 'all' || i.categoryId === activeCat;
@@ -93,14 +95,16 @@ export default function PremiumDark({
             {restaurant.name}
           </motion.h1>
           {restaurant.location && (
-            <motion.span
+            <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.35 }}
-              className="mt-4 inline-block px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-xs font-medium"
+              onClick={() => setLocationModalOpen(true)}
+              className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 text-xs font-medium hover:bg-zinc-700 hover:text-white transition-all cursor-pointer"
             >
-              📍 {restaurant.location}
-            </motion.span>
+              <MapPin className="w-4 h-4" />
+              <span>View Location</span>
+            </motion.button>
           )}
         </div>
 
@@ -208,6 +212,13 @@ export default function PremiumDark({
           </p>
         </div>
       )}
+
+      <LocationModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        location={restaurant.location || ''}
+        restaurantName={restaurant.name}
+      />
     </div>
   );
 }

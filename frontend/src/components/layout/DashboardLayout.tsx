@@ -37,7 +37,7 @@ const navItems = [
   { title: "QR Code", path: "/dashboard/qr-code", icon: QrCode },
   { title: "Menu Preview", path: "/dashboard/preview", icon: Eye },
   { title: "Customization", path: "/dashboard/customization", icon: ChefHat },
-  { title: "Settings", path: "/dashboard/settings", icon: Settings },
+  { title: "Profile", path: "/dashboard/profile", icon: Settings },
 ];
 
 export default function DashboardLayout({

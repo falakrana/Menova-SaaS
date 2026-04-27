@@ -84,6 +84,7 @@ const App = () => {
                 <Route path="/dashboard/qr-code" element={<QRCodePage />} />
                 <Route path="/dashboard/preview" element={<MenuPreview />} />
                 <Route path="/dashboard/customization" element={<CustomizationPage />} />
+                <Route path="/dashboard/profile" element={<SettingsPage />} />
                 <Route path="/dashboard/settings" element={<SettingsPage />} />
               </Route>
 

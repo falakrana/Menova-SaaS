@@ -28,7 +28,7 @@ This repository includes a FastAPI backend. The frontend talks to the backend vi
 | 🎨 Brand Customization | Choose theme colors, font styles, and restaurant name |
 | 📊 Dashboard Analytics | View menu views, QR scans, menu items, and popular items |
 | 🔒 Auth Flow | Login and Register pages with validation |
-| 📁 Settings | Update restaurant name, email, phone, and location |
+| 📁 Profile | Update restaurant name, email, phone, location, and logo |
 | 📱 Mobile-First | Fully responsive — optimized for phone, tablet, and desktop |
 | 🌗 Dark Mode | CSS custom-property-based theming with dark mode styles pre-configured |
 
@@ -122,7 +122,7 @@ menu-magic-main/
 │   │   ├── MenuPreview.tsx           # Dashboard-side preview of public menu
 │   │   ├── MenuCustomization.tsx     # Live brand customization with preview
 │   │   ├── OrdersPage.tsx            # Incoming orders with status updates
-│   │   ├── SettingsPage.tsx          # Restaurant profile settings
+│   │   ├── SettingsPage.tsx          # Restaurant profile with branding
 │   │   ├── PublicMenu.tsx            # Customer-facing menu (scan → browse → order)
 │   │   ├── CartPage.tsx              # Customer cart + place order
 │   │   └── NotFound.tsx              # 404 fallback page

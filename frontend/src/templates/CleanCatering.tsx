@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Search, X, UtensilsCrossed } from 'lucide-react';
+import { Star, Search, X, UtensilsCrossed, MapPin } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
+import LocationModal from '@/components/LocationModal';
 
 export default function CleanCatering({
   restaurant, categories, menuItems, activeCat, setActiveCat, likedItems, toggleLike, formatPrice, embedded
@@ -11,6 +12,7 @@ export default function CleanCatering({
   const [showSearch, setShowSearch] = useState(false);
   const [catStickyVisible, setCatStickyVisible] = useState(false);
   const catSectionRef = useRef<HTMLDivElement>(null);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const layout = restaurant.layout || 'classic';
   const accentColor = restaurant.accentColor || '#10b981';
@@ -133,9 +135,13 @@ export default function CleanCatering({
             <p className="text-slate-500 text-lg leading-relaxed max-w-lg">{restaurant.tagline}</p>
           )}
           {restaurant.location && (
-            <span className="inline-block px-3 py-1.5 rounded-full bg-slate-100 text-slate-500 text-xs font-semibold">
-              📍 {restaurant.location}
-            </span>
+            <button
+              onClick={() => setLocationModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-500 text-xs font-semibold hover:bg-slate-200 hover:text-slate-700 transition-all cursor-pointer"
+            >
+              <MapPin className="w-4 h-4" />
+              <span>View Location</span>
+            </button>
           )}
         </motion.div>
         <motion.div
@@ -300,6 +306,13 @@ export default function CleanCatering({
           </p>
         </div>
       )}
+
+      <LocationModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        location={restaurant.location || ''}
+        restaurantName={restaurant.name}
+      />
     </div>
   );
 }

@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useStore } from '@/store/useStore';
 import DashboardLayout from '@/components/layout/DashboardLayout';
+import BrandingCard from '@/components/BrandingCard';
 import { Loader2 } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function SettingsPage() {
   const { user, isLoaded: clerkLoaded } = useUser();
@@ -20,6 +22,8 @@ export default function SettingsPage() {
     location: ''
   });
   const syncedOnceRef = useRef(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | undefined>((restaurant as any)?.logoUrl);
 
   useEffect(() => {
     if (restaurant) {
@@ -29,8 +33,19 @@ export default function SettingsPage() {
         phone: restaurant.phone || '',
         location: restaurant.location || ''
       });
+      setLogoUrl(restaurant.logoUrl);
     }
   }, [restaurant]);
+
+  const handleLogoUpload = (file: File) => {
+    setLogoFile(file);
+    setLogoUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoFile(null);
+    setLogoUrl(undefined);
+  };
 
   // Prefill from Clerk and auto-sync to backend on first load
   useEffect(() => {
@@ -65,8 +80,18 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateRestaurant(form);
-      toast({ title: 'Settings saved!' });
+      let finalLogoUrl = logoUrl;
+
+      if (logoFile) {
+        const res = await api.uploadImage(logoFile, 'customization');
+        finalLogoUrl = res.url || finalLogoUrl;
+      }
+
+      await updateRestaurant({
+        ...form,
+        logoUrl: finalLogoUrl
+      });
+      toast({ title: 'Profile saved!' });
     } catch (err) {
       toast({ title: 'Update failed', variant: 'destructive' });
     } finally {
@@ -74,15 +99,21 @@ export default function SettingsPage() {
     }
   };
 
-  if (!restaurant) return <DashboardLayout><div className="p-8">Loading settings...</div></DashboardLayout>;
+  if (!restaurant) return <DashboardLayout><div className="p-8">Loading profile...</div></DashboardLayout>;
 
   return (
     <DashboardLayout>
       <div className="space-y-10 animate-fade-in max-w-2xl">
         <div>
-          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Settings</h1>
-          <p className="text-muted-foreground text-base mt-2">Manage your restaurant details</p>
+          <h1 className="font-display text-3xl font-bold text-slate-900 tracking-tight">Profile</h1>
+          <p className="text-muted-foreground text-base mt-2">Manage your restaurant details and branding</p>
         </div>
+
+        <BrandingCard
+          logoUrl={logoUrl}
+          onLogoUpload={handleLogoUpload}
+          onRemoveLogo={handleRemoveLogo}
+        />
 
         <div className="rounded-xl border border-border bg-card p-6 space-y-5">
           <h3 className="font-display font-semibold text-lg">Restaurant Details</h3>
@@ -123,7 +154,7 @@ export default function SettingsPage() {
           </div>
           <Button onClick={handleSave} disabled={loading}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-            {loading ? 'Saving...' : 'Save Settings'}
+            {loading ? 'Saving...' : 'Save Profile'}
           </Button>
         </div>
       </div>

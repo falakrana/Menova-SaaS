@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import CustomizationTabs from '@/components/CustomizationTabs';
-import BrandingCard from '@/components/BrandingCard';
 import PaletteCard from '@/components/PaletteCard';
 import TypographyCard from '@/components/TypographyCard';
 import LayoutCard from '@/components/LayoutCard';
@@ -39,21 +38,7 @@ export default function CustomizationPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
-  // File states for uploads
-  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | undefined>((restaurant as any)?.logoUrl);
-
-  const handleLogoUpload = (file: File) => {
-    setLogoFile(file);
-    setLogoUrl(URL.createObjectURL(file));
-    triggerAutoSave();
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoFile(null);
-    setLogoUrl(undefined);
-    triggerAutoSave();
-  };
 
   const triggerAutoSave = () => {
     setSaveStatus('saving');
@@ -97,13 +82,6 @@ export default function CustomizationPage() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      let finalLogoUrl = logoUrl;
-
-      if (logoFile) {
-        const res = await api.uploadImage(logoFile, 'customization');
-        finalLogoUrl = res.url || finalLogoUrl;
-      }
-
       await updateRestaurant({
         ...restaurant,
         templateId: selectedTemplate,
@@ -111,7 +89,6 @@ export default function CustomizationPage() {
         fontStyle: `${headingFont}, sans-serif`,
         bodyFont,
         accentColor,
-        logoUrl: finalLogoUrl,
         tagline,
         menuTextSize,
         currency,
@@ -143,8 +120,6 @@ export default function CustomizationPage() {
     setHeadingFont('Inter');
     setBodyFont('Roboto');
     setSelectedLayout('classic');
-    setLogoFile(null);
-    setLogoUrl(undefined);
     setTagline('');
     setMenuTextSize('md');
     setCurrency('INR');
@@ -236,11 +211,6 @@ export default function CustomizationPage() {
 
               {activeTab === 'Visuals' && (
                 <div className="space-y-6 animate-in fade-in duration-300">
-                  <BrandingCard
-                    logoUrl={logoUrl}
-                    onLogoUpload={handleLogoUpload}
-                    onRemoveLogo={handleRemoveLogo}
-                  />
                   <PaletteCard
                     selectedColor={selectedColor}
                     onSelectColor={(c) => {

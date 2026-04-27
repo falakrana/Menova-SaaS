@@ -5,7 +5,7 @@
  * They represent the core domain model of a restaurant digital menu.
  */
 
-/** Core restaurant profile managed via the Settings page. */
+/** Core restaurant profile managed via the Profile page. */
 export interface Restaurant {
   id: string;
   name: string;

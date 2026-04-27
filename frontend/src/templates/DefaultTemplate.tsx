@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, UtensilsCrossed } from 'lucide-react';
+import { ChevronLeft, ChevronRight, UtensilsCrossed, MapPin } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
+import LocationModal from '@/components/LocationModal';
 
 export default function DefaultTemplate({
   restaurant, categories, menuItems, activeCat, setActiveCat, likedItems, toggleLike, formatPrice, embedded
@@ -10,6 +11,7 @@ export default function DefaultTemplate({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -83,11 +85,17 @@ export default function DefaultTemplate({
             </p>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-xs font-semibold border border-white/10 shadow-sm transition-all hover:bg-white/20">
-              {restaurant.location || "Online"}
-            </span>
-          </div>
+          {restaurant.location && (
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              <button
+                onClick={() => setLocationModalOpen(true)}
+                className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-white/90 text-xs font-semibold border border-white/10 shadow-sm transition-all hover:bg-white/20 hover:scale-105 flex items-center gap-2 cursor-pointer"
+              >
+                <MapPin className="w-4 h-4" />
+                <span>View Location</span>
+              </button>
+            </div>
+          )}
         </motion.div>
         
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
@@ -186,6 +194,13 @@ export default function DefaultTemplate({
            </p>
         </div>
       )}
+
+      <LocationModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        location={restaurant.location || ''}
+        restaurantName={restaurant.name}
+      />
     </div>
   );
 }
