@@ -110,6 +110,17 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
         setCategories(data.categories);
         setMenuItems(data.menuItems);
         if (data.categories.length > 0) setActiveCat('all');
+
+        // Track view with 4-hour cooldown
+        const viewKey = `menova_last_view_${id}`;
+        const lastView = localStorage.getItem(viewKey);
+        const now = Date.now();
+        const fourHours = 4 * 60 * 60 * 1000;
+
+        if (!lastView || (now - parseInt(lastView)) > fourHours) {
+          api.trackMenuView(id).catch(err => console.error('Failed to track view:', err));
+          localStorage.setItem(viewKey, now.toString());
+        }
       } catch (err) {
         console.error(err);
       } finally {

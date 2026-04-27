@@ -161,11 +161,13 @@ export const api = {
   // Public
 
   getPublicMenu: async (restaurantId: string) => {
-
     const response = await apiClient.get(`/public/menu/${restaurantId}`);
-
     return response.data;
+  },
 
+  trackMenuView: async (restaurantId: string) => {
+    const response = await apiClient.post(`/public/menu/${restaurantId}/view`);
+    return response.data;
   },
 
   likeMenuItem: async (itemId: string, like: boolean) => {

@@ -11,40 +11,10 @@ from typing import Any, List, Optional
 router = APIRouter()
 
 @router.get("/menu/{restaurant_id}")
-async def get_public_menu(restaurant_id: str, request: Request, response: Response) -> Any:
+async def get_public_menu(restaurant_id: str) -> Any:
     db = get_database()
     
-    # Check for view cookie to prevent redundant increments (2-hour cooldown)
-    cookie_name = f"menova_viewed_{restaurant_id}"
-    has_viewed = request.cookies.get(cookie_name)
-    
-    if not has_viewed:
-        # Increment total counter and log the individual view for analytics
-        restaurant = await db.restaurants.find_one_and_update(
-            {"_id": deps.to_object_id(restaurant_id)},
-            {"$inc": {"menuViews": 1}},
-            return_document=True
-        )
-        
-        # Log view event
-        await db.menu_views.insert_one({
-            "restaurantId": restaurant_id,
-            "timestamp": datetime.utcnow(),
-            "userAgent": request.headers.get("user-agent"),
-            "ip": request.client.host if request.client else None
-        })
-        
-        # Set cookie for 4 hours (14400 seconds)
-        response.set_cookie(
-            key=cookie_name, 
-            value="true", 
-            max_age=14400, 
-            httponly=True, 
-            samesite="lax"
-        )
-    else:
-        # Just fetch
-        restaurant = await db.restaurants.find_one({"_id": deps.to_object_id(restaurant_id)})
+    restaurant = await db.restaurants.find_one({"_id": deps.to_object_id(restaurant_id)})
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
@@ -59,6 +29,26 @@ async def get_public_menu(restaurant_id: str, request: Request, response: Respon
         "categories": [deps.fix_id(c) for c in categories],
         "menuItems": [deps.fix_id(i) for i in items]
     }
+
+@router.post("/menu/{restaurant_id}/view")
+async def track_menu_view(restaurant_id: str, request: Request) -> Any:
+    db = get_database()
+    
+    # Increment total counter
+    await db.restaurants.find_one_and_update(
+        {"_id": deps.to_object_id(restaurant_id)},
+        {"$inc": {"menuViews": 1}}
+    )
+    
+    # Log individual view event
+    await db.menu_views.insert_one({
+        "restaurantId": restaurant_id,
+        "timestamp": datetime.utcnow(),
+        "userAgent": request.headers.get("user-agent"),
+        "ip": request.client.host if request.client else None
+    })
+    
+    return {"status": "success"}
 
 @router.post("/items/{item_id}/like")
 async def toggle_like_item(item_id: str, like: bool) -> Any:
