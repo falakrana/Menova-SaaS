@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2 } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2, Copy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -20,6 +20,15 @@ import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { api } from "@/lib/api";
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, Upload, Camera, Globe, Link as LinkIcon } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from "@/components/ui/input";
+import { useRef, useCallback } from 'react';
+import type { MenuItem } from '@/types';
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -38,6 +47,182 @@ export default function Dashboard() {
     }, 30000);
     return () => clearInterval(interval);
   }, [fetchStats]);
+
+  // --- Add Menu Item Logic ---
+  const { categories, addMenuItem, fetchMenuItems } = useStore();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const { toast } = useToast();
+  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] as string[] });
+  const [tagInput, setTagInput] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'device' | 'url' | 'camera' | null>(null);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const updateForm = (field: string, value: any) => setForm((f) => ({ ...f, [field]: value }));
+
+  const openAdd = () => {
+    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] });
+    setUploadMode(null);
+    setDialogOpen(true);
+  };
+
+  const addTag = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!form.specifications.includes(tagInput.trim())) {
+        updateForm('specifications', [...form.specifications, tagInput.trim()]);
+      }
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    updateForm('specifications', form.specifications.filter(t => t !== tag));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { url } = await useStore.getState().uploadImage(file, 'menu-items');
+      updateForm('image', url);
+      setUploadMode(null);
+      toast({ title: 'Image uploaded successfully' });
+    } catch (err) {
+      toast({ title: 'Failed to upload image', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleUrlUpload = async () => {
+    if (!imageUrlInput.trim()) return;
+    setUploading(true);
+    try {
+      const { url } = await useStore.getState().uploadImageFromUrl(imageUrlInput.trim(), 'menu-items');
+      updateForm('image', url);
+      setUploadMode(null);
+      setImageUrlInput('');
+      toast({ title: 'Image uploaded from URL' });
+    } catch (err) {
+      toast({ title: 'Failed to fetch image from URL', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setStream(s);
+      setUploadMode('camera');
+    } catch (err) {
+      toast({ title: 'Could not access camera', variant: 'destructive' });
+    }
+  };
+
+  const stopCamera = useCallback(() => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setUploadMode(null);
+  }, [stream]);
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0);
+        canvasRef.current.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+            setUploading(true);
+            try {
+              const { url } = await useStore.getState().uploadImage(file, 'menu-items');
+              updateForm('image', url);
+              stopCamera();
+              toast({ title: 'Photo captured and uploaded' });
+            } catch (err) {
+              toast({ title: 'Failed to upload photo', variant: 'destructive' });
+            } finally {
+              setUploading(false);
+            }
+          }
+        }, 'image/jpeg');
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!dialogOpen) stopCamera();
+  }, [dialogOpen, stopCamera]);
+
+  useEffect(() => {
+    if (uploadMode === 'camera' && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [uploadMode, stream]);
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.price || parseFloat(form.price) <= 0) return;
+    const cat = categories.find((c) => c.id === form.categoryId);
+    setFormLoading(true);
+    try {
+      await addMenuItem({
+        ...form,
+        name: form.name.trim(),
+        description: form.description.trim(),
+        price: parseFloat(form.price),
+        categoryId: form.categoryId,
+        categoryName: cat?.name || '',
+        available: form.available,
+      });
+      toast({ title: 'Item added' });
+      setDialogOpen(false);
+    } catch (err) {
+      toast({ title: 'Failed to save item', variant: 'destructive' });
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  // --- Share Menu Logic ---
+  const handleShare = () => {
+    const restaurantId = useStore.getState().restaurant?.id;
+    if (!restaurantId) return;
+    const menuUrl = `${window.location.origin}/menu/${restaurantId}`;
+    navigator.clipboard.writeText(menuUrl);
+    toast({ title: 'Menu link copied!' });
+  };
+
+  // --- Download QR Logic ---
+  const handleDownloadQR = async () => {
+    const restaurant = useStore.getState().restaurant;
+    if (!restaurant?.id) return;
+    try {
+      const data = await api.getQRCode(restaurant.id);
+      if (!data.qr_code_url) throw new Error();
+      const response = await fetch(data.qr_code_url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${restaurant.name}-qr-code.png`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'QR code downloaded!' });
+    } catch (err) {
+      toast({ title: 'Download failed', variant: 'destructive' });
+    }
+  };
 
   const heroSubtitle = stats.menuViews > 0
     ? `Your menu has received ${stats.menuViews.toLocaleString()} views${stats.popularItem ? ` — ${stats.popularItem} is trending!` : ' and is performing well.'}`
@@ -132,49 +317,27 @@ export default function Dashboard() {
             >
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 pl-1">Quick Actions</p>
 
-              <Link
-                to="/dashboard/items"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              <button
+                onClick={openAdd}
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200 text-left"
               >
                 <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
                   <Plus className="w-4 h-4" />
                 </div>
                 <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Add Menu Item</span>
                 <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-              </Link>
+              </button>
 
-              <Link
-                to="/dashboard/customization"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
-              >
-                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-500 flex items-center justify-center shrink-0 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                  <Palette className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Customize Look</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-purple-500 group-hover:translate-x-0.5 transition-all" />
-              </Link>
-
-              <Link
-                to="/dashboard/preview"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              <button
+                onClick={handleShare}
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200 text-left"
               >
                 <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                   <Share2 className="w-4 h-4" />
                 </div>
                 <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Share Menu</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
-              </Link>
-
-              <Link
-                to="/dashboard/qr-code"
-                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
-              >
-                <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-500 flex items-center justify-center shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                  <QrCode className="w-4 h-4" />
-                </div>
-                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Download QR</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all" />
-              </Link>
+                <Copy className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-blue-500 group-hover:scale-110 transition-all" />
+              </button>
             </motion.div>
           </div>
         </div>
@@ -301,6 +464,165 @@ export default function Dashboard() {
           onOpenChange={setShowViewsModal}
           totalViews={stats.menuViews}
         />
+
+        {/* Add Menu Item Dialog */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-lg p-4 [&>button]:hidden">
+            <DialogHeader className="flex-row items-center justify-between space-y-0">
+              <DialogTitle>Add Item</DialogTitle>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                <Button size="sm" onClick={handleSave} disabled={formLoading}>
+                  {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Add Item
+                </Button>
+              </div>
+            </DialogHeader>
+            <div className="space-y-2 py-2">
+              <div>
+                <Label>Item Name</Label>
+                <Input placeholder="e.g. Paneer Tikka" value={form.name} onChange={(e) => updateForm('name', e.target.value)} className="mt-1.5" />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Textarea placeholder="Brief description..." value={form.description} onChange={(e) => updateForm('description', e.target.value)} className="mt-1.5" rows={2} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Price (₹)</Label>
+                  <Input type="number" placeholder="249" value={form.price} onChange={(e) => updateForm('price', e.target.value)} className="mt-1.5" />
+                </div>
+                <div>
+                  <Label>Category</Label>
+                  <Select value={form.categoryId} onValueChange={(v) => updateForm('categoryId', v)}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Item Specifications (Type & Press Enter)</Label>
+                <div className="flex flex-wrap gap-2 p-3 min-h-[50px] rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                  {form.specifications.map((tag) => (
+                    <motion.span
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      key={tag}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold border border-primary/10"
+                    >
+                      {tag}
+                      <button onClick={() => removeTag(tag)} className="hover:text-primary-foreground hover:bg-primary rounded-full transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </motion.span>
+                  ))}
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={addTag}
+                    placeholder={form.specifications.length === 0 ? "e.g. Vegetarian, Extra Spicy, Dairy-free..." : "Add more..."}
+                    className="flex-1 bg-transparent border-none outline-none text-sm min-w-[120px]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Item Image</Label>
+                <div className="mt-2 min-h-[140px] flex items-center justify-center">
+                  {form.image ? (
+                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl group animate-in zoom-in-50 duration-300">
+                      <img src={form.image} alt="Preview" className="w-full h-full object-cover" />
+                      <button 
+                        onClick={() => { updateForm('image', ''); setUploadMode(null); }}
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        type="button"
+                      >
+                        <X className="w-6 h-6" />
+                      </button>
+                    </div>
+                  ) : uploadMode === 'url' ? (
+                    <div className="w-full space-y-3 animate-in slide-in-from-bottom-4 duration-300">
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                          <Input 
+                            placeholder="Paste image URL..." 
+                            value={imageUrlInput} 
+                            onChange={(e) => setImageUrlInput(e.target.value)} 
+                            className="pl-9 h-11 rounded-xl"
+                            onKeyDown={(e) => e.key === 'Enter' && handleUrlUpload()}
+                          />
+                        </div>
+                        <Button onClick={handleUrlUpload} disabled={uploading || !imageUrlInput} className="h-11 rounded-xl px-6">
+                          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch'}
+                        </Button>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setUploadMode(null)} className="w-full text-slate-400 hover:text-slate-600">
+                        <X className="w-4 h-4 mr-2" /> Cancel
+                      </Button>
+                    </div>
+                  ) : uploadMode === 'camera' ? (
+                    <div className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                      <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
+                        <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                        <canvas ref={canvasRef} className="hidden" />
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 text-white animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={capturePhoto} disabled={uploading} className="flex-1 h-12 rounded-xl bg-primary shadow-lg shadow-primary/20">
+                          Capture Photo
+                        </Button>
+                        <Button variant="outline" onClick={stopCamera} disabled={uploading} className="h-12 rounded-xl px-4 border-slate-200">
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-6 animate-in fade-in duration-500">
+                      <label className="group flex flex-col items-center gap-2 cursor-pointer transition-all active:scale-90">
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Upload className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Upload</span>
+                        <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                      </label>
+
+                      <button 
+                        onClick={() => setUploadMode('url')}
+                        className="group flex flex-col items-center gap-2 transition-all active:scale-90"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Globe className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">URL</span>
+                      </button>
+
+                      <button 
+                        onClick={startCamera}
+                        className="group flex flex-col items-center gap-2 transition-all active:scale-90"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-slate-100 flex items-center justify-center text-slate-400 group-hover:border-primary group-hover:bg-primary/5 group-hover:text-primary transition-all shadow-sm group-hover:shadow-md">
+                          <Camera className="w-6 h-6" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Camera</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
