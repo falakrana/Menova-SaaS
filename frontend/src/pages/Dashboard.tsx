@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Zap, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -39,39 +39,130 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [fetchStats]);
 
+  const heroSubtitle = stats.menuViews > 0
+    ? `Your menu has received ${stats.menuViews.toLocaleString()} views${stats.popularItem ? ` — ${stats.popularItem} is trending!` : ' and is performing well.'}`
+    : "Your digital menu is live and ready to impress your guests.";
+
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.12 } },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-12 animate-fade-in relative">
         {/* Welcome Section */}
-        <div className="relative overflow-hidden rounded-[32px] p-8 lg:p-12 border border-primary/10 shadow-2xl shadow-primary/5">
-          <div className="absolute inset-0 gradient-mesh opacity-20 animate-pulse"></div>
-          <div className="absolute inset-0 noise-bg"></div>
-          
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div className="max-w-xl">
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest mb-4 border border-primary/10"
-               >
-                 <Star className="w-3 h-3 fill-current" />
-                 Platform Overview
-               </motion.div>
-               <h1 className="font-display text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-                 Welcome back, {firstName}!<br/>
-                 <span className="text-gradient">Ready to serve?</span>
-               </h1>
-               <p className="text-slate-500 font-medium text-lg leading-relaxed">
-                 Your digital menu is currently live and performing well. Here's a quick look at your restaurant's performance.
-               </p>
-            </div>
-            
-            <div className="flex gap-4">
-               <Link to="/dashboard/preview" className="group h-16 px-8 rounded-2xl bg-slate-900 text-white flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20">
-                 <Eye className="w-5 h-5 group-hover:text-primary transition-colors" />
-                 <span className="font-bold">Live Preview</span>
-               </Link>
-            </div>
+        <div className="relative overflow-hidden rounded-[24px] p-8 lg:p-10 border border-primary/10 shadow-2xl shadow-primary/5 hero-section-bg">
+          {/* Background blobs */}
+          <div className="absolute -top-16 -left-16 w-72 h-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-32 bg-primary/5 blur-2xl rounded-full pointer-events-none" />
+          <div className="absolute inset-0 noise-bg" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            {/* LEFT — Text content */}
+            <motion.div
+              className="max-w-xl"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* Badge */}
+              <motion.div
+                variants={itemVariants}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-[10px] font-black uppercase tracking-widest mb-5 border border-primary/20 shadow-sm"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                <Star className="w-3 h-3 fill-current" />
+                Platform Overview
+              </motion.div>
+
+              {/* Heading */}
+              <motion.h1
+                variants={itemVariants}
+                className="font-display text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-4"
+              >
+                Welcome back, {firstName}!<br />
+                <span className="text-gradient">Ready to serve?</span>
+              </motion.h1>
+
+              {/* Dynamic subtitle */}
+              <motion.p
+                variants={itemVariants}
+                className="text-slate-500 font-medium text-base leading-relaxed mb-7"
+              >
+                {heroSubtitle}
+              </motion.p>
+
+              {/* CTA buttons */}
+              <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3">
+                <Link
+                  to="/dashboard/preview"
+                  className="group h-12 px-7 rounded-xl bg-slate-900 text-white flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                  </span>
+                  <Eye className="w-4 h-4 group-hover:text-primary transition-colors" />
+                  <span className="font-bold text-sm">Live Preview</span>
+                </Link>
+
+                <Link
+                  to="/dashboard/qr-code"
+                  className="group h-12 px-7 rounded-xl border border-primary/25 bg-white/70 backdrop-blur-sm text-primary flex items-center gap-2.5 hover:bg-primary hover:text-white hover:scale-105 active:scale-95 transition-all shadow-md font-bold text-sm"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>QR Code</span>
+                  <ArrowRight className="w-3.5 h-3.5 opacity-0 -ml-1 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* RIGHT — Mini stats cluster */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.65, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="flex-shrink-0 flex flex-col gap-3 w-full lg:w-64"
+            >
+              {/* Stat pill — Menu Views */}
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Views</p>
+                  <p className="text-2xl font-black text-slate-900 tabular-nums leading-tight">{stats.menuViews.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {/* Stat pill — Live Dishes */}
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center shrink-0">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Dishes</p>
+                  <p className="text-2xl font-black text-slate-900 tabular-nums leading-tight">{stats.totalItems.toLocaleString()}</p>
+                </div>
+              </div>
+
+              {/* Stat pill — Bestseller */}
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
+                <div className="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bestseller</p>
+                  <p className="text-base font-black text-slate-900 leading-tight truncate">{stats.popularItem || 'None yet'}</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
 

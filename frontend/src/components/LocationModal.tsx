@@ -71,24 +71,24 @@ export default function LocationModal({ isOpen, onClose, location, restaurantNam
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-8 m-auto w-full max-w-4xl h-[calc(100vh-4rem)] max-h-[700px] z-50"
+            className="fixed inset-4 sm:inset-6 md:inset-8 m-auto w-full max-w-4xl h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] md:h-[calc(100vh-4rem)] max-h-[700px] z-50"
           >
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col max-h-full">
-              <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-200 bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-primary" />
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col max-h-full">
+              <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-slate-900">{restaurantName}</h3>
-                    <p className="text-sm text-slate-500">Location</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-base sm:text-lg text-slate-900 truncate">{restaurantName}</h3>
+                    <p className="text-xs sm:text-sm text-slate-500">Location</p>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600 hover:text-slate-900"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600 hover:text-slate-900 flex-shrink-0"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
               
@@ -103,10 +103,10 @@ export default function LocationModal({ isOpen, onClose, location, restaurantNam
                 />
               </div>
 
-              <div className="p-4 md:p-6 border-t border-slate-200 bg-slate-50">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-slate-700 leading-relaxed">{location}</p>
+              <div className="p-3 sm:p-4 md:p-6 border-t border-slate-200 bg-slate-50">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed break-words">{location}</p>
                 </div>
               </div>
             </div>
