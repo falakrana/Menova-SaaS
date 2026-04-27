@@ -312,7 +312,7 @@ export default function Landing() {
               For restaurants, cafes, and food brands
             </p>
             <h1 className="mb-6 text-5xl font-semibold leading-tight sm:text-6xl">
-              Finally, a better way to run your digital menu.
+              Finally, a better way to run your inventory.
             </h1>
             <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
               Build a menu that feels like your restaurant. Share QR menus
