@@ -241,7 +241,7 @@ export default function Landing() {
                   Sign in
                 </Link>
                 <Link
-                  to="/register"
+                  to="/login"
                   className="rounded-full bg-[#F2E6A0] px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-[#E8DC8F]"
                 >
                   Get a demo
@@ -294,7 +294,7 @@ export default function Landing() {
                 className="w-full rounded-full border-0 bg-[#F2E6A0] text-foreground font-semibold hover:bg-[#E8DC8F]"
               >
                 <Link
-                  to={isLoggedIn ? "/dashboard" : "/register"}
+                  to={isLoggedIn ? "/dashboard" : "/login"}
                   onClick={() => setMobileNav(false)}
                 >
                   {isLoggedIn ? "Open dashboard" : "Get a demo"}
@@ -321,7 +321,7 @@ export default function Landing() {
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Button size="lg" asChild>
-                <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                <Link to={isLoggedIn ? "/dashboard" : "/login"}>
                   {isLoggedIn ? "Go to dashboard" : "Try for free"}{" "}
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
@@ -562,7 +562,7 @@ export default function Landing() {
                       : "w-full"
                   }
                 >
-                  <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                  <Link to={isLoggedIn ? "/dashboard" : "/login"}>
                     {isLoggedIn ? "Manage my account" : plan.cta}
                   </Link>
                 </Button>
@@ -624,7 +624,7 @@ export default function Landing() {
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Button size="lg" asChild>
-                    <Link to={isLoggedIn ? "/dashboard" : "/register"}>
+                    <Link to={isLoggedIn ? "/dashboard" : "/login"}>
                       {isLoggedIn ? "Go to dashboard" : "Try for free"}
                     </Link>
                   </Button>
