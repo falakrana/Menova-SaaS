@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Zap, Users } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -123,45 +123,58 @@ export default function Dashboard() {
               </motion.div>
             </motion.div>
 
-            {/* RIGHT — Mini stats cluster */}
+            {/* RIGHT — Quick Actions */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.65, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="flex-shrink-0 flex flex-col gap-3 w-full lg:w-64"
+              className="flex-shrink-0 flex flex-col gap-2 w-full lg:w-60"
             >
-              {/* Stat pill — Menu Views */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <BarChart3 className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Views</p>
-                  <p className="text-2xl font-black text-slate-900 tabular-nums leading-tight">{stats.menuViews.toLocaleString()}</p>
-                </div>
-              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 pl-1">Quick Actions</p>
 
-              {/* Stat pill — Live Dishes */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center shrink-0">
-                  <UtensilsCrossed className="w-5 h-5" />
+              <Link
+                to="/dashboard/items"
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-white transition-colors">
+                  <Plus className="w-4 h-4" />
                 </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Live Dishes</p>
-                  <p className="text-2xl font-black text-slate-900 tabular-nums leading-tight">{stats.totalItems.toLocaleString()}</p>
-                </div>
-              </div>
+                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Add Menu Item</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              </Link>
 
-              {/* Stat pill — Bestseller */}
-              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-lg shadow-slate-200/50">
-                <div className="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0">
-                  <Zap className="w-5 h-5" />
+              <Link
+                to="/dashboard/customization"
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-500 flex items-center justify-center shrink-0 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                  <Palette className="w-4 h-4" />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bestseller</p>
-                  <p className="text-base font-black text-slate-900 leading-tight truncate">{stats.popularItem || 'None yet'}</p>
+                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Customize Look</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-purple-500 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                to="/dashboard/preview"
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                  <Share2 className="w-4 h-4" />
                 </div>
-              </div>
+                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Share Menu</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                to="/dashboard/qr-code"
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-white/60 shadow-md shadow-slate-200/40 hover:border-primary/30 hover:shadow-primary/10 hover:bg-white transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-500 flex items-center justify-center shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <QrCode className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold text-slate-700 group-hover:text-slate-900 transition-colors">Download QR</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-300 ml-auto group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all" />
+              </Link>
             </motion.div>
           </div>
         </div>
