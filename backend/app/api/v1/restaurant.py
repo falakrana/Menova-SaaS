@@ -18,7 +18,7 @@ async def get_restaurant(
     if not restaurant:
         # Create a default restaurant if not exists
         default_restaurant = {
-            "name": current_user.get("name", "My Restaurant"),
+            "name": "",
             "email": current_user["email"],
             "phone": "",
             "location": "",
@@ -45,6 +45,11 @@ async def update_restaurant(
     for key in ["name", "location", "fontStyle"]:
         if key in update_data and isinstance(update_data[key], str):
             update_data[key] = security.sanitize_text(update_data[key])
+
+    if "name" in update_data:
+        update_data["name"] = update_data["name"].strip()
+        if not update_data["name"]:
+            raise HTTPException(status_code=422, detail="Restaurant name is required")
             
     restaurant = await db.restaurants.find_one_and_update(
         {"userId": str(current_user["_id"])},

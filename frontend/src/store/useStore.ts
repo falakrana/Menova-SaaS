@@ -9,6 +9,7 @@ interface AppState {
   stats: DashboardStats;
   sidebarOpen: boolean;
   isLoading: boolean;
+  hasInitialized: boolean;
   error: string | null;
 
 
@@ -57,11 +58,12 @@ export const useStore = create<AppState>((set, get) => ({
   },
   sidebarOpen: true,
   isLoading: false,
+  hasInitialized: false,
   error: null,
   error: null,
 
   initialize: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, hasInitialized: false, error: null });
     try {
       await get().fetchRestaurant();
       await Promise.all([
@@ -72,7 +74,7 @@ export const useStore = create<AppState>((set, get) => ({
     } catch (err: any) {
       set({ error: err.message });
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false, hasInitialized: true });
     }
   },
 
@@ -81,6 +83,7 @@ export const useStore = create<AppState>((set, get) => ({
       restaurant: null,
       categories: [],
       menuItems: [],
+      hasInitialized: false,
       error: null,
     });
   },
