@@ -66,7 +66,14 @@ export default function CustomizationPage() {
   // Synchronize state when restaurant data loads/changes
   React.useEffect(() => {
     if (restaurant) {
-      setSelectedTemplate(restaurant.templateId || 'standard');
+      const newTemplate = restaurant.templateId || 'standard';
+      setSelectedTemplate(newTemplate);
+      
+      // If template is not standard and current tab is restricted, switch to Templates
+      if (newTemplate !== 'standard' && (activeTab === 'Visuals' || activeTab === 'Typography')) {
+        setActiveTab('Templates');
+      }
+
       setSelectedColor(restaurant.themeColor || '#0f172a');
       setAccentColor(restaurant.accentColor || '#f97316');
       setHeadingFont(restaurant.fontStyle?.split(',')[0] || 'Inter');
@@ -200,7 +207,11 @@ export default function CustomizationPage() {
 
         <div>
           {/* TABS */}
-          <CustomizationTabs activeTab={activeTab} onTabChange={setActiveTab} />
+          <CustomizationTabs 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab} 
+            selectedTemplate={selectedTemplate}
+          />
 
           {/* MAIN GRID */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] xl:grid-cols-[1fr_480px] gap-12 mt-8">
@@ -213,6 +224,9 @@ export default function CustomizationPage() {
                     selectedTemplate={selectedTemplate}
                     onTemplateChange={(t) => {
                       setSelectedTemplate(t);
+                      if (t !== 'standard' && (activeTab === 'Visuals' || activeTab === 'Typography')) {
+                        setActiveTab('Templates');
+                      }
                       triggerAutoSave();
                     }}
                     primaryColor={selectedColor}
