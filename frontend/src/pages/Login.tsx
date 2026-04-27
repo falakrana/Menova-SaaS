@@ -31,7 +31,6 @@ export default function Login() {
 
         <SignIn
           routing="hash"
-          signUpUrl="/register"
           fallbackRedirectUrl="/dashboard"
           appearance={{
             elements: {
@@ -48,7 +47,9 @@ export default function Login() {
                 "border border-input bg-background rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary",
               formButtonPrimary:
                 "bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg w-full",
-              footerActionLink: "text-primary font-medium hover:underline",
+              footer: "hidden",
+              footerAction: "hidden",
+              footerActionLink: "hidden",
               identityPreviewEditButton: "text-primary",
             },
           }}
