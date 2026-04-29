@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, UtensilsCrossed, MapPin } from 'lucide-react';
+import { Search, X, UtensilsCrossed, MapPin, Sparkles, Clock, Info } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
 import LocationModal from '@/components/LocationModal';
@@ -26,45 +26,45 @@ export default function WarmRustic({
     menuItems.filter((i) => i.categoryId === catId && i.available).length;
   const allCount = menuItems.filter((i) => i.available).length;
 
-  const groupedItems =
-    activeCat === 'all'
-      ? categories.map((cat) => ({
-          cat,
-          items: filteredItems.filter((i) => i.categoryId === cat.id),
-        })).filter((g) => g.items.length > 0)
-      : null;
-
   return (
     <div
-      className={`text-[#4A4036] ${embedded ? 'h-full min-h-0' : 'min-h-screen pb-24'} overflow-x-hidden relative`}
+      className={`text-[#4A4036] ${embedded ? 'h-full min-h-0' : 'min-h-screen pb-24'} overflow-clip relative`}
       style={{
         fontFamily: restaurant.bodyFont || 'Merriweather, serif',
         ['--accent-color' as any]: accent,
-        ['--primary-color' as any]: restaurant.themeColor || '#0f172a',
-        backgroundColor: '#F9F6F0',
-        backgroundImage: `url('https://www.transparenttextures.com/patterns/rice-paper-2.png')`,
+        backgroundColor: '#FDFBF7',
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes slowSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin-slow { animation: slowSpin 60s linear infinite; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .grain-bg { background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+      `}} />
+      
+      <div className="absolute inset-0 grain-bg opacity-[0.03] pointer-events-none" />
+
       {/* Top bar */}
-      <div className="w-full py-3 px-6 flex items-center justify-between sticky top-0 z-50 border-b border-[#D47530]/10"
-        style={{ backgroundColor: '#F9F6F0ee', backdropFilter: 'blur(12px)' }}
+      <div className="w-full py-4 px-6 flex items-center justify-between sticky top-0 z-50 border-b border-[#D47530]/5"
+        style={{ backgroundColor: '#FDFBF7ee', backdropFilter: 'blur(16px)' }}
       >
         <div className="flex items-center gap-3">
           {restaurant.logoUrl ? (
-            <img src={restaurant.logoUrl} alt="Logo" className="w-8 h-8 object-cover rounded-full border-2 shadow-sm" style={{ borderColor: `${accent}40` }} />
+            <img src={restaurant.logoUrl} alt="Logo" className="w-9 h-9 object-cover rounded-full border-2 shadow-sm" style={{ borderColor: `${accent}20` }} />
           ) : (
             <UtensilsCrossed className="w-5 h-5" style={{ color: accent }} />
           )}
-          <span className="font-bold text-sm tracking-tight" style={{ fontFamily: restaurant.fontStyle, color: accent }}>
+          <span className="font-black text-sm tracking-widest uppercase italic" style={{ fontFamily: restaurant.fontStyle, color: accent }}>
             {restaurant.name}
           </span>
         </div>
         <button
           onClick={() => setShowSearch((s) => !s)}
-          className="w-8 h-8 rounded-full flex items-center justify-center transition-all border"
-          style={{ borderColor: `${accent}30`, color: accent }}
+          className="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-white shadow-sm border border-[#D47530]/10"
+          style={{ color: accent }}
         >
-          {showSearch ? <X className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+          {showSearch ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
         </button>
       </div>
 
@@ -75,28 +75,27 @@ export default function WarmRustic({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-b"
-            style={{ borderColor: `${accent}15`, backgroundColor: '#F9F6F0' }}
+            className="overflow-hidden bg-[#FDFBF7]"
           >
-            <div className="max-w-2xl mx-auto px-6 py-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: `${accent}80` }} />
+            <div className="max-w-2xl mx-auto px-6 py-6">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors group-focus-within:text-[var(--accent-color)]" style={{ color: `${accent}40` }} />
                 <input
                   autoFocus
                   type="text"
-                  placeholder="Search dishes…"
+                  placeholder="What can we prepare for you?"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none"
+                  className="w-full pl-12 pr-12 py-4 rounded-2xl border-2 text-base focus:outline-none transition-all shadow-inner"
                   style={{
-                    borderColor: `${accent}30`,
-                    backgroundColor: '#EFE9E0',
+                    borderColor: `${accent}10`,
+                    backgroundColor: '#F5F0E8',
                     color: '#4A4036',
                   }}
                 />
                 {search && (
-                  <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: `${accent}60` }}>
-                    <X className="w-3.5 h-3.5" />
+                  <button onClick={() => setSearch('')} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: `${accent}40` }}>
+                    <X className="w-5 h-5" />
                   </button>
                 )}
               </div>
@@ -105,161 +104,156 @@ export default function WarmRustic({
         )}
       </AnimatePresence>
 
-      {/* Hero header */}
-      <div className="pt-14 pb-10 flex flex-col items-center justify-center text-center px-4 relative z-10">
-        {/* Decorative rings */}
-        <div className="relative mb-6">
-          <div
-            className="w-28 h-28 rounded-full flex items-center justify-center border-4 border-white shadow-xl overflow-hidden relative"
-            style={{ background: '#EFE9E0' }}
-          >
-            {restaurant.logoUrl ? (
-              <img src={restaurant.logoUrl} className="w-full h-full object-cover" alt="Logo" />
-            ) : (
-              <span className="text-2xl font-bold italic" style={{ color: accent }}>
-                {restaurant.name?.[0] || 'R'}
-              </span>
-            )}
+      {/* Hero Header */}
+      <div className="relative pt-20 pb-16 overflow-hidden">
+        {/* Watercolor Accent */}
+        <div 
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] blur-[100px] opacity-20 -z-10 rounded-full"
+          style={{ background: `radial-gradient(circle, ${accent} 0%, transparent 70%)` }}
+        />
+        
+        <div className="flex flex-col items-center justify-center text-center px-4 relative z-10">
+          <div className="relative mb-8">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+              className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-white shadow-2xl overflow-hidden relative bg-[#F5F0E8]"
+            >
+              {restaurant.logoUrl ? (
+                <img src={restaurant.logoUrl} className="w-full h-full object-cover" alt="Logo" />
+              ) : (
+                <UtensilsCrossed className="w-10 h-10" style={{ color: accent }} />
+              )}
+            </motion.div>
+            
+            {/* Rotating Decorative Ring */}
+            <div
+              className="absolute inset-[-12px] rounded-full border-2 border-dashed spin-slow pointer-events-none"
+              style={{ borderColor: `${accent}30` }}
+            />
+            {/* Static Diamonds */}
+            <div className="absolute top-1/2 -left-4 -translate-y-1/2 w-2 h-2 rotate-45" style={{ backgroundColor: accent }} />
+            <div className="absolute top-1/2 -right-4 -translate-y-1/2 w-2 h-2 rotate-45" style={{ backgroundColor: accent }} />
           </div>
-          {/* dashed ring */}
-          <div
-            className="absolute inset-[-6px] rounded-full border-2 border-dashed pointer-events-none"
-            style={{ borderColor: `${accent}40` }}
-          />
-        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-sm"
-          style={{ fontFamily: restaurant.fontStyle, color: accent }}
-        >
-          {restaurant.name}
-        </motion.h1>
-
-        {restaurant.tagline && (
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="max-w-md text-[#8C7A6B] text-base italic leading-relaxed"
+            className="text-5xl md:text-7xl font-bold mb-4 tracking-tight"
+            style={{ fontFamily: restaurant.fontStyle, color: accent }}
           >
-            {restaurant.tagline}
-          </motion.p>
-        )}
+            {restaurant.name}
+          </motion.h1>
 
-        {restaurant.location && (
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            onClick={() => setLocationModalOpen(true)}
-            className="mt-3 inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full cursor-pointer hover:scale-105 transition-transform"
-            style={{ backgroundColor: `${accent}15`, color: accent }}
-          >
-            <MapPin className="w-4 h-4" />
-            <span>View Location</span>
-          </motion.button>
-        )}
+          {restaurant.tagline && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="max-w-lg text-[#8C7A6B] text-lg italic leading-relaxed font-serif px-6"
+            >
+              "{restaurant.tagline}"
+            </motion.p>
+          )}
 
-        {/* Ornamental divider */}
-        <div className="flex items-center gap-2 mt-6">
-          <div className="w-12 h-px" style={{ background: `${accent}40` }} />
-          <span style={{ color: `${accent}60` }}>✦</span>
-          <div className="w-12 h-px" style={{ background: `${accent}40` }} />
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+            {restaurant.location && (
+              <button
+                onClick={() => setLocationModalOpen(true)}
+                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
+                style={{ color: accent }}
+              >
+                <MapPin className="w-4 h-4" />
+                <span>Find Us</span>
+              </button>
+            )}
+            <div className="w-1 h-1 rounded-full bg-[#8C7A6B]/30" />
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#8C7A6B]">
+              <Clock className="w-4 h-4" />
+              <span>Authentic Flavors</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Hero cover image (if available) */}
+      {/* Full-Bleed Cover Section */}
       {(restaurant.coverImage || (menuItems.length > 0 && menuItems[0]?.image)) && (
-        <div className="max-w-3xl mx-auto px-6 mb-10">
-          <div className="w-full aspect-[16/7] rounded-3xl overflow-hidden shadow-xl border-4 border-white">
-            <img
-              src={restaurant.coverImage || menuItems[0]?.image}
-              className="w-full h-full object-cover"
-              alt="Cover"
-            />
+        <div className="relative w-full h-[400px] mb-16 overflow-hidden">
+          <img
+            src={restaurant.coverImage || menuItems[0]?.image}
+            className="w-full h-full object-cover"
+            alt="Atmosphere"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#4A4036] via-transparent to-transparent opacity-60" />
+          <div className="absolute bottom-10 left-0 right-0 text-center text-white p-6">
+             <Sparkles className="w-6 h-6 mx-auto mb-4 opacity-80" />
+             <h3 className="text-2xl font-serif italic mb-2 tracking-wide">Tradition in every bite</h3>
+             <div className="w-12 h-px bg-white/40 mx-auto" />
           </div>
         </div>
       )}
 
-      {/* Category strip — horizontally scrollable single row */}
-      <div className="max-w-5xl mx-auto px-6 mb-10">
-        <div
-          ref={catScrollRef}
-          className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
-        >
-          <button
-            onClick={() => setActiveCat('all')}
-            className="px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border-2 shrink-0 flex items-center gap-1.5"
-            style={
-              activeCat === 'all'
-                ? { background: accent, color: '#fff', borderColor: accent }
-                : { background: 'transparent', color: '#8C7A6B', borderColor: `${accent}25` }
-            }
+      {/* Sticky Category Navigation */}
+      <div className="sticky top-[73px] z-[45] bg-[#FDFBF7/90] backdrop-blur-xl py-6 border-b border-[#D47530]/5 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6">
+          <div
+            ref={catScrollRef}
+            className="flex gap-4 overflow-x-auto no-scrollbar py-2"
           >
-            All
-            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: activeCat === 'all' ? 'rgba(255,255,255,0.25)' : `${accent}15`, color: activeCat === 'all' ? '#fff' : accent }}>
-              {allCount}
-            </span>
-          </button>
-          {categories.map((cat) => (
             <button
-              key={cat.id}
-              onClick={() => setActiveCat(cat.id)}
-              className="px-5 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all border-2 shrink-0 flex items-center gap-1.5"
-              style={
-                activeCat === cat.id
-                  ? { background: accent, color: '#fff', borderColor: accent }
-                  : { background: 'transparent', color: '#8C7A6B', borderColor: `${accent}25` }
-              }
+              onClick={() => setActiveCat('all')}
+              className={`px-8 py-3 rounded-xl text-xs font-black tracking-[0.2em] uppercase transition-all shrink-0 flex items-center gap-3 border-2 ${
+                activeCat === 'all'
+                  ? 'bg-white shadow-xl translate-y-[-2px]'
+                  : 'bg-transparent border-transparent text-[#8C7A6B]'
+              }`}
+              style={{ 
+                borderColor: activeCat === 'all' ? accent : 'transparent',
+                color: activeCat === 'all' ? accent : '#8C7A6B'
+              }}
             >
-              {cat.name}
-              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black" style={{ background: activeCat === cat.id ? 'rgba(255,255,255,0.25)' : `${accent}15`, color: activeCat === cat.id ? '#fff' : accent }}>
-                {itemCountForCat(cat.id)}
+              All Menu
+              <span className="px-2 py-0.5 rounded-lg text-[10px]" style={{ background: `${accent}10`, color: accent }}>
+                {allCount}
               </span>
             </button>
-          ))}
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCat(cat.id)}
+                className={`px-8 py-3 rounded-xl text-xs font-black tracking-[0.2em] uppercase transition-all shrink-0 flex items-center gap-3 border-2 ${
+                  activeCat === cat.id
+                    ? 'bg-white shadow-xl translate-y-[-2px]'
+                    : 'bg-transparent border-transparent text-[#8C7A6B]'
+                }`}
+                style={{ 
+                  borderColor: activeCat === cat.id ? accent : 'transparent',
+                  color: activeCat === cat.id ? accent : '#8C7A6B'
+                }}
+              >
+                {cat.name}
+                <span className="px-2 py-0.5 rounded-lg text-[10px]" style={{ background: `${accent}10`, color: accent }}>
+                  {itemCountForCat(cat.id)}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Items */}
-      <div className="max-w-5xl mx-auto px-6 py-6 space-y-12">
-        {search && filteredItems.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-[#8C7A6B] text-lg font-medium italic">No dishes match "{search}"</p>
-            <button onClick={() => setSearch('')} className="mt-3 text-sm font-bold hover:underline" style={{ color: accent }}>
-              Clear search
+      {/* Menu Items Area */}
+      <div className="max-w-5xl mx-auto px-6">
+        {search && filteredItems.length === 0 ? (
+          <div className="text-center py-24 bg-[#F5F0E8] rounded-3xl border-2 border-dashed border-[#D47530]/20">
+            <Info className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="text-[#8C7A6B] text-xl font-serif italic">The pantry is empty for "{search}"</p>
+            <button onClick={() => setSearch('')} className="mt-6 text-sm font-black uppercase tracking-widest underline underline-offset-4" style={{ color: accent }}>
+              Clear Search
             </button>
           </div>
-        )}
-
-        {groupedItems && !search
-          ? groupedItems.map(({ cat, items }) => (
-              <div key={cat.id}>
-                <div className="flex items-center gap-3 mb-6">
-                  <h2 className="text-xl font-bold" style={{ fontFamily: restaurant.fontStyle, color: accent }}>
-                    {cat.name}
-                  </h2>
-                  <div className="flex-1 h-px" style={{ background: `${accent}25` }} />
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${accent}15`, color: accent }}>
-                    {items.length}
-                  </span>
-                </div>
-                <MenuLayoutManager
-                  layout={layout}
-                  items={items}
-                  likedItems={likedItems}
-                  toggleLike={toggleLike}
-                  formatPrice={formatPrice}
-                  fontStyle={restaurant.fontStyle}
-                  primaryColor={accent}
-                  theme="warm"
-                />
-              </div>
-            ))
-          : (
+        ) : (
+          <div className="py-8">
             <MenuLayoutManager
               layout={layout}
               items={filteredItems}
@@ -270,15 +264,29 @@ export default function WarmRustic({
               primaryColor={accent}
               theme="warm"
             />
-          )}
+          </div>
+        )}
       </div>
 
       {!embedded && (
-        <div className="text-center py-10" style={{ borderTop: `1px solid ${accent}15` }}>
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase italic" style={{ color: '#8C7A6B' }}>
-            Powered by <span style={{ color: accent }}>Menova</span>
-          </p>
-        </div>
+        <footer className="mt-20 py-16 border-t" style={{ borderColor: `${accent}10`, backgroundColor: '#F5F0E8' }}>
+          <div className="max-w-4xl mx-auto px-6 text-center">
+             <div className="flex items-center justify-center gap-4 mb-8">
+                <div className="w-8 h-px bg-[#8C7A6B]/20" />
+                <UtensilsCrossed className="w-6 h-6 opacity-30" />
+                <div className="w-8 h-px bg-[#8C7A6B]/20" />
+             </div>
+             <h4 className="text-2xl font-serif italic mb-4" style={{ color: accent }}>{restaurant.name}</h4>
+             <p className="text-[#8C7A6B] text-sm mb-8 leading-relaxed max-w-sm mx-auto">
+                Thank you for visiting. We take pride in serving high-quality ingredients prepared with passion.
+             </p>
+             <div className="pt-8 border-t border-[#8C7A6B]/10">
+                <p className="text-[10px] font-black tracking-[0.4em] uppercase opacity-40">
+                  Powered by <span style={{ color: accent }}>Menova</span>
+                </p>
+             </div>
+          </div>
+        </footer>
       )}
 
       <LocationModal
