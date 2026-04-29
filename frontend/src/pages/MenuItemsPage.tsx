@@ -258,10 +258,15 @@ export default function MenuItems() {
                   transition={{ delay: index * 0.05 }}
                   className="group relative flex flex-col rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden"
                 >
-                  <div className="relative h-48 bg-slate-50/50 flex items-center justify-center overflow-hidden">
-                    {/* Decorative Pattern Background */}
-                    <div className="absolute inset-0 opacity-[0.05] noise-bg" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
+                  <div className="relative h-48 bg-slate-100 flex items-center justify-center overflow-hidden">
+                    {/* Blurred Image Background */}
+                    {item.image && (
+                      <div 
+                        className="absolute inset-0 z-0 bg-cover bg-center scale-110 blur-sm opacity-30 group-hover:opacity-40 transition-opacity duration-500"
+                        style={{ backgroundImage: `url(${item.image})` }}
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent z-[1]" />
                     
                     {/* Circular Image Container */}
                     <div className="relative w-32 h-32 rounded-full border-[6px] border-white shadow-2xl shadow-slate-200 overflow-hidden z-10 transition-all duration-500 group-hover:scale-110 group-hover:border-primary/20 bg-white">
