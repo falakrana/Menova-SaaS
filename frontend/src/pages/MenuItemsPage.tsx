@@ -24,7 +24,7 @@ export default function MenuItems() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] as string[] });
+  const [form, setForm] = useState({ name: '', description: '', price: '', categoryId: '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, isFeatured: false, specifications: [] as string[] });
   const [tagInput, setTagInput] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadMode, setUploadMode] = useState<'device' | 'url' | 'camera' | null>(null);
@@ -55,14 +55,14 @@ export default function MenuItems() {
 
   const openAdd = () => {
     setEditingItem(null);
-    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, specifications: [] });
+    setForm({ name: '', description: '', price: '', categoryId: categories[0]?.id || '', image: '', available: true, isVeg: false, isSpicy: false, isGlutenFree: false, isFeatured: false, specifications: [] });
     setUploadMode(null);
     setDialogOpen(true);
   };
 
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
-    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree, specifications: item.specifications || [] });
+    setForm({ name: item.name, description: item.description, price: item.price.toString(), categoryId: item.categoryId, image: item.image || '', available: item.available, isVeg: !!item.isVeg, isSpicy: !!item.isSpicy, isGlutenFree: !!item.isGlutenFree, isFeatured: !!item.isFeatured, specifications: item.specifications || [] });
     setUploadMode(null);
     setDialogOpen(true);
   };
@@ -345,7 +345,8 @@ export default function MenuItems() {
                           </span>
                        </div>
                        
-                       <div className="flex items-center gap-1 text-[10px] font-black text-slate-300 uppercase tracking-tighter">
+                        <div className="flex items-center gap-1 text-[10px] font-black text-slate-300 uppercase tracking-tighter">
+                          {item.isFeatured && <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 mr-1" />}
                           <Heart className="w-3.5 h-3.5" /> {item.likesCount || 0} Likes
                        </div>
                     </div>
@@ -397,7 +398,13 @@ export default function MenuItems() {
               </div>
 
               <div className="space-y-2">
-                <Label>Item Specifications (Type & Press Enter)</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Item Specifications (Type & Press Enter)</Label>
+                  <div className="flex items-center gap-2">
+                    <Switch checked={form.isFeatured} onCheckedChange={(v) => updateForm('isFeatured', v)} />
+                    <Label className="text-xs font-bold uppercase tracking-wider text-primary">Featured</Label>
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2 p-3 min-h-[50px] rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                   {form.specifications.map((tag) => (
                     <motion.span

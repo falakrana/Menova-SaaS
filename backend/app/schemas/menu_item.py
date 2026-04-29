@@ -14,6 +14,7 @@ class MenuItemBase(BaseModel):
     isVeg: bool = False
     isSpicy: bool = False
     isGlutenFree: bool = False
+    isFeatured: bool = False
     specifications: list[str] = []
 
 class MenuItemCreate(MenuItemBase):
@@ -30,6 +31,7 @@ class MenuItemUpdate(BaseModel):
     isVeg: Optional[bool] = None
     isSpicy: Optional[bool] = None
     isGlutenFree: Optional[bool] = None
+    isFeatured: Optional[bool] = None
     specifications: Optional[list[str]] = None
 
 class MenuItemInDB(MenuItemBase):

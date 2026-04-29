@@ -153,6 +153,12 @@ export default function MenuLayoutManager({
     );
   }
 
+  // Identify the most liked item (if more than 0 likes)
+  const mostLikedItem = items.reduce((prev, current) => 
+    (current.likesCount > 0 && current.likesCount > (prev?.likesCount || 0)) ? current : prev, 
+    null as any
+  );
+
   return (
     <motion.div
       layout
@@ -165,6 +171,23 @@ export default function MenuLayoutManager({
       {items.map((item, index) => {
         const isHot = item.likesCount > 4;
         const liked = likedItems.includes(item.id);
+        const isMostLiked = mostLikedItem && item.id === mostLikedItem.id;
+        const isFeatured = item.isFeatured || isMostLiked;
+
+        // ANIMATION VARIANTS
+        const cardVariants = {
+          hidden: { opacity: 0, y: 30, scale: 0.95 },
+          visible: { 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+            transition: { 
+              duration: 0.5, 
+              ease: "easeOut",
+              delay: (index % 4) * 0.1 // Staggering effect
+            }
+          }
+        };
 
         // MINIMAL LAYOUT
         if (layout === 'minimal') {
@@ -172,17 +195,22 @@ export default function MenuLayoutManager({
             <motion.div
               key={item.id}
               layout
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.04, duration: 0.35 }}
-              className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card}`}
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card} ${
+                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 bg-[var(--accent-color,orange)]/[0.02]' : ''
+              }`}
             >
               <div className="flex-1 min-w-0 sm:pr-4 text-left">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className={`font-display font-black text-lg leading-none ${styles.text}`} style={{ fontFamily: fontStyle }}>
                     {item.name}
                   </h3>
-                  {isHot && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
+                  {isMostLiked && <span className="px-2 py-0.5 rounded-md bg-yellow-400 text-yellow-950 text-[8px] font-black uppercase tracking-tighter flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-current" /> Most Liked</span>}
+                  {item.isFeatured && !isMostLiked && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-tighter">Chef's Pick</span>}
+                  {isHot && !isFeatured && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
                 </div>
                 <div className="mb-1">
                   <DietaryIcons item={item} theme={theme} />
@@ -208,10 +236,13 @@ export default function MenuLayoutManager({
             <motion.div
               key={item.id}
               layout
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.4 }}
-              className={`group flex flex-col sm:flex-row rounded-3xl transition-all duration-500 overflow-hidden h-fit sm:h-44 w-full ${styles.card}`}
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              className={`group flex flex-col sm:flex-row rounded-3xl transition-all duration-500 overflow-hidden h-fit sm:h-44 w-full ${styles.card} ${
+                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30' : ''
+              }`}
             >
               <div className="w-full sm:w-44 h-44 sm:h-full relative shrink-0">
                 <ImageWithSkeleton
@@ -219,7 +250,17 @@ export default function MenuLayoutManager({
                   alt={item.name}
                   className="w-full h-full group-hover:scale-105 transition-transform duration-700"
                 />
-                {isHot && (
+                {isMostLiked && (
+                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-yellow-400 text-yellow-950 text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-current" /> Popular
+                  </div>
+                )}
+                {item.isFeatured && !isMostLiked && (
+                   <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
+                    Featured
+                  </div>
+                )}
+                {isHot && !isFeatured && (
                   <div className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${styles.hotBadge}`}>
                     🔥 Hot
                   </div>
@@ -257,12 +298,13 @@ export default function MenuLayoutManager({
           <motion.div
             key={item.id}
             layout
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.05, duration: 0.4 }}
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className={`group relative flex flex-col rounded-3xl transition-all duration-500 overflow-hidden w-full ${styles.card} ${
-              isHot ? 'ring-2 ring-orange-400/20' : ''
-            }`}
+              isFeatured ? (isMostLiked ? 'ring-2 ring-yellow-400 shadow-yellow-400/10' : 'ring-2 ring-primary/30') : ''
+            } ${isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''}`} // We could make it span 2 columns but it might break grid flow too much
           >
             <div className="relative h-44 overflow-hidden">
               <ImageWithSkeleton
@@ -271,7 +313,17 @@ export default function MenuLayoutManager({
                 className="w-full h-44 group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              {isHot && (
+              {isMostLiked && (
+                <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5 animate-bounce-subtle">
+                  <Star className="w-3.5 h-3.5 fill-current" /> Most Loved
+                </div>
+              )}
+              {item.isFeatured && !isMostLiked && (
+                <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 fill-current" /> Must Try
+                </div>
+              )}
+              {isHot && !isFeatured && (
                 <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${styles.hotBadge}`}>
                   🔥 Bestseller
                 </div>
