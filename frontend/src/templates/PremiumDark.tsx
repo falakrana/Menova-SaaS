@@ -206,11 +206,10 @@ export default function PremiumDark({
             {restaurant.location && (
               <button
                 onClick={() => setLocationModalOpen(true)}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-all backdrop-blur-md group"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border border-white/20 text-zinc-900 font-bold text-sm hover:shadow-lg transition-all"
               >
-                <MapPin className="w-4 h-4 group-hover:text-[var(--accent-color)]" />
-                <span>{restaurant.location.split(',')[0]}</span>
-                <ChevronRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                <MapPin className="w-4 h-4" style={{ color: accentColor }} />
+                <span>View Our Location</span>
               </button>
             )}
             

@@ -193,11 +193,10 @@ export default function WarmRustic({
             {restaurant.location && (
               <button
                 onClick={() => setLocationModalOpen(true)}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform"
-                style={{ color: accent }}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border border-[#D47530]/20 text-[#4A4036] font-bold text-sm hover:shadow-lg transition-all"
               >
-                <MapPin className="w-4 h-4" />
-                <span>Find Us</span>
+                <MapPin className="w-4 h-4" style={{ color: accent }} />
+                <span>View Our Location</span>
               </button>
             )}
             <div className="w-1 h-1 rounded-full bg-[#8C7A6B]/30" />
