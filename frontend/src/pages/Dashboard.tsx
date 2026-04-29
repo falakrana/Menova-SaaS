@@ -35,6 +35,7 @@ export default function Dashboard() {
   const stats = useStore((s) => s.stats);
   const menuItems = useStore((s) => s.menuItems);
   const fetchStats = useStore((s) => s.fetchStats);
+  const restaurant = useStore((s) => s.restaurant);
   const [showPopularModal, setShowPopularModal] = useState(false);
   const [showViewsModal, setShowViewsModal] = useState(false);
 
@@ -285,8 +286,10 @@ export default function Dashboard() {
 
               {/* CTA buttons */}
               <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3">
-                <Link
-                  to="/dashboard/preview"
+                <a
+                  href={`/menu/${restaurant?.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group h-12 px-7 rounded-xl bg-slate-900 text-white flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/20"
                 >
                   <span className="relative flex h-2 w-2">
@@ -295,7 +298,7 @@ export default function Dashboard() {
                   </span>
                   <Eye className="w-4 h-4 group-hover:text-primary transition-colors" />
                   <span className="font-bold text-sm">Live Preview</span>
-                </Link>
+                </a>
 
                 <Link
                   to="/dashboard/qr-code"
