@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2, Copy } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2, Copy, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -846,6 +846,7 @@ function TopPerformingCategoriesCard() {
   const categories = useStore(s => s.categories);
   const menuItems = useStore(s => s.menuItems);
   const [sortBy, setSortBy] = useState<'items' | 'likes'>('items');
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const CATEGORY_COLORS = [
     'bg-emerald-500',
@@ -857,7 +858,7 @@ function TopPerformingCategoriesCard() {
   ];
 
   const ranked = useMemo(() => {
-    return categories
+    const sorted = categories
       .map(cat => ({
         ...cat,
         itemCount: menuItems.filter(i => i.categoryId === cat.id).length,
@@ -865,9 +866,10 @@ function TopPerformingCategoriesCard() {
           .filter(i => i.categoryId === cat.id)
           .reduce((s, i) => s + (i.likesCount || 0), 0),
       }))
-      .sort((a, b) => sortBy === 'items' ? b.itemCount - a.itemCount : b.likes - a.likes)
-      .slice(0, 6);
-  }, [categories, menuItems, sortBy]);
+      .sort((a, b) => sortBy === 'items' ? b.itemCount - a.itemCount : b.likes - a.likes);
+      
+    return isExpanded ? sorted : sorted.slice(0, 6);
+  }, [categories, menuItems, sortBy, isExpanded]);
 
   const maxValue = useMemo(() => {
     if (ranked.length === 0) return 1;
@@ -876,7 +878,8 @@ function TopPerformingCategoriesCard() {
 
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      layout
+      whileHover={!isExpanded ? { y: -3 } : {}}
       className="lg:col-span-2 bg-white rounded-[28px] border border-slate-200 shadow-xl shadow-slate-200/40 p-7 flex flex-col gap-5 overflow-hidden"
     >
       {/* Header */}
@@ -970,12 +973,35 @@ function TopPerformingCategoriesCard() {
       </div>
 
       {/* Footer */}
-      <Link
-        to="/dashboard/categories"
-        className="flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-[0.2em] hover:text-primary hover:gap-2.5 transition-all mt-auto pt-4 border-t border-slate-50"
-      >
-        Manage Categories <ArrowRight className="w-3 h-3" />
-      </Link>
+      <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
+        <Link
+          to="/dashboard/categories"
+          className="flex items-center gap-1.5 text-xs font-black text-slate-400 uppercase tracking-[0.2em] hover:text-primary hover:gap-2.5 transition-all"
+        >
+          Manage Categories <ArrowRight className="w-3 h-3" />
+        </Link>
+        
+        {categories.length > 6 && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center justify-center group outline-none"
+          >
+            <motion.div
+              animate={{ 
+                opacity: [1, 0.4, 1],
+              }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 1.2,
+                ease: "easeInOut"
+              }}
+              className="w-6 h-6 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-all"
+            >
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+            </motion.div>
+          </button>
+        )}
+      </div>
     </motion.div>
   );
 }
