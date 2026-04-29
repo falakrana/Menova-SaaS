@@ -499,7 +499,7 @@ export default function Dashboard() {
                   <Label>Category</Label>
                   <Select value={form.categoryId} onValueChange={(v) => updateForm('categoryId', v)}>
                     <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[200px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                       {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
