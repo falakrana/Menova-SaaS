@@ -1,4 +1,4 @@
-import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2, Copy, ChevronDown } from 'lucide-react';
+import { FolderOpen, UtensilsCrossed, QrCode, Eye, ArrowRight, ArrowLeft, Star, BarChart3, X, Heart, TrendingUp, Plus, Palette, Share2, Copy, ChevronDown, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo } from 'react';
@@ -12,6 +12,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -1014,6 +1025,9 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
   });
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const { toast } = useToast();
+  const fetchStats = useStore(s => s.fetchStats);
 
   useEffect(() => {
     if (open && date?.from && date?.to) {
@@ -1035,6 +1049,21 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
     }
   }, [open, date]);
 
+  const handleReset = async () => {
+    setIsResetting(true);
+    try {
+      await api.resetViewsAnalytics();
+      toast({ title: "Analytics reset successfully" });
+      setData([]);
+      fetchStats();
+      onOpenChange(false);
+    } catch (err) {
+      toast({ title: "Failed to reset analytics", variant: "destructive" });
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   // Aggregate stats from fetched data
   const totalInRange = data.reduce((sum, d) => sum + d.views, 0);
   const averageViews = data.length > 0 ? Math.round(totalInRange / data.length) : 0;
@@ -1054,7 +1083,35 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
               Menu Views Analytics
             </DialogTitle>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Reset Views
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action will permanently delete all your existing menu view analytics from our database. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleReset}
+                      className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+                      disabled={isResetting}
+                    >
+                      {isResetting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Yes, Reset Everything
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Popover>
                 <PopoverTrigger asChild>
                   <Button

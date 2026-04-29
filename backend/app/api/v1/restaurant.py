@@ -128,3 +128,25 @@ async def get_views_analytics(
     results = await db.menu_views.aggregate(pipeline).to_list(length=1000)
     # Format for frontend
     return [{"date": r["_id"], "views": r["views"]} for r in results]
+
+@router.delete("/analytics/views/reset")
+async def reset_views_analytics(
+    current_user: dict = Depends(deps.get_current_user),
+) -> Any:
+    db = get_database()
+    restaurant = await db.restaurants.find_one({"userId": str(current_user["_id"])})
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+        
+    restaurant_id = str(restaurant["_id"])
+    
+    # 1. Delete all menu_views for this restaurant
+    await db.menu_views.delete_many({"restaurantId": restaurant_id})
+    
+    # 2. Reset menuViews and qrScans in restaurant document
+    await db.restaurants.update_one(
+        {"_id": restaurant["_id"]},
+        {"$set": {"menuViews": 0, "qrScans": 0}}
+    )
+    
+    return {"message": "Analytics reset successfully"}

@@ -78,6 +78,11 @@ export const api = {
 
   },
 
+  resetViewsAnalytics: async () => {
+    const response = await apiClient.delete('/restaurant/analytics/views/reset');
+    return response.data;
+  },
+
 
 
   // Categories
