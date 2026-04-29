@@ -17,6 +17,7 @@ export default function WarmRustic({
 
   const layout = restaurant.layout || 'classic';
   const accent = restaurant.accentColor || '#D47530';
+  const coverBg = restaurant.coverImage || menuItems.find((i: any) => i.image)?.image || null;
 
   const filteredItems = menuItems.filter((i) => {
     const matchesCat = activeCat === 'all' || i.categoryId === activeCat;
@@ -209,10 +210,10 @@ export default function WarmRustic({
       </div>
 
       {/* Full-Bleed Cover Section */}
-      {(restaurant.coverImage || (menuItems.length > 0 && menuItems[0]?.image)) && (
+      {coverBg && (
         <div className="relative w-full h-[400px] mb-16 overflow-hidden">
           <img
-            src={restaurant.coverImage || menuItems[0]?.image}
+            src={coverBg}
             className="w-full h-full object-cover"
             alt="Atmosphere"
           />

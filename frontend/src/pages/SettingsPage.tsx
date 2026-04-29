@@ -20,7 +20,9 @@ export default function SettingsPage() {
     location: ''
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | undefined>((restaurant as any)?.logoUrl);
+  const [logoUrl, setLogoUrl] = useState<string | null | undefined>((restaurant as any)?.logoUrl);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null | undefined>((restaurant as any)?.coverImage);
 
   useEffect(() => {
     if (restaurant) {
@@ -31,6 +33,7 @@ export default function SettingsPage() {
         location: restaurant.location || ''
       });
       setLogoUrl(restaurant.logoUrl);
+      setCoverImageUrl((restaurant as any).coverImage);
     }
   }, [restaurant]);
 
@@ -41,7 +44,17 @@ export default function SettingsPage() {
 
   const handleRemoveLogo = () => {
     setLogoFile(null);
-    setLogoUrl(undefined);
+    setLogoUrl(null);
+  };
+
+  const handleCoverUpload = (file: File) => {
+    setCoverFile(file);
+    setCoverImageUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveCover = () => {
+    setCoverFile(null);
+    setCoverImageUrl(null);
   };
 
   const restaurantName = form.name.trim();
@@ -56,16 +69,23 @@ export default function SettingsPage() {
     setLoading(true);
     try {
       let finalLogoUrl = logoUrl;
+      let finalCoverImageUrl = coverImageUrl;
 
       if (logoFile) {
         const res = await api.uploadImage(logoFile, 'customization');
         finalLogoUrl = res.url || finalLogoUrl;
       }
 
+      if (coverFile) {
+        const res = await api.uploadImage(coverFile, 'customization');
+        finalCoverImageUrl = res.url || finalCoverImageUrl;
+      }
+
       await updateRestaurant({
         ...form,
         name: restaurantName,
-        logoUrl: finalLogoUrl
+        logoUrl: finalLogoUrl,
+        coverImage: finalCoverImageUrl
       });
       toast({ title: 'Profile saved!' });
     } catch (err) {
@@ -89,6 +109,9 @@ export default function SettingsPage() {
           logoUrl={logoUrl}
           onLogoUpload={handleLogoUpload}
           onRemoveLogo={handleRemoveLogo}
+          coverImageUrl={coverImageUrl}
+          onCoverUpload={handleCoverUpload}
+          onRemoveCover={handleRemoveCover}
         />
 
         <div className="rounded-xl border border-border bg-card p-6 space-y-5">
@@ -138,3 +161,4 @@ export default function SettingsPage() {
     </DashboardLayout>
   );
 }
+

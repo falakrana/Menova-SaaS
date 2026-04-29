@@ -42,6 +42,7 @@ export default function DefaultTemplate({
 
   const filteredItems = menuItems.filter((i) => (activeCat === 'all' || i.categoryId === activeCat) && i.available);
   const layout = restaurant.layout || 'classic';
+  const heroBg = restaurant.coverImage || menuItems.find((i: any) => i.image)?.image || null;
 
   return (
     <div 
@@ -55,6 +56,9 @@ export default function DefaultTemplate({
       {/* Immersive Hero Header */}
       <div className="relative overflow-hidden min-h-[50vh] flex flex-col items-center justify-center px-4 py-16 transition-all duration-700">
         <div className="absolute inset-0 z-0 bg-[var(--primary-color)]">
+          {heroBg && (
+            <img src={heroBg} alt="cover" className="w-full h-full object-cover opacity-30 scale-105" />
+          )}
           <div className="absolute inset-0 opacity-40 mix-blend-overlay gradient-mesh animate-pulse" style={{ animationDuration: '8s' }}></div>
           <div className="absolute inset-0 noise-bg"></div>
           <div className="absolute -top-20 -left-20 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>

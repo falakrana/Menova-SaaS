@@ -22,6 +22,7 @@ class RestaurantBase(BaseModel):
     layout: Optional[str] = "classic"
     templateId: Optional[str] = "standard"
     menuViews: Optional[int] = 0
+    coverImage: Optional[str] = None
 
 class RestaurantCreate(RestaurantBase):
     pass
@@ -46,6 +47,7 @@ class RestaurantUpdate(BaseModel):
     showDescriptions: Optional[bool] = None
     layout: Optional[str] = None
     templateId: Optional[str] = None
+    coverImage: Optional[str] = None
 
 class RestaurantInDB(RestaurantBase):
     id: str = Field(..., validation_alias="_id")

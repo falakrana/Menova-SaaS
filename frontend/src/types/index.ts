@@ -30,6 +30,7 @@ export interface Restaurant {
   showDescriptions?: boolean;
   layout?: string;
   templateId?: string;
+  coverImage?: string;
 }
 
 /** A menu category (e.g. "Starters", "Main Course"). */
