@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, UtensilsCrossed, MapPin, Sparkles, Clock, Info } from 'lucide-react';
+import { Search, X, UtensilsCrossed, MapPin, Sparkles, Clock, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
 import LocationModal from '@/components/LocationModal';
@@ -11,6 +11,8 @@ export default function WarmRustic({
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const catScrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const layout = restaurant.layout || 'classic';
@@ -25,6 +27,36 @@ export default function WarmRustic({
   const itemCountForCat = (catId: string) =>
     menuItems.filter((i) => i.categoryId === catId && i.available).length;
   const allCount = menuItems.filter((i) => i.available).length;
+
+  const checkCatScroll = () => {
+    if (catScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = catScrollRef.current;
+      setShowLeftArrow(scrollLeft > 5);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (catScrollRef.current) {
+      catScrollRef.current.scrollBy({
+        left: direction === 'left' ? -220 : 220,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    checkCatScroll();
+    const current = catScrollRef.current;
+    if (current) {
+      current.addEventListener('scroll', checkCatScroll);
+      window.addEventListener('resize', checkCatScroll);
+      return () => {
+        current.removeEventListener('scroll', checkCatScroll);
+        window.removeEventListener('resize', checkCatScroll);
+      };
+    }
+  }, [categories]);
 
   return (
     <div
@@ -197,10 +229,26 @@ export default function WarmRustic({
       {/* Sticky Category Navigation */}
       <div className="sticky top-[73px] z-[45] bg-[#FDFBF7/90] backdrop-blur-xl py-6 border-b border-[#D47530]/5 shadow-sm">
         <div className="max-w-6xl mx-auto px-6">
-          <div
-            ref={catScrollRef}
-            className="flex gap-4 overflow-x-auto no-scrollbar py-2"
-          >
+          <div className="relative">
+            <AnimatePresence>
+              {showLeftArrow && (
+                <motion.button
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  onClick={() => scrollCategories('left')}
+                  className="absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent flex items-center justify-start pl-1 transition-colors"
+                  style={{ color: accent }}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <div
+              ref={catScrollRef}
+              className="flex gap-4 overflow-x-auto no-scrollbar py-2 px-6 scroll-smooth"
+            >
             <button
               onClick={() => setActiveCat('all')}
               className={`px-8 py-3 rounded-xl text-xs font-black tracking-[0.2em] uppercase transition-all shrink-0 flex items-center gap-3 border-2 ${
@@ -238,6 +286,22 @@ export default function WarmRustic({
                 </span>
               </button>
             ))}
+            </div>
+
+            <AnimatePresence>
+              {showRightArrow && (
+                <motion.button
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 8 }}
+                  onClick={() => scrollCategories('right')}
+                  className="absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent flex items-center justify-end pr-1 transition-colors"
+                  style={{ color: accent }}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

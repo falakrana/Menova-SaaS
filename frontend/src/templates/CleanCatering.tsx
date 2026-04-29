@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Search, X, UtensilsCrossed, MapPin, Users, Award, ChefHat } from 'lucide-react';
+import { Star, Search, X, UtensilsCrossed, MapPin, Users, Award, ChefHat, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
 import LocationModal from '@/components/LocationModal';
@@ -12,6 +12,9 @@ export default function CleanCatering({
   const [showSearch, setShowSearch] = useState(false);
   const [catStickyVisible, setCatStickyVisible] = useState(false);
   const catSectionRef = useRef<HTMLDivElement>(null);
+  const catScrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const layout = restaurant.layout || 'classic';
@@ -35,6 +38,36 @@ export default function CleanCatering({
     if (catSectionRef.current) observer.observe(catSectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const checkCatScroll = () => {
+    if (catScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = catScrollRef.current;
+      setShowLeftArrow(scrollLeft > 5);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (catScrollRef.current) {
+      catScrollRef.current.scrollBy({
+        left: direction === 'left' ? -220 : 220,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkCatScroll();
+    const current = catScrollRef.current;
+    if (current) {
+      current.addEventListener('scroll', checkCatScroll);
+      window.addEventListener('resize', checkCatScroll);
+      return () => {
+        current.removeEventListener('scroll', checkCatScroll);
+        window.removeEventListener('resize', checkCatScroll);
+      };
+    }
+  }, [categories]);
 
   const heroImage =
     restaurant.coverImage ||
@@ -223,7 +256,22 @@ export default function CleanCatering({
         className="sticky top-[73px] z-[45] bg-white/95 backdrop-blur-xl border-b border-slate-100 py-6"
       >
         <div className="max-w-7xl mx-auto px-8">
-          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <div className="relative">
+            <AnimatePresence>
+              {showLeftArrow && (
+                <motion.button
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  onClick={() => scrollCategories('left')}
+                  className="absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-white via-white/90 to-transparent flex items-center justify-start pl-1 text-slate-500 hover:text-slate-900 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <div ref={catScrollRef} className="flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth px-6">
             <button
               onClick={() => setActiveCat('all')}
               className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all shrink-0 border-2 ${
@@ -248,6 +296,21 @@ export default function CleanCatering({
                 {cat.name} ({itemCountForCat(cat.id)})
               </button>
             ))}
+            </div>
+
+            <AnimatePresence>
+              {showRightArrow && (
+                <motion.button
+                  initial={{ opacity: 0, x: 8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 8 }}
+                  onClick={() => scrollCategories('right')}
+                  className="absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-white via-white/90 to-transparent flex items-center justify-end pr-1 text-slate-500 hover:text-slate-900 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

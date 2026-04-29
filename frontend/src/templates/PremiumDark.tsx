@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, UtensilsCrossed, MapPin, ChevronRight } from 'lucide-react';
+import { Search, X, UtensilsCrossed, MapPin, ChevronRight, ChevronLeft } from 'lucide-react';
 import { TemplateProps } from './TemplateEngine';
 import MenuLayoutManager from '@/components/MenuLayoutManager';
 import LocationModal from '@/components/LocationModal';
@@ -13,6 +13,8 @@ export default function PremiumDark({
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const catScrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +23,36 @@ export default function PremiumDark({
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const checkCatScroll = () => {
+    if (catScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = catScrollRef.current;
+      setShowLeftArrow(scrollLeft > 5);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  const scrollCategories = (direction: 'left' | 'right') => {
+    if (catScrollRef.current) {
+      catScrollRef.current.scrollBy({
+        left: direction === 'left' ? -220 : 220,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkCatScroll();
+    const current = catScrollRef.current;
+    if (current) {
+      current.addEventListener('scroll', checkCatScroll);
+      window.addEventListener('resize', checkCatScroll);
+      return () => {
+        current.removeEventListener('scroll', checkCatScroll);
+        window.removeEventListener('resize', checkCatScroll);
+      };
+    }
+  }, [categories]);
 
   const filteredItems = menuItems.filter((i) => {
     const matchesCat = activeCat === 'all' || i.categoryId === activeCat;
@@ -247,10 +279,25 @@ export default function PremiumDark({
           {/* Sticky Category Scroller */}
           <div className="sticky top-[73px] z-[45] mb-12">
             <div className="bg-zinc-900/60 backdrop-blur-2xl border border-white/5 rounded-3xl p-4 shadow-2xl">
-              <div 
-                ref={catScrollRef}
-                className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth"
-              >
+              <div className="relative">
+                <AnimatePresence>
+                  {showLeftArrow && (
+                    <motion.button
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      onClick={() => scrollCategories('left')}
+                      className="absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-transparent flex items-center justify-start pl-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+
+                <div 
+                  ref={catScrollRef}
+                  className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth px-6"
+                >
                 <button
                   onClick={() => setActiveCat('all')}
                   className={`relative px-6 py-3 rounded-2xl text-xs font-black tracking-widest uppercase transition-all shrink-0 ${
@@ -276,6 +323,21 @@ export default function PremiumDark({
                     {cat.name} ({itemCountForCat(cat.id)})
                   </button>
                 ))}
+                </div>
+
+                <AnimatePresence>
+                  {showRightArrow && (
+                    <motion.button
+                      initial={{ opacity: 0, x: 8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 8 }}
+                      onClick={() => scrollCategories('right')}
+                      className="absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-zinc-900 via-zinc-900/90 to-transparent flex items-center justify-end pr-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </motion.button>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>
