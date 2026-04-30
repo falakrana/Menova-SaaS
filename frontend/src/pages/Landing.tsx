@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, useClerk } from "@clerk/react";
 import {
@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useStore } from "@/store/useStore";
 
 const plans = [
@@ -157,14 +158,26 @@ const faqs = [
   }
 ];
 
+const DEMO_VIDEO_URL = "/demoVideoUrl/menova-demo-video.mp4";
+
 export default function Landing() {
   const [mobileNav, setMobileNav] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const isLoggedIn = !!isSignedIn;
   const logout = useStore((s) => s.logout);
   const navigate = useNavigate();
+  const demoVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const handleDemoModalChange = (open: boolean) => {
+    setIsDemoModalOpen(open);
+    if (!open && demoVideoRef.current) {
+      demoVideoRef.current.pause();
+      demoVideoRef.current.currentTime = 0;
+    }
+  };
 
   const navItems = [
     { label: "Features", href: "#features", chevron: false },
@@ -326,8 +339,13 @@ export default function Landing() {
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/menu/demo">View live demo</Link>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                onClick={() => handleDemoModalChange(true)}
+              >
+                View live demo
               </Button>
             </div>
           </div>
@@ -647,6 +665,33 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      <Dialog open={isDemoModalOpen} onOpenChange={handleDemoModalChange}>
+        <DialogContent className="w-[95vw] max-w-4xl border-0 bg-background p-0 sm:rounded-2xl">
+          <DialogTitle className="sr-only">Product walkthrough</DialogTitle>
+          <div className="p-3 sm:p-4">
+            <video
+              ref={demoVideoRef}
+              key={isDemoModalOpen ? "open" : "closed"}
+              className="h-auto w-full rounded-xl bg-black"
+              controls
+              autoPlay
+              muted
+              playsInline
+              preload="metadata"
+            >
+              <source src={DEMO_VIDEO_URL} type="video/mp4" />
+            </video>
+            <div className="mt-4 flex justify-end">
+              <Button asChild>
+                <Link to={isLoggedIn ? "/dashboard" : "/login"}>
+                  Start free trial
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <footer className="border-t border-border py-10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
