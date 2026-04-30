@@ -71,9 +71,9 @@ export default function LocationModal({ isOpen, onClose, location, restaurantNam
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-4 sm:inset-6 md:inset-8 m-auto w-full max-w-4xl h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] md:h-[calc(100vh-4rem)] max-h-[700px] z-50"
+            className="fixed inset-3 xs:inset-4 sm:inset-6 md:inset-8 m-auto w-auto max-w-4xl h-auto max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[700px] z-50"
           >
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col max-h-full">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col max-h-full">
               <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 bg-slate-50">
                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
