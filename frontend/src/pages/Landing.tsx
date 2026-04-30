@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, useClerk } from "@clerk/react";
 import {
@@ -160,6 +161,44 @@ const faqs = [
 
 const DEMO_VIDEO_URL = "/demoVideoUrl/menova-demo-video.mp4";
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: "easeOut" as const, delay },
+  }),
+};
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    transition: { duration: 0.5, ease: "easeOut" as const, delay },
+  }),
+};
+
+const scaleUp = {
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.55, ease: "easeOut" as const },
+  },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
+};
+
 export default function Landing() {
   const [mobileNav, setMobileNav] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -320,19 +359,35 @@ export default function Landing() {
 
       <header className="border-b border-border/70">
         <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-16 lg:grid-cols-2 lg:items-end">
-          <div>
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.p
+              variants={staggerItem}
+              className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground"
+            >
               For restaurants, cafes, and food brands
-            </p>
-            <h1 className="mb-6 text-5xl font-semibold leading-tight sm:text-6xl">
+            </motion.p>
+            <motion.h1
+              variants={staggerItem}
+              className="mb-6 text-5xl font-semibold leading-tight sm:text-6xl"
+            >
               Finally, a better way to run your inventory.
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
+            </motion.h1>
+            <motion.p
+              variants={staggerItem}
+              className="max-w-xl text-lg leading-relaxed text-muted-foreground"
+            >
               Build a menu that feels like your restaurant. Share QR menus
               faster, reduce admin work, and help guests enjoy a smoother dining
               experience.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            </motion.p>
+            <motion.div
+              variants={staggerItem}
+              className="mt-10 flex flex-wrap gap-3"
+            >
               <Button size="lg" asChild>
                 <Link to={isLoggedIn ? "/dashboard" : "/login"}>
                   {isLoggedIn ? "Go to dashboard" : "Try for free"}{" "}
@@ -347,16 +402,22 @@ export default function Landing() {
               >
                 View live demo
               </Button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeIn}
+            custom={0.3}
+            className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg"
+          >
             <img
               src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1600&q=80"
               alt="Guests enjoying food in a warm restaurant setting"
               className="h-[420px] w-full object-cover"
             />
-          </div>
+          </motion.div>
         </div>
       </header>
 
@@ -365,13 +426,33 @@ export default function Landing() {
         className="border-b border-border/70 py-10 sm:py-14"
       >
         <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <motion.p
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0}
+            className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground"
+          >
             Product preview
-          </p>
-          <h2 className="mb-8 text-center text-2xl font-semibold sm:text-3xl">
+          </motion.p>
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0.1}
+            className="mb-8 text-center text-2xl font-semibold sm:text-3xl"
+          >
             Your dashboard at a glance
-          </h2>
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-lg sm:p-4">
+          </motion.h2>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scaleUp}
+            className="overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-lg sm:p-4"
+          >
             <div className="overflow-hidden rounded-[1.5rem] border border-border/80 bg-background text-left">
               <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
                 <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
@@ -444,50 +525,79 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="features" className="border-b border-border/70 py-20">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="mb-10 max-w-2xl">
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={staggerContainer}
+            className="mb-10 max-w-2xl"
+          >
+            <motion.p
+              variants={staggerItem}
+              className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground"
+            >
               Built for daily operations
-            </p>
-            <h2 className="mb-4 text-4xl font-semibold">
+            </motion.p>
+            <motion.h2 variants={staggerItem} className="mb-4 text-4xl font-semibold">
               Less admin, more guest experience
-            </h2>
-            <p className="text-lg leading-relaxed text-muted-foreground">
+            </motion.h2>
+            <motion.p variants={staggerItem} className="text-lg leading-relaxed text-muted-foreground">
               Menova keeps menu publishing, ordering, and tracking in one clean
               workflow so your team can focus on service.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid gap-5 md:grid-cols-2"
+          >
             {features.map((feature) => (
-              <article
+              <motion.article
                 key={feature.title}
+                variants={staggerItem}
                 className="rounded-[1.75rem] border border-border bg-card p-7"
               >
                 <h3 className="mb-3 text-2xl font-semibold">{feature.title}</h3>
                 <p className="leading-relaxed text-muted-foreground">
                   {feature.copy}
                 </p>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="how-it-works" className="border-b border-border/70 py-20">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <h2 className="mb-12 text-4xl font-semibold">
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            className="mb-12 text-4xl font-semibold"
+          >
             Get started in three simple steps
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+          </motion.h2>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid gap-6 md:grid-cols-3"
+          >
             {steps.map((step, index) => (
-              <article
+              <motion.article
                 key={step.title}
+                variants={staggerItem}
                 className="rounded-[1.75rem] border border-border bg-card p-7"
               >
                 <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
@@ -497,31 +607,59 @@ export default function Landing() {
                 <p className="leading-relaxed text-muted-foreground">
                   {step.copy}
                 </p>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="pricing" className="border-b border-border/70 py-20">
         <div className="mx-auto w-full max-w-6xl px-6 text-center">
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <motion.p
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0}
+            className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground"
+          >
             Investment
-          </p>
-          <h2 className="mb-4 text-5xl font-semibold leading-tight sm:text-6xl">
+          </motion.p>
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0.1}
+            className="mb-4 text-5xl font-semibold leading-tight sm:text-6xl"
+          >
             Simple pricing.
             <br />
             Rapid ROI.
-          </h2>
-          <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
+          </motion.h2>
+          <motion.p
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            custom={0.2}
+            className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground"
+          >
             Choose the plan that fits your operation. Scale as your business
             grows.
-          </p>
+          </motion.p>
 
-          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2"
+          >
             {plans.map((plan) => (
-              <article
+              <motion.article
                 key={plan.name}
+                variants={staggerItem}
                 className={`relative flex flex-col rounded-[2rem] border p-8 text-left shadow-md ${
                   plan.popular
                     ? "border-foreground bg-foreground text-background"
@@ -584,17 +722,23 @@ export default function Landing() {
                     {isLoggedIn ? "Manage my account" : plan.cta}
                   </Link>
                 </Button>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       <section id="faq" className="border-b border-border/70 py-20">
         <div className="mx-auto w-full max-w-4xl px-6">
-          <h2 className="mb-10 text-center text-4xl font-semibold">
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeUp}
+            className="mb-10 text-center text-4xl font-semibold"
+          >
             Here to help
-          </h2>
+          </motion.h2>
           <div className="space-y-3">
             {faqs.map((faq, index) => (
               <div
@@ -625,7 +769,13 @@ export default function Landing() {
 
       <section className="py-20">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={scaleUp}
+            className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-lg"
+          >
             <div className="grid lg:grid-cols-2">
               <img
                 src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1400&q=80"
@@ -662,7 +812,7 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
