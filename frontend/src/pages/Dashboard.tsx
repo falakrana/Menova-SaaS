@@ -1116,7 +1116,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className={`w-[260px] justify-start text-left font-normal ${!date && "text-muted-foreground"}`}
+                    className={`w-full sm:w-[260px] justify-start text-left font-normal ${!date && "text-muted-foreground"}`}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date?.from ? (
@@ -1149,7 +1149,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
         
         <div className="space-y-6 mt-6">
           {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/10">
               <p className="text-2xl font-bold text-primary">{totalInRange.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Views in Period</p>
