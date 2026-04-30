@@ -37,13 +37,12 @@ export default function LivePreview({
   menuAlignment,
   showDescriptions
 }: LivePreviewProps) {
-  const [device, setDevice] = React.useState<'mobile'|'tablet'|'desktop'>('mobile');
+  const [device, setDevice] = React.useState<'mobile'|'tablet'>('mobile');
 
   // Device width mapping
   const deviceWidth = {
     mobile: 'max-w-[360px]',
-    tablet: 'max-w-[540px]',
-    desktop: 'max-w-[800px]'
+    tablet: 'max-w-[540px]'
   }[device];
 
   // Dummy data for preview
@@ -111,9 +110,7 @@ export default function LivePreview({
         <button onClick={() => setDevice('tablet')} className={`p-2 rounded-md transition-colors ${device === 'tablet' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-900'}`} title="Tablet">
           <Tablet size={18} />
         </button>
-        <button onClick={() => setDevice('desktop')} className={`p-2 rounded-md transition-colors ${device === 'desktop' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-900'}`} title="Desktop">
-          <Monitor size={18} />
-        </button>
+
       </div>
       
       {/* Device Container */}

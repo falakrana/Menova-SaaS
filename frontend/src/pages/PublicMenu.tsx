@@ -23,7 +23,7 @@ export interface PublicMenuProps {
   };
   embedded?: boolean;
   hideCart?: boolean;
-  embeddedDevice?: 'mobile' | 'tablet' | 'desktop';
+  embeddedDevice?: 'mobile' | 'tablet';
 }
 
 const TemplateRegistry: Record<string, any> = {

@@ -7,12 +7,11 @@ import { motion } from 'framer-motion';
 
 export default function MenuPreview() {
   const { restaurant, categories, menuItems } = useStore();
-  const [device, setDevice] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
+  const [device, setDevice] = useState<'mobile' | 'tablet'>('mobile');
 
   const deviceConfig = {
     mobile: { width: 'max-w-[400px]', icon: <Smartphone className="w-4 h-4" />, label: 'Mobile', menuDevice: 'mobile' as const },
-    tablet: { width: 'max-w-[700px]', icon: <Tablet className="w-4 h-4" />, label: 'Tablet', menuDevice: 'tablet' as const },
-    desktop: { width: 'max-w-full', icon: <Monitor className="w-4 h-4" />, label: 'Desktop', menuDevice: 'desktop' as const }
+    tablet: { width: 'max-w-[700px]', icon: <Tablet className="w-4 h-4" />, label: 'Tablet', menuDevice: 'tablet' as const }
   };
 
   return (
@@ -25,7 +24,7 @@ export default function MenuPreview() {
           </div>
 
           <div className="flex items-center bg-muted/50 p-1 rounded-xl border border-border w-fit">
-            {(['mobile', 'tablet', 'desktop'] as const).map((d) => (
+            {(['mobile', 'tablet'] as const).map((d) => (
               <button
                 key={d}
                 onClick={() => setDevice(d)}
@@ -74,11 +73,9 @@ export default function MenuPreview() {
             )}
           </div>
           {/* Virtual Home Bar for Mobile/Tablet */}
-          {device !== 'desktop' && (
-             <div className="h-6 bg-background flex flex-col items-center justify-center">
-                <div className="w-24 h-1.5 bg-muted rounded-full" />
-             </div>
-          )}
+          <div className="h-6 bg-background flex flex-col items-center justify-center">
+            <div className="w-24 h-1.5 bg-muted rounded-full" />
+          </div>
         </motion.div>
       </div>
     </DashboardLayout>
