@@ -66,51 +66,53 @@ export default function LocationModal({ isOpen, onClose, location, restaurantNam
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
           />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-3 xs:inset-4 sm:inset-6 md:inset-8 m-auto w-auto max-w-4xl h-auto max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[700px] z-50"
-          >
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col max-h-full">
-              <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 bg-slate-50">
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-8 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="w-full max-w-4xl h-full max-h-full md:max-h-[700px] pointer-events-auto"
+            >
+              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden h-full flex flex-col">
+                <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 bg-slate-50">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-base sm:text-lg text-slate-900 truncate">{restaurantName}</h3>
+                      <p className="text-xs sm:text-sm text-slate-500">Location</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-base sm:text-lg text-slate-900 truncate">{restaurantName}</h3>
-                    <p className="text-xs sm:text-sm text-slate-500">Location</p>
-                  </div>
+                  <button
+                    onClick={onClose}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600 hover:text-slate-900 flex-shrink-0"
+                  >
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
                 </div>
-                <button
-                  onClick={onClose}
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors text-slate-600 hover:text-slate-900 flex-shrink-0"
-                >
-                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-              
-              <div className="flex-1 relative min-h-0">
-                <iframe
-                  src={getGoogleMapsEmbedUrl(location)}
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`Location of ${restaurantName}`}
-                  allowFullScreen
-                />
-              </div>
+                
+                <div className="flex-1 relative min-h-0 bg-slate-100">
+                  <iframe
+                    src={getGoogleMapsEmbedUrl(location)}
+                    className="w-full h-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Location of ${restaurantName}`}
+                    allowFullScreen
+                  />
+                </div>
 
-              <div className="p-3 sm:p-4 md:p-6 border-t border-slate-200 bg-slate-50">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed break-words">{location}</p>
+                <div className="p-3 sm:p-4 md:p-6 border-t border-slate-200 bg-slate-50">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs sm:text-sm text-slate-700 leading-relaxed break-words">{location}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
