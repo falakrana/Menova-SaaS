@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import type { Restaurant, Category, MenuItem, DashboardStats } from '@/types';
 import { api } from '@/lib/api';
 
+const getLiveItemsCount = (items: MenuItem[]) => items.filter((item) => item.available).length;
+
 interface AppState {
   restaurant: Restaurant | null;
   categories: Category[];
@@ -101,7 +103,12 @@ export const useStore = create<AppState>((set, get) => ({
   fetchStats: async () => {
     try {
       const data = await api.getStats();
-      set({ stats: data });
+      set((state) => ({
+        stats: {
+          ...data,
+          totalItems: getLiveItemsCount(state.menuItems),
+        },
+      }));
     } catch (err) {
       console.error('Failed to fetch stats:', err);
     }
@@ -137,28 +144,51 @@ export const useStore = create<AppState>((set, get) => ({
 
   fetchMenuItems: async (categoryId) => {
     const data = await api.getMenuItems(categoryId);
-    set({ menuItems: data, stats: { ...get().stats, totalItems: data.length } });
+    set({ menuItems: data, stats: { ...get().stats, totalItems: getLiveItemsCount(data) } });
   },
 
   addMenuItem: async (data) => {
     const newItem = await api.createMenuItem(data);
-    set((s) => ({ menuItems: [...s.menuItems, newItem] }));
+    set((s) => {
+      const nextMenuItems = [...s.menuItems, newItem];
+      return {
+        menuItems: nextMenuItems,
+        stats: {
+          ...s.stats,
+          totalItems: getLiveItemsCount(nextMenuItems),
+        },
+      };
+    });
     await get().fetchMenuItems();
     await get().fetchCategories(); // itemCount changed
   },
 
   updateMenuItem: async (id, data) => {
     const updated = await api.updateMenuItem(id, data);
-    set((s) => ({
-      menuItems: s.menuItems.map((i) => (i.id === id ? updated : i)),
-    }));
+    set((s) => {
+      const nextMenuItems = s.menuItems.map((i) => (i.id === id ? updated : i));
+      return {
+        menuItems: nextMenuItems,
+        stats: {
+          ...s.stats,
+          totalItems: getLiveItemsCount(nextMenuItems),
+        },
+      };
+    });
   },
 
   deleteMenuItem: async (id) => {
     await api.deleteMenuItem(id);
-    set((s) => ({
-      menuItems: s.menuItems.filter((i) => i.id !== id),
-    }));
+    set((s) => {
+      const nextMenuItems = s.menuItems.filter((i) => i.id !== id);
+      return {
+        menuItems: nextMenuItems,
+        stats: {
+          ...s.stats,
+          totalItems: getLiveItemsCount(nextMenuItems),
+        },
+      };
+    });
     await get().fetchMenuItems();
     await get().fetchCategories(); // itemCount changed
   },
