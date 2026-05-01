@@ -1248,29 +1248,40 @@ function PopularItemsModal({ open, onOpenChange, items }: { open: boolean, onOpe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle className="font-display text-xl">All Menu Items</DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="max-h-[60vh] mt-4 pr-4">
-          <div className="space-y-3">
-            {sortedItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted transition-colors">
-                <div className="flex-1 min-w-0 mr-4">
-                  <h4 className="font-medium text-sm line-clamp-1">{item.name}</h4>
-                  <p className="text-xs text-muted-foreground">{item.categoryName}</p>
-                </div>
-                <div className="flex items-center gap-1 text-[var(--accent-color)]">
-                  <Heart className="w-3.5 h-3.5 fill-current" />
-                  <span className="text-sm font-bold">{item.likesCount || 0}</span>
-                </div>
-              </div>
-            ))}
-            {sortedItems.length === 0 && (
-              <p className="text-center text-muted-foreground text-sm py-10">No items found</p>
-            )}
+      <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-[500px] h-[92dvh] sm:h-auto sm:max-h-[90dvh] p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
+        <DialogHeader className="border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <Heart className="w-5 h-5 text-primary fill-current" />
+              Most Liked Items
+            </DialogTitle>
           </div>
-        </ScrollArea>
+        </DialogHeader>
+        
+        <div className="flex-1 min-h-0 space-y-5 sm:space-y-6 p-5 sm:p-6 overflow-hidden">
+          <ScrollArea className="h-[calc(100vh-200px)] sm:h-[400px] pr-2 sm:pr-4 rounded-xl border border-slate-200 bg-white">
+            <div className="space-y-3 p-3 sm:p-4">
+              {sortedItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors">
+                  <div className="flex-1 min-w-0 mr-4">
+                    <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{item.name}</h4>
+                    <p className="text-xs text-slate-500 mt-0.5">{item.categoryName}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-primary bg-white px-3 py-1.5 rounded-full shadow-sm border border-primary/10">
+                    <Heart className="w-4 h-4 fill-current" />
+                    <span className="text-sm font-bold">{item.likesCount || 0}</span>
+                  </div>
+                </div>
+              ))}
+              {sortedItems.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50">
+                  <Heart className="w-12 h-12 mb-2" />
+                  <p>No items found</p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
