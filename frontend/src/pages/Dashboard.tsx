@@ -481,18 +481,21 @@ export default function Dashboard() {
 
         {/* Add Menu Item Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-4 [&>button]:hidden">
-            <DialogHeader className="flex-row items-center justify-between space-y-0">
-              <DialogTitle>Add Item</DialogTitle>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={handleSave} disabled={formLoading}>
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-4xl h-[92dvh] sm:h-auto sm:max-h-[90dvh] p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl [&>button]:hidden">
+            <DialogHeader className="border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <DialogTitle>Add Item</DialogTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button size="sm" onClick={handleSave} disabled={formLoading}>
                   {formLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Add Item
-                </Button>
+                  </Button>
+                </div>
               </div>
             </DialogHeader>
-            <div className="space-y-2 py-2">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
+              <div className="space-y-4">
               <div>
                 <Label>Item Name</Label>
                 <Input placeholder="e.g. Paneer Tikka" value={form.name} onChange={(e) => updateForm('name', e.target.value)} className="mt-1.5" />
@@ -634,6 +637,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+            </div>
             </div>
           </DialogContent>
         </Dialog>
