@@ -1075,18 +1075,18 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-[700px] max-h-[90dvh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-[700px] h-[92dvh] sm:h-auto sm:max-h-[90dvh] p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl">
+        <DialogHeader className="border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <DialogTitle className="font-display text-xl flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />
               Menu Views Analytics
             </DialogTitle>
             
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                  <Button variant="ghost" size="sm" className="text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors px-2 sm:px-3">
                     <Trash2 className="w-4 h-4 mr-2" />
                     Reset Views
                   </Button>
@@ -1139,7 +1139,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
                     defaultMonth={date?.from}
                     selected={date}
                     onSelect={setDate}
-                    numberOfMonths={2}
+                    numberOfMonths={1}
                   />
                 </PopoverContent>
               </Popover>
@@ -1147,32 +1147,32 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
           </div>
         </DialogHeader>
         
-        <div className="space-y-6 mt-6">
+        <div className="flex-1 min-h-0 space-y-5 sm:space-y-6 p-5 sm:p-6 overflow-hidden">
           {/* Summary Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/10">
-              <p className="text-2xl font-bold text-primary">{totalInRange.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Views in Period</p>
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="text-center p-3.5 sm:p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-xl sm:text-2xl font-bold text-primary">{totalInRange.toLocaleString()}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Views in Period</p>
             </div>
-            <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/10">
-              <p className="text-2xl font-bold text-primary">{averageViews.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground">Daily Average</p>
+            <div className="text-center p-3.5 sm:p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-xl sm:text-2xl font-bold text-primary">{averageViews.toLocaleString()}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Daily Average</p>
             </div>
-            <div className="text-center p-4 rounded-xl bg-primary/5 border border-primary/10">
-              <p className="text-2xl font-bold text-primary">{mostViewedDay.views}</p>
-              <p className="text-sm text-muted-foreground">Peak Day</p>
+            <div className="text-center p-3.5 sm:p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <p className="text-xl sm:text-2xl font-bold text-primary">{mostViewedDay.views}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Peak Day</p>
             </div>
           </div>
 
           {/* Daily Breakdown */}
-          <div className="relative">
-            <div className="flex items-center justify-between mb-4">
+          <div className="relative flex-1 min-h-0">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h3 className="font-semibold">Daily Traffic</h3>
               {loading && <div className="text-xs text-muted-foreground animate-pulse">Loading data...</div>}
             </div>
             
-            <ScrollArea className="h-[220px] sm:h-[300px] pr-1 sm:pr-4">
-              <div className="space-y-3">
+            <ScrollArea className="h-[300px] sm:h-[320px] pr-2 sm:pr-4 rounded-xl border border-slate-200 bg-white">
+              <div className="space-y-3 p-3 sm:p-4">
                 {data.map((day) => (
                   <div key={day.date} className="flex items-center gap-2 sm:gap-3 group">
                     <div className="w-16 sm:w-24 text-sm text-muted-foreground">
@@ -1217,7 +1217,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-primary/5 border border-primary/10 p-4 rounded-xl"
+              className="hidden sm:block bg-primary/5 border border-primary/10 p-4 rounded-xl"
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
