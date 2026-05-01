@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Star, Flame, UtensilsCrossed } from 'lucide-react';
 
@@ -141,6 +141,11 @@ export default function MenuLayoutManager({
   layout, items, likedItems, toggleLike, formatPrice, fontStyle, primaryColor, theme = 'default',
 }: MenuLayoutManagerProps) {
   const styles = getCardStyles(theme);
+  const [flippedItems, setFlippedItems] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    setFlippedItems({});
+  }, [items]);
 
   if (items.length === 0) {
     return (
@@ -173,6 +178,8 @@ export default function MenuLayoutManager({
         const liked = likedItems.includes(item.id);
         const isMostLiked = mostLikedItem && item.id === mostLikedItem.id;
         const isFeatured = item.isFeatured || isMostLiked;
+        const hasDescription = Boolean(item.description?.trim());
+        const isFlipped = Boolean(flippedItems[item.id]);
 
         // ANIMATION VARIANTS
         const cardVariants = {
@@ -191,6 +198,46 @@ export default function MenuLayoutManager({
 
         // MINIMAL LAYOUT
         if (layout === 'minimal') {
+          if (!hasDescription) {
+            return (
+              <motion.div
+                key={item.id}
+                layout
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card} ${
+                  isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 bg-[var(--accent-color,orange)]/[0.02]' : ''
+                }`}
+              >
+                <div className="flex-1 min-w-0 sm:pr-4 text-left">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className={`font-display font-black text-lg leading-none ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                      {item.name}
+                    </h3>
+                    {isMostLiked && <span className="px-2 py-0.5 rounded-md bg-yellow-400 text-yellow-950 text-[8px] font-black uppercase tracking-tighter flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-current" /> Most Liked</span>}
+                    {item.isFeatured && !isMostLiked && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-tighter">Chef's Pick</span>}
+                    {isHot && !isFeatured && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
+                  </div>
+                  <div className="mb-1">
+                    <DietaryIcons item={item} theme={theme} />
+                  </div>
+                  <p className={`text-xs font-medium ${styles.subtext}`}>{item.description}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className={`font-display font-black text-xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                  >
+                    <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                  </button>
+                </div>
+              </motion.div>
+            );
+          }
+
           return (
             <motion.div
               key={item.id}
@@ -199,39 +246,116 @@ export default function MenuLayoutManager({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card} ${
-                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 bg-[var(--accent-color,orange)]/[0.02]' : ''
+              onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+              className={`relative w-full cursor-pointer [perspective:1200px] ${
+                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 bg-[var(--accent-color,orange)]/[0.02] rounded-2xl' : ''
               }`}
             >
-              <div className="flex-1 min-w-0 sm:pr-4 text-left">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className={`font-display font-black text-lg leading-none ${styles.text}`} style={{ fontFamily: fontStyle }}>
-                    {item.name}
-                  </h3>
-                  {isMostLiked && <span className="px-2 py-0.5 rounded-md bg-yellow-400 text-yellow-950 text-[8px] font-black uppercase tracking-tighter flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-current" /> Most Liked</span>}
-                  {item.isFeatured && !isMostLiked && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-tighter">Chef's Pick</span>}
-                  {isHot && !isFeatured && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
+              <motion.div
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                className="relative grid [transform-style:preserve-3d]"
+              >
+                <div className={`group col-start-1 row-start-1 flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl transition-all duration-300 gap-4 w-full ${styles.card} [backface-visibility:hidden]`}>
+                  <div className="flex-1 min-w-0 sm:pr-4 text-left">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className={`font-display font-black text-lg leading-none ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                        {item.name}
+                      </h3>
+                      {isMostLiked && <span className="px-2 py-0.5 rounded-md bg-yellow-400 text-yellow-950 text-[8px] font-black uppercase tracking-tighter flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-current" /> Most Liked</span>}
+                      {item.isFeatured && !isMostLiked && <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[8px] font-black uppercase tracking-tighter">Chef's Pick</span>}
+                      {isHot && !isFeatured && <Star className="w-3 h-3 text-orange-400 fill-current shrink-0" />}
+                    </div>
+                    <div className="mb-1">
+                      <DietaryIcons item={item} theme={theme} />
+                    </div>
+                    <p className={`text-xs font-medium line-clamp-2 ${styles.subtext}`}>{item.description}</p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`font-display font-black text-xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                    >
+                      <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
                 </div>
-                <div className="mb-1">
-                  <DietaryIcons item={item} theme={theme} />
+
+                <div className={`col-start-1 row-start-1 flex flex-col p-5 rounded-2xl w-full ${styles.card} [transform:rotateY(180deg)] [backface-visibility:hidden]`}>
+                  <p className={`text-xs font-medium leading-relaxed overflow-y-auto ${styles.subtext}`}>
+                    {item.description}
+                  </p>
                 </div>
-                <p className={`text-xs font-medium ${styles.subtext}`}>{item.description}</p>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <span className={`font-display font-black text-xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
-                >
-                  <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
-                </button>
-              </div>
+              </motion.div>
             </motion.div>
           );
         }
 
         // CLASSIC LAYOUT
         if (layout === 'classic') {
+          if (!hasDescription) {
+            return (
+              <motion.div
+                key={item.id}
+                layout
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className={`group flex flex-row rounded-3xl transition-all duration-500 overflow-hidden h-36 sm:h-44 w-full ${styles.card} ${
+                  isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30' : ''
+                }`}
+              >
+                <div className="w-32 sm:w-44 h-full relative shrink-0">
+                  <ImageWithSkeleton
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {isMostLiked && (
+                    <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-yellow-400 text-yellow-950 text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-current" /> Popular
+                    </div>
+                  )}
+                  {item.isFeatured && !isMostLiked && (
+                     <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
+                      Featured
+                    </div>
+                  )}
+                  {isHot && !isFeatured && (
+                    <div className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${styles.hotBadge}`}>
+                      🔥 Hot
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 p-3 sm:p-5 flex flex-col justify-between text-left min-w-0">
+                  <div>
+                    <div className="flex items-start justify-between gap-3 mb-1.5">
+                      <h3 className={`font-display font-black text-base sm:text-lg leading-snug line-clamp-1 ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                        {item.name}
+                      </h3>
+                    </div>
+                    <div className="mb-1 sm:mb-2">
+                      <DietaryIcons item={item} theme={theme} />
+                    </div>
+                    <p className={`text-[11px] sm:text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
+                  </div>
+                  <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3">
+                    <span className={`font-display font-black text-lg sm:text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                    >
+                      <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${liked ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          }
+
           return (
             <motion.div
               key={item.id}
@@ -240,52 +364,137 @@ export default function MenuLayoutManager({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              className={`group flex flex-row rounded-3xl transition-all duration-500 overflow-hidden h-36 sm:h-44 w-full ${styles.card} ${
-                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30' : ''
+              onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+              className={`relative h-36 sm:h-44 w-full cursor-pointer [perspective:1200px] ${
+                isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 rounded-3xl' : ''
               }`}
             >
-              <div className="w-32 sm:w-44 h-full relative shrink-0">
+              <motion.div
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                className="relative h-full [transform-style:preserve-3d]"
+              >
+                <div className={`group absolute inset-0 flex flex-row rounded-3xl transition-all duration-500 overflow-hidden ${styles.card} [backface-visibility:hidden]`}>
+                  <div className="w-32 sm:w-44 h-full relative shrink-0">
+                    <ImageWithSkeleton
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full group-hover:scale-105 transition-transform duration-700"
+                    />
+                    {isMostLiked && (
+                      <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-yellow-400 text-yellow-950 text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-current" /> Popular
+                      </div>
+                    )}
+                    {item.isFeatured && !isMostLiked && (
+                       <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
+                        Featured
+                      </div>
+                    )}
+                    {isHot && !isFeatured && (
+                      <div className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${styles.hotBadge}`}>
+                        🔥 Hot
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 p-3 sm:p-5 flex flex-col justify-between text-left min-w-0">
+                    <div>
+                      <div className="flex items-start justify-between gap-3 mb-1.5">
+                        <h3 className={`font-display font-black text-base sm:text-lg leading-snug line-clamp-1 ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                          {item.name}
+                        </h3>
+                      </div>
+                      <div className="mb-1 sm:mb-2">
+                        <DietaryIcons item={item} theme={theme} />
+                      </div>
+                      <p className={`text-[11px] sm:text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
+                    </div>
+                    <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3">
+                      <span className={`font-display font-black text-lg sm:text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                      >
+                        <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${liked ? 'fill-current' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={`absolute inset-0 rounded-3xl overflow-hidden p-3 sm:p-5 ${styles.card} [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col`}>
+                  <p className={`text-[11px] sm:text-xs font-medium leading-relaxed overflow-y-auto ${styles.subtext}`}>
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        }
+
+        // GRID LAYOUT
+        if (!hasDescription) {
+          return (
+            <motion.div
+              key={item.id}
+              layout
+              variants={cardVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              className={`group relative flex flex-col rounded-3xl transition-all duration-500 overflow-hidden w-full ${styles.card} ${
+                isFeatured ? (isMostLiked ? 'ring-2 ring-yellow-400 shadow-yellow-400/10' : 'ring-2 ring-primary/30') : ''
+              } ${isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''}`} // We could make it span 2 columns but it might break grid flow too much
+            >
+              <div className="relative h-28 sm:h-44 overflow-hidden">
                 <ImageWithSkeleton
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full group-hover:scale-110 transition-transform duration-700"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                 {isMostLiked && (
-                  <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-yellow-400 text-yellow-950 text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-current" /> Popular
+                  <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5 animate-bounce-subtle">
+                    <Star className="w-3.5 h-3.5 fill-current" /> Most Loved
                   </div>
                 )}
                 {item.isFeatured && !isMostLiked && (
-                   <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-primary text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
-                    Featured
+                  <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5">
+                    <Flame className="w-3.5 h-3.5 fill-current" /> Must Try
                   </div>
                 )}
                 {isHot && !isFeatured && (
-                  <div className={`absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest ${styles.hotBadge}`}>
-                    🔥 Hot
+                  <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${styles.hotBadge}`}>
+                    🔥 Bestseller
                   </div>
                 )}
               </div>
 
-              <div className="flex-1 p-3 sm:p-5 flex flex-col justify-between text-left min-w-0">
-                <div>
-                  <div className="flex items-start justify-between gap-3 mb-1.5">
-                    <h3 className={`font-display font-black text-base sm:text-lg leading-snug line-clamp-1 ${styles.text}`} style={{ fontFamily: fontStyle }}>
-                      {item.name}
-                    </h3>
-                  </div>
-                  <div className="mb-1 sm:mb-2">
-                    <DietaryIcons item={item} theme={theme} />
-                  </div>
-                  <p className={`text-[11px] sm:text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
+              <div className="flex-1 p-3 sm:p-5 flex flex-col text-left">
+                <div className="mb-1.5">
+                  <DietaryIcons item={item} theme={theme} />
                 </div>
-                <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3">
-                  <span className={`font-display font-black text-lg sm:text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                <h3
+                  className={`font-display font-black text-sm sm:text-lg leading-snug mb-1 line-clamp-1 ${styles.text}`}
+                  style={{ fontFamily: fontStyle }}
+                >
+                  {item.name}
+                </h3>
+                {item.description && (
+                  <p className={`text-[11px] sm:text-xs mb-2 sm:mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
+                    {item.description}
+                  </p>
+                )}
+
+                <div className="mt-auto flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-100/10">
+                  <span className={`font-display font-black text-base sm:text-xl tracking-tighter ${styles.price}`}>
+                    {formatPrice(item.price)}
+                  </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
                   >
-                    <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${liked ? 'fill-current' : ''}`} />
+                    <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -293,7 +502,6 @@ export default function MenuLayoutManager({
           );
         }
 
-        // GRID LAYOUT
         return (
           <motion.div
             key={item.id}
@@ -302,62 +510,81 @@ export default function MenuLayoutManager({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
-            className={`group relative flex flex-col rounded-3xl transition-all duration-500 overflow-hidden w-full ${styles.card} ${
-              isFeatured ? (isMostLiked ? 'ring-2 ring-yellow-400 shadow-yellow-400/10' : 'ring-2 ring-primary/30') : ''
-            } ${isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''}`} // We could make it span 2 columns but it might break grid flow too much
+            onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+            className={`relative w-full cursor-pointer min-h-[18rem] sm:min-h-[24rem] [perspective:1200px] ${
+              isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''
+            }`}
           >
-            <div className="relative h-28 sm:h-44 overflow-hidden">
-              <ImageWithSkeleton
-                src={item.image}
-                alt={item.name}
-                className="w-full h-full group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              {isMostLiked && (
-                <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5 animate-bounce-subtle">
-                  <Star className="w-3.5 h-3.5 fill-current" /> Most Loved
-                </div>
-              )}
-              {item.isFeatured && !isMostLiked && (
-                <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 fill-current" /> Must Try
-                </div>
-              )}
-              {isHot && !isFeatured && (
-                <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${styles.hotBadge}`}>
-                  🔥 Bestseller
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 p-3 sm:p-5 flex flex-col text-left">
-              <div className="mb-1.5">
-                <DietaryIcons item={item} theme={theme} />
-              </div>
-              <h3
-                className={`font-display font-black text-sm sm:text-lg leading-snug mb-1 line-clamp-1 ${styles.text}`}
-                style={{ fontFamily: fontStyle }}
+            <motion.div
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              className="relative h-full [transform-style:preserve-3d]"
+            >
+              <div
+                className={`group absolute inset-0 flex flex-col rounded-3xl transition-all duration-500 overflow-hidden ${styles.card} [backface-visibility:hidden] ${
+                  isFeatured ? (isMostLiked ? 'ring-2 ring-yellow-400 shadow-yellow-400/10' : 'ring-2 ring-primary/30') : ''
+                }`}
               >
-                {item.name}
-              </h3>
-              {item.description && (
-                <p className={`text-[11px] sm:text-xs mb-2 sm:mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
+                <div className="relative h-28 sm:h-44 overflow-hidden">
+                  <ImageWithSkeleton
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  {isMostLiked && (
+                    <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-yellow-400 text-yellow-950 text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5 animate-bounce-subtle">
+                      <Star className="w-3.5 h-3.5 fill-current" /> Most Loved
+                    </div>
+                  )}
+                  {item.isFeatured && !isMostLiked && (
+                    <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5 fill-current" /> Must Try
+                    </div>
+                  )}
+                  {isHot && !isFeatured && (
+                    <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg ${styles.hotBadge}`}>
+                      🔥 Bestseller
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 p-3 sm:p-5 flex flex-col text-left">
+                  <div className="mb-1.5">
+                    <DietaryIcons item={item} theme={theme} />
+                  </div>
+                  <h3
+                    className={`font-display font-black text-sm sm:text-lg leading-snug mb-1 line-clamp-1 ${styles.text}`}
+                    style={{ fontFamily: fontStyle }}
+                  >
+                    {item.name}
+                  </h3>
+                  <p className={`text-[11px] sm:text-xs mb-2 sm:mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
+                    {item.description}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-100/10">
+                    <span className={`font-display font-black text-base sm:text-xl tracking-tighter ${styles.price}`}>
+                      {formatPrice(item.price)}
+                    </span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                    >
+                      <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`absolute inset-0 flex flex-col rounded-3xl overflow-hidden p-3 sm:p-5 ${styles.card} [transform:rotateY(180deg)] [backface-visibility:hidden]`}
+              >
+                <p className={`text-[11px] sm:text-xs leading-relaxed overflow-y-auto pr-1 ${styles.subtext}`}>
                   {item.description}
                 </p>
-              )}
-
-              <div className="mt-auto flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-100/10">
-                <span className={`font-display font-black text-base sm:text-xl tracking-tighter ${styles.price}`}>
-                  {formatPrice(item.price)}
-                </span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
-                >
-                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
-                </button>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         );
       })}
