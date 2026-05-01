@@ -141,10 +141,10 @@ export default function MenuLayoutManager({
   layout, items, likedItems, toggleLike, formatPrice, fontStyle, primaryColor, theme = 'default',
 }: MenuLayoutManagerProps) {
   const styles = getCardStyles(theme);
-  const [flippedItems, setFlippedItems] = useState<Record<string, boolean>>({});
+  const [flippedItemId, setFlippedItemId] = useState<string | null>(null);
 
   useEffect(() => {
-    setFlippedItems({});
+    setFlippedItemId(null);
   }, [items]);
 
   if (items.length === 0) {
@@ -179,7 +179,7 @@ export default function MenuLayoutManager({
         const isMostLiked = mostLikedItem && item.id === mostLikedItem.id;
         const isFeatured = item.isFeatured || isMostLiked;
         const hasDescription = Boolean(item.description?.trim());
-        const isFlipped = Boolean(flippedItems[item.id]);
+        const isFlipped = flippedItemId === item.id;
 
         // ANIMATION VARIANTS
         const cardVariants = {
@@ -246,7 +246,7 @@ export default function MenuLayoutManager({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+              onClick={() => setFlippedItemId((prev) => (prev === item.id ? null : item.id))}
               className={`relative w-full cursor-pointer [perspective:1200px] ${
                 isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 bg-[var(--accent-color,orange)]/[0.02] rounded-2xl' : ''
               }`}
@@ -364,7 +364,7 @@ export default function MenuLayoutManager({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+              onClick={() => setFlippedItemId((prev) => (prev === item.id ? null : item.id))}
               className={`relative h-36 sm:h-44 w-full cursor-pointer [perspective:1200px] ${
                 isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30 rounded-3xl' : ''
               }`}
@@ -510,7 +510,7 @@ export default function MenuLayoutManager({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
-            onClick={() => setFlippedItems(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+            onClick={() => setFlippedItemId((prev) => (prev === item.id ? null : item.id))}
             className={`relative w-full cursor-pointer min-h-[18rem] sm:min-h-[24rem] [perspective:1200px] ${
               isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''
             }`}
