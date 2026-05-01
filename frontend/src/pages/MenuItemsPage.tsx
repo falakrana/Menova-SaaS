@@ -364,7 +364,7 @@ export default function MenuItems() {
 
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-lg p-4 [&>button]:hidden">
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-4 [&>button]:hidden">
             <DialogHeader className="flex-row items-center justify-between space-y-0">
               <DialogTitle>{editingItem ? 'Edit Item' : 'Add Item'}</DialogTitle>
               <div className="flex items-center gap-2">
@@ -472,7 +472,7 @@ export default function MenuItems() {
                     </div>
                   ) : uploadMode === 'camera' ? (
                     <div className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-300">
-                      <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
+                      <div className="relative w-full max-w-[240px] sm:max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
                         <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
                         <canvas ref={canvasRef} className="hidden" />
                         {uploading && (

@@ -481,7 +481,7 @@ export default function Dashboard() {
 
         {/* Add Menu Item Dialog */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-lg p-4 [&>button]:hidden">
+          <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-lg max-h-[90dvh] overflow-y-auto p-4 [&>button]:hidden">
             <DialogHeader className="flex-row items-center justify-between space-y-0">
               <DialogTitle>Add Item</DialogTitle>
               <div className="flex items-center gap-2">
@@ -583,7 +583,7 @@ export default function Dashboard() {
                     </div>
                   ) : uploadMode === 'camera' ? (
                     <div className="w-full space-y-3 animate-in fade-in zoom-in-95 duration-300">
-                      <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
+                      <div className="relative w-full max-w-[240px] sm:max-w-[280px] mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-900 shadow-2xl">
                         <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
                         <canvas ref={canvasRef} className="hidden" />
                         {uploading && (
@@ -1075,7 +1075,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-[700px] max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <DialogTitle className="font-display text-xl flex items-center gap-2">
@@ -1171,11 +1171,11 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
               {loading && <div className="text-xs text-muted-foreground animate-pulse">Loading data...</div>}
             </div>
             
-            <ScrollArea className="h-[300px] pr-4">
+            <ScrollArea className="h-[220px] sm:h-[300px] pr-1 sm:pr-4">
               <div className="space-y-3">
                 {data.map((day) => (
-                  <div key={day.date} className="flex items-center gap-3 group">
-                    <div className="w-24 text-sm text-muted-foreground">
+                  <div key={day.date} className="flex items-center gap-2 sm:gap-3 group">
+                    <div className="w-16 sm:w-24 text-sm text-muted-foreground">
                       <div className="font-medium text-foreground">{format(new Date(day.date), "EEE")}</div>
                       <div className="text-[10px] uppercase tracking-tighter">{format(new Date(day.date), "MMM dd")}</div>
                     </div>
