@@ -204,7 +204,7 @@ export default function MenuItems() {
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.description.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCat === 'all' || item.categoryId === filterCat;
     return matchSearch && matchCat;
-  });
+  }).sort((a, b) => Number(a.available) - Number(b.available));
 
   return (
     <DashboardLayout>
