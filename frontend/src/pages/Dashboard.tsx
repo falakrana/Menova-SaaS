@@ -1199,7 +1199,7 @@ function MenuViewsModal({ open, onOpenChange, totalViews }: { open: boolean, onO
                           </span>
                         </div>
                         {day.views === mostViewedDay.views && day.views > 0 && (
-                          <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                          <div className="hidden sm:block w-2 h-2 rounded-full bg-primary animate-ping" />
                         )}
                       </div>
                     </div>
