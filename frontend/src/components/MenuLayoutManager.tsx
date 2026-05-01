@@ -164,7 +164,7 @@ export default function MenuLayoutManager({
       layout
       className={
         layout === 'grid'
-          ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8'
+          ? 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8'
           : 'flex flex-col gap-4 lg:gap-5 max-w-4xl mx-auto w-full'
       }
     >
@@ -240,11 +240,11 @@ export default function MenuLayoutManager({
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              className={`group flex flex-col sm:flex-row rounded-3xl transition-all duration-500 overflow-hidden h-fit sm:h-44 w-full ${styles.card} ${
+              className={`group flex flex-row rounded-3xl transition-all duration-500 overflow-hidden h-36 sm:h-44 w-full ${styles.card} ${
                 isFeatured ? 'ring-2 ring-[var(--accent-color,orange)]/30' : ''
               }`}
             >
-              <div className="w-full sm:w-44 h-44 sm:h-full relative shrink-0">
+              <div className="w-32 sm:w-44 h-full relative shrink-0">
                 <ImageWithSkeleton
                   src={item.image}
                   alt={item.name}
@@ -267,25 +267,25 @@ export default function MenuLayoutManager({
                 )}
               </div>
 
-              <div className="flex-1 p-5 flex flex-col justify-between text-left">
+              <div className="flex-1 p-3 sm:p-5 flex flex-col justify-between text-left min-w-0">
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-1.5">
-                    <h3 className={`font-display font-black text-lg leading-snug ${styles.text}`} style={{ fontFamily: fontStyle }}>
+                    <h3 className={`font-display font-black text-base sm:text-lg leading-snug line-clamp-1 ${styles.text}`} style={{ fontFamily: fontStyle }}>
                       {item.name}
                     </h3>
                   </div>
-                  <div className="mb-2">
+                  <div className="mb-1 sm:mb-2">
                     <DietaryIcons item={item} theme={theme} />
                   </div>
-                  <p className={`text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
+                  <p className={`text-[11px] sm:text-xs font-medium line-clamp-2 leading-relaxed ${styles.subtext}`}>{item.description}</p>
                 </div>
-                <div className="flex items-center justify-between mt-auto pt-3">
-                  <span className={`font-display font-black text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
+                <div className="flex items-center justify-between mt-auto pt-2 sm:pt-3">
+                  <span className={`font-display font-black text-lg sm:text-2xl tracking-tight ${styles.price}`}>{formatPrice(item.price)}</span>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
                   >
-                    <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
+                    <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${liked ? 'fill-current' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -306,11 +306,11 @@ export default function MenuLayoutManager({
               isFeatured ? (isMostLiked ? 'ring-2 ring-yellow-400 shadow-yellow-400/10' : 'ring-2 ring-primary/30') : ''
             } ${isFeatured && layout === 'grid' ? 'sm:col-span-1 lg:col-span-1' : ''}`} // We could make it span 2 columns but it might break grid flow too much
           >
-            <div className="relative h-44 overflow-hidden">
+            <div className="relative h-28 sm:h-44 overflow-hidden">
               <ImageWithSkeleton
                 src={item.image}
                 alt={item.name}
-                className="w-full h-44 group-hover:scale-110 transition-transform duration-700"
+                className="w-full h-full group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               {isMostLiked && (
@@ -330,31 +330,31 @@ export default function MenuLayoutManager({
               )}
             </div>
 
-            <div className="flex-1 p-5 flex flex-col text-left">
+            <div className="flex-1 p-3 sm:p-5 flex flex-col text-left">
               <div className="mb-1.5">
                 <DietaryIcons item={item} theme={theme} />
               </div>
               <h3
-                className={`font-display font-black text-lg leading-snug mb-1 ${styles.text}`}
+                className={`font-display font-black text-sm sm:text-lg leading-snug mb-1 line-clamp-1 ${styles.text}`}
                 style={{ fontFamily: fontStyle }}
               >
                 {item.name}
               </h3>
               {item.description && (
-                <p className={`text-xs mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
+                <p className={`text-[11px] sm:text-xs mb-2 sm:mb-4 line-clamp-2 leading-relaxed ${styles.subtext}`}>
                   {item.description}
                 </p>
               )}
 
-              <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100/10">
-                <span className={`font-display font-black text-xl tracking-tighter ${styles.price}`}>
+              <div className="mt-auto flex items-center justify-between pt-2 sm:pt-4 border-t border-slate-100/10">
+                <span className={`font-display font-black text-base sm:text-xl tracking-tighter ${styles.price}`}>
                   {formatPrice(item.price)}
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleLike(item.id); }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-300 border ${liked ? styles.likeBtnActive : styles.likeBtn}`}
                 >
-                  <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${liked ? 'fill-current' : ''}`} />
                 </button>
               </div>
             </div>
