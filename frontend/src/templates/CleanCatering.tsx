@@ -188,16 +188,7 @@ export default function CleanCatering({
                   <span>View Our Location</span>
                 </button>
               )}
-              <div className="flex -space-x-3">
-                 {[1,2,3].map(i => (
-                   <div key={i} className="w-10 h-10 rounded-full border-4 border-slate-50 bg-slate-200 overflow-hidden">
-                      <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="" />
-                   </div>
-                 ))}
-                 <div className="h-10 px-4 rounded-full border-4 border-slate-50 bg-white flex items-center justify-center text-[10px] font-black text-slate-500 shadow-sm">
-                    500+ CLIENTS
-                 </div>
-              </div>
+
             </div>
           </motion.div>
 
