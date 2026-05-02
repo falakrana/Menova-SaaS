@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useStore } from '@/store/useStore';
+import { useLikesStore } from '@/store/useLikesStore';
 import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
 import DefaultTemplate from '@/templates/DefaultTemplate';
@@ -46,28 +47,7 @@ export default function PublicMenu({ previewData, embedded = false, hideCart = f
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
-  const [likedItems, setLikedItems] = useState<string[]>(() => {
-    const saved = localStorage.getItem('menova_liked_items');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const toggleLike = async (itemId: string) => {
-    const isLiked = likedItems.includes(itemId);
-    const newLiked = isLiked 
-      ? likedItems.filter(id => id !== itemId)
-      : [...likedItems, itemId];
-    
-    setLikedItems(newLiked);
-    localStorage.setItem('menova_liked_items', JSON.stringify(newLiked));
-    
-    try {
-      await api.likeMenuItem(itemId, !isLiked);
-    } catch (err) {
-      console.error('Failed to toggle like:', err);
-      setLikedItems(likedItems);
-      localStorage.setItem('menova_liked_items', JSON.stringify(likedItems));
-    }
-  };
+  const { likedItems, toggleLike } = useLikesStore();
 
   const checkScroll = () => {
     if (scrollRef.current) {
