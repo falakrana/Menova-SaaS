@@ -340,23 +340,11 @@ export default function CleanCatering({
                 <div className="w-2 h-2 rounded-full bg-[var(--accent-color)] animate-pulse" />
                 <span className="text-xs font-black text-slate-900 tracking-widest uppercase">{restaurant.name}</span>
              </div>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12 text-left">
-                <div>
-                   <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Experience</h5>
-                   <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                      We offer a refined catering experience for every occasion, ensuring the highest standards of culinary excellence.
-                   </p>
-                </div>
-                <div>
-                   <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Contact</h5>
-                   <p className="text-sm text-slate-600 font-medium leading-relaxed">{restaurant.location || 'Visit us to learn more'}</p>
-                </div>
-                <div>
-                   <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Partnership</h5>
-                   <p className="text-sm text-slate-900 font-bold underline underline-offset-4 cursor-pointer hover:text-[var(--accent-color)] transition-colors">
-                      Host with Menova
-                   </p>
-                </div>
+             <div className="max-w-md mx-auto mb-12 text-center">
+                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Experience</h5>
+                <p className="text-sm text-slate-600 font-medium leading-relaxed">
+                   We offer a refined catering experience for every occasion, ensuring the highest standards of culinary excellence.
+                </p>
              </div>
              <div className="pt-12 border-t border-slate-200/60">
                 <p className="text-[10px] text-slate-300 font-bold tracking-[0.4em] uppercase">
